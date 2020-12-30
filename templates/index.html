@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Buscando Medicos</title>
+</head>
+<body>
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    {% for message in messages %}
+        <p>{{ message }}</p>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+    <form action="/add_contact" method="post">
+        <input type="text" name="fullname" placeholder="Full name">
+        <input type="text" name="phone" placeholder="Phone">
+        <input type="text" name="email" placeholder="Email">
+        <button>Save</button>
+    </form>
+
+    <table>
+        <thead>
+            <tr>
+                <td>Fullname</td>
+                <td>Phone</td>
+                <td>Email</td>
+                <td>Operations</td>
+            </tr>
+        </thead>
+        <tbody>
+            {% for contact in contacts %}
+            <tr>
+                <td>{{ contact.1 }}</td>
+                <td>{{ contact.2 }}</td>
+                <td>{{ contact.3 }}</td>
+                <td>
+                    <a href="/edit/{{contact.0}}">Edit</a>
+                    <a href="/delete/{{contact.0}}">Delete</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
