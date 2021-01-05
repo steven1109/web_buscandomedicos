@@ -1,0 +1,39 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+
+<div class="card w-75 mb-5 p-2" style="width: 18rem;">
+    <div class="row g-0">
+        <div class="col-md-4">
+            <img src="{{url_for('static', filename='img/img1.jpg')}}" class="card-img-top" alt="...">
+        </div>
+        <div class="col-md-8">
+            <div class="card-body">
+                <h5 class="card-title">Card title</h5>
+                <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
+                <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
+                <a href="#" class="card-link">Card link</a>
+                <a href="#" class="card-link">Another link</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card w-75 border-primary shadow-lg p-2 mb-5 bg-white rounded" style="width: 18rem;">
+    <div class="row g-0">
+        <div class="col-md-4">
+            <img src="{{url_for('static', filename='img/img1.jpg')}}" class="card-img-top" alt="...">
+        </div>
+        <div class="col-md-8">
+            <div class="card-body">
+                <h5 class="card-title">Card title</h5>
+                <p class="card-text">Lorem ipsum, dolor sit amet consectetur adipisicing elit. Quaerat repellat natus dicta, sint optio molestias voluptates quidem voluptatibus at odio expedita repellendus itaque perspiciatis autem nesciunt harum! Nemo, ducimus. At excepturi quas perferendis veritatis fuga iure quos! Voluptas inventore quae sed recusandae velit cupiditate. Tempore dolores commodi minus qui dolorum.</p>
+                <a href="#" class="card-link">Card link</a>
+                <a href="#" class="card-link align-items-end">Another link</a>
+                
+            </div>
+        </div>
+    </div>
+</div>
+
+  {%endblock%}

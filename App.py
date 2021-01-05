@@ -69,5 +69,15 @@ def delete_contact(id):
     return redirect(url_for('Index'))
 
 
+@app.route('/result')
+def getInformationSearch():
+    return render_template('result-search.html')
+
+
+@app.route('/principal')
+def getSearchSpecialization():
+    return render_template('principal.html')
+
+
 if __name__ == '__main__':
     app.run(port=3000, debug=True)
