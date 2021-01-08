@@ -5,16 +5,16 @@
 <div class="container p-4">
     <div class="row justify-content-center">
         <div class="col-12 col-md-10 col-lg-8">
-            <form class="card card-sm">
-                <div class="card-body row no-gutters align-items-center">
+            <form action="/search_specialization" method="post" class="card card-lg">
+                <div class="card-body row no-gutters align-items-center mt-5">
                     <div class="col-auto">
                         <i class="fas fa-search h3 text-body m-2"></i>
                         <!-- <i class="fab fa-sistrix h3 text-body"></i> -->
                     </div>
                     <!--end of col-->
                     <div class="col">
-                        <input class="form-control form-control-lg form-control-borderless" type="search"
-                            placeholder="Search Specialization">
+                        <input name="ipEspecializacion" class="form-control form-control-lg form-control-borderless" type="search"
+                            placeholder="Buscar Especialización">
                     </div>
                     <!--end of col-->
                     <div class="col-auto">
@@ -22,51 +22,41 @@
                     </div>
                     <!--end of col-->
                 </div>
-            </form>
-        </div>
-        <!--end of col-->
-    </div>
-</div>
 
-
-<div class="container p-4">
-    <div class="row justify-content-center">
-        <div class="col-12 col-md-10 col-lg-8">
-            <form class="card card-lg">
-                <div class="card-body row no-gutters align-items-center">
+                <div class="card-body row no-gutters align-items-center mt-2">
                     <!--end of col-->
                     <div class="col-md">
                         <div class="form-floating">
-                            <select name="dpdepartment" class="form-select dpdepartment" id="dpDepart">
-                                <option selected>Departamento</option>
-                                <option value="1">Lima</option>
-                                <option value="2">Ica</option>
-                                <option value="3">Chiclayo</option>
+                            <select name="slDepartment" class="form-select" id="dpDepart">
+                                <option value="0" selected>Departamento</option>
+                                {% for department in departments %}
+                                <option value="{{department.0}}">{{department.1}}</option>
+                                {% endfor %}
                             </select>
                             <label for="sldepartment">Elija su Departamento</label>
                         </div>
                     </div>
                     <div class="col-md">
-                        <select name="province" id="province" class="form-select form-select-lg"
-                            aria-label="Default select example">
-                            <option selected>Provincia</option>
-                            <option value="1">Lima</option>
-                            <option value="2">Ica</option>
-                            <option value="3">Chiclayo</option>
-                        </select>
+                        <div class="form-floating">
+                            <select name="slProvince" class="form-select" id="dpProvince">
+                                <option value="0" selected>Provincia</option>
+                            </select>
+                            <label for="slprovince">Elija su Provincia</label>
+                        </div>
                     </div>
                     <div class="col-md">
-                        <select name="district" id="district" class="form-select form-select-lg"
-                            aria-label="Default select example">
-                            <option selected>Distrito</option>
-                            <option value="1">Lima</option>
-                            <option value="2">Ica</option>
-                            <option value="3">Chiclayo</option>
-                        </select>
+                        <div class="form-floating">
+                            <select name="slDistrict" class="form-select" id="dpDistrict">
+                                <option value="0" selected>Distrito</option>
+                            </select>
+                            <label for="sldistrict">Elija su Distrito</label>
+                        </div>
                     </div>
                 </div>
+
             </form>
         </div>
+        <!--end of col-->
     </div>
 </div>
 
@@ -74,39 +64,6 @@
 <!-- <div class="rate text-right"><span><i class="fa fa-star"></i><i class="fa fa-star"></i><i
     class="fa fa-star-o"></i><i class="fa fa-star-o"></i><i class="fa fa-star-o"></i></span></div> -->
 <!-- End -->
-
-<!-- <div class="container">
-    <div class="row justify-content-center">
-        <div class="col-12 col-md-10 col-lg-8">
-            <form class="card card-sm">
-                <div class="card-body row no-gutters align-items-center">
-
-                    <div class="input-group md-form form-sm form-2 pl-0">
-                        <input class="form-control my-0 py-1 red-border" type="text" placeholder="Search"
-                            aria-label="Search">
-                        <div class="input-group-append">
-                            <span class="input-group-text red lighten-3" id="basic-text1"><i
-                                    class="fas fa-search h3 text-grey" aria-hidden="true"></i></span>
-                        </div>
-                    </div>
-
-                    <div class="input-group mb-3">
-                        <input type="text" class="form-control form-control-lg" placeholder="Search Specialization"
-                            aria-label="Search Specialization" aria-describedby="button-addon2">
-                        <a href="#" class="btn btn-lg btn-outline-primary">Search</a>
-                    </div>
-
-                    <div class="input-group mb-3">
-                        <input type="text" class="form-control" placeholder="Recipient's username"
-                            aria-label="Recipient's username" aria-describedby="button-addon2">
-                        <button class="btn btn-outline-secondary" type="button" id="button-addon2">Button</button>
-                    </div>
-
-                </div>
-            </form>
-        </div>
-    </div>
-</div> -->
 
 
 {% endblock %}

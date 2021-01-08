@@ -30,6 +30,17 @@ def redirect_department():
     return render_template('add-department.html', departments=data)
 
 
+@app.route('/province')
+def redirect_province():
+    cur = mysql.connection.cursor()
+    cur.execute('SELECT * FROM province')
+    data = cur.fetchall()
+
+    cur.execute('SELECT * FROM department')
+    dataDepartment = cur.fetchall()
+    return render_template('add-province.html', provinces=data, departments=dataDepartment)
+
+
 @app.route('/result')
 def redirect_informationSearch():
     return render_template('result-search.html')
@@ -37,7 +48,10 @@ def redirect_informationSearch():
 
 @app.route('/principal')
 def redirect_searchSpecialization():
-    return render_template('principal.html')
+    cur = mysql.connection.cursor()
+    cur.execute('SELECT * FROM department')
+    data = cur.fetchall()
+    return render_template('principal.html', departments=data)
 
 
 # Section of to insert in database
@@ -68,6 +82,23 @@ def add_department():
         mysql.connection.commit()
         flash('Departamento Added Successfully')
         return redirect(url_for('redirect_department'))
+
+
+@app.route('/add_province', methods=['POST'])
+def add_province():
+    if request.method == 'POST':
+        if request.form.get('chbxActivo'):
+            value = 1
+        else:
+            value = 0
+        name_province = request.form['province']
+        slDepartment = request.form.get('slDepartment')
+        cur = mysql.connection.cursor()
+        cur.execute('INSERT INTO province (Name_province, Active, Id_deoartment) VALUES(%s, %s, %s)', 
+        (name_province, value, slDepartment))
+        mysql.connection.commit()
+        flash('Province Added Successfully')
+        return redirect(url_for('redirect_province'))
 
 
 # Section of to update in database
@@ -127,6 +158,37 @@ def update_department(id):
         return redirect(url_for('redirect_department'))
 
 
+@app.route('/edit_province/<string:id>')
+def get_province(id):
+    cur = mysql.connection.cursor()
+    cur.execute('SELECT * FROM province WHERE id = {0}'.format(id))
+    data = cur.fetchall()
+    # cur.execute('SELECT * FROM department WHERE id = {0}'.format(data[0][3]))
+    cur.execute('SELECT * FROM department')
+    dataDepartment = cur.fetchall()
+    return render_template('edit-province.html', province=data[0], departments=dataDepartment)
+
+
+@app.route('/update_province/<id>', methods=['POST'])
+def update_province(id):
+    if request.method == 'POST':
+        name_province = request.form['province']
+        slDepartment = request.form.get('slDepartment')
+        if request.form.get('chbxActivo'):
+            value = 1
+        else:
+            value = 0
+        cur = mysql.connection.cursor()
+        cur.execute("""
+            UPDATE province
+            SET Name_province = %s,
+                Active = %s,
+                Id_deoartment = %s
+            WHERE id = %s
+        """, (name_province, value, slDepartment, id))
+        mysql.connection.commit()
+        flash('Province Updated Successfully')
+        return redirect(url_for('redirect_province'))
 # Section of to delete in database
 
 @app.route('/delete/<string:id>')
@@ -147,6 +209,15 @@ def delete_department(id):
     return redirect(url_for('redirect_department'))
 
 
+@app.route('/delete_province/<string:id>')
+def delete_province(id):
+    cur = mysql.connection.cursor()
+    cur.execute('DELETE FROM province WHERE id = {0}'.format(id))
+    mysql.connection.commit()
+    flash('Province Removed Successfully')
+    return redirect(url_for('redirect_province'))
+
+
 # Section of to select in database
 @app.route('/selectProvince/<id>')
 def getProvinceByIdDepartment(id):
@@ -160,9 +231,30 @@ def getProvinceByIdDepartment(id):
         provinceObj['name_province'] = province[1]
         provinceArray.append(provinceObj)
 
-    print(jsonify({'provinces': provinceArray}))
-    return render_template('principal.html', provinces=provinces)
+    return jsonify({'provinces': provinceArray})
 
+
+@app.route('/selectDistrict/<id>')
+def getDistrictByProvince(id):
+    cur = mysql.connection.cursor()
+    cur.execute('SELECT * FROM district WHERE Id_province = %s', (id))
+    districts = cur.fetchall()
+    districtArray = []
+    for district in districts:
+        districtObj = {}
+        districtObj['id'] = district[0]
+        districtObj['name_district'] = district[1]
+        districtArray.append(districtObj)
+
+    return jsonify({'districts': districtArray})
+
+
+@app.route('/search_specialization', methods=['POST'])
+def getSearchSpecialization():
+    slDepartment = request.form.get('slDepartment')
+    slProvince = request.form.get('slProvince')
+    slDistrict = request.form.get('slDistrict')
+    return (slDepartment+", "+slProvince+", "+slDistrict)
 
 if __name__ == '__main__':
     app.run(port=3000, debug=True)
