@@ -28,12 +28,54 @@
     </div>
 </div>
 
+
+<div class="container p-4">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-10 col-lg-8">
+            <form class="card card-lg">
+                <div class="card-body row no-gutters align-items-center">
+                    <!--end of col-->
+                    <div class="col-md">
+                        <div class="form-floating">
+                            <select name="dpdepartment" class="form-select dpdepartment" id="dpDepart">
+                                <option selected>Departamento</option>
+                                <option value="1">Lima</option>
+                                <option value="2">Ica</option>
+                                <option value="3">Chiclayo</option>
+                            </select>
+                            <label for="sldepartment">Elija su Departamento</label>
+                        </div>
+                    </div>
+                    <div class="col-md">
+                        <select name="province" id="province" class="form-select form-select-lg"
+                            aria-label="Default select example">
+                            <option selected>Provincia</option>
+                            <option value="1">Lima</option>
+                            <option value="2">Ica</option>
+                            <option value="3">Chiclayo</option>
+                        </select>
+                    </div>
+                    <div class="col-md">
+                        <select name="district" id="district" class="form-select form-select-lg"
+                            aria-label="Default select example">
+                            <option selected>Distrito</option>
+                            <option value="1">Lima</option>
+                            <option value="2">Ica</option>
+                            <option value="3">Chiclayo</option>
+                        </select>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <!-- Estrellas de puntuación -->
 <!-- <div class="rate text-right"><span><i class="fa fa-star"></i><i class="fa fa-star"></i><i
     class="fa fa-star-o"></i><i class="fa fa-star-o"></i><i class="fa fa-star-o"></i></span></div> -->
 <!-- End -->
 
-<div class="container">
+<!-- <div class="container">
     <div class="row justify-content-center">
         <div class="col-12 col-md-10 col-lg-8">
             <form class="card card-sm">
@@ -64,7 +106,7 @@
             </form>
         </div>
     </div>
-</div>
+</div> -->
 
 
 {% endblock %}
