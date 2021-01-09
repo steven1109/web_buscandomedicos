@@ -41,6 +41,36 @@ def redirect_province():
     return render_template('add-province.html', provinces=data, departments=dataDepartment)
 
 
+@app.route('/district')
+def redirect_district():
+    cur = mysql.connection.cursor()
+    cur.execute("""
+    SELECT pr.Id, pr.Name_province, pr.Id_deoartment,
+        dp.Name_department, CONCAT(dp.Name_department, ' -- ', pr.Name_province) AS fullProvince
+    FROM province as pr
+    INNER JOIN department AS dp ON pr.Id_deoartment = dp.Id
+    ORDER BY dp.Id
+    """)
+    dataProvince = cur.fetchall()
+    # selectArray = []
+    # for dp in dataProvince:
+    #     dpObj = {}
+    #     dpObj['id_province'] = dp[0]
+    #     dpObj['id_department'] = dp[2]
+    #     dpObj['name_department'] = dp[3]
+    #     dpObj['name_province'] = dp[1]
+    #     selectArray.append(dpObj)
+    # print(selectArray)
+    cur.execute("""
+    SELECT ds.Id, ds.Name_district, ds.Active, ds.Id_province, pr.Name_province
+    FROM district AS ds
+    INNER JOIN province AS pr ON ds.Id_province = pr.Id
+    ORDER BY pr.Id
+    """)
+    dataDistrict = cur.fetchall()
+    return render_template('add-district.html', provinces=dataProvince, districts=dataDistrict)
+
+
 @app.route('/result')
 def redirect_informationSearch():
     return render_template('result-search.html')
@@ -99,6 +129,23 @@ def add_province():
         mysql.connection.commit()
         flash('Province Added Successfully')
         return redirect(url_for('redirect_province'))
+
+    
+@app.route('/add_district', methods=['POST'])
+def add_district():
+    if request.method == 'POST':
+        if request.form.get('chbxActivo'):
+            value = 1
+        else:
+            value = 0
+        name_district = request.form['district']
+        slProvince = request.form.get('slProvince')
+        cur = mysql.connection.cursor()
+        cur.execute('INSERT INTO district (Name_district, Active, Id_province) VALUES(%s, %s, %s)', 
+        (name_district, value, slProvince))
+        mysql.connection.commit()
+        flash('District Added Successfully')
+        return redirect(url_for('redirect_district'))
 
 
 # Section of to update in database
@@ -189,6 +236,45 @@ def update_province(id):
         mysql.connection.commit()
         flash('Province Updated Successfully')
         return redirect(url_for('redirect_province'))
+
+
+@app.route('/edit_district/<id>')
+def get_district(id):
+    cur = mysql.connection.cursor()
+    cur.execute('SELECT * FROM district WHERE id = {0}'.format(id))
+    dataDistrict = cur.fetchall()
+    cur.execute("""
+    SELECT pr.Id, pr.Name_province, pr.Id_deoartment,
+        dp.Name_department, CONCAT(dp.Name_department, ' -- ', pr.Name_province) AS fullProvince
+    FROM province as pr
+    INNER JOIN department AS dp ON pr.Id_deoartment = dp.Id
+    ORDER BY dp.Id
+    """)
+    dataProvince = cur.fetchall()
+    return render_template('edit-district.html', district=dataDistrict[0], provinces=dataProvince)
+
+
+@app.route('/update_district/<id>', methods=['POST'])
+def update_district(id):
+    if request.method == 'POST':
+        name_district = request.form['district']
+        slProvince = request.form.get('slProvince')
+        if request.form.get('chbxActivo'):
+            value = 1
+        else:
+            value = 0
+        cur = mysql.connection.cursor()
+        cur.execute("""
+            UPDATE district
+            SET Name_district = %s,
+                Active = %s,
+                Id_province = %s
+            WHERE id = %s
+        """, (name_district, value, slProvince, id))
+        mysql.connection.commit()
+        flash('District Updated Successfully')
+        return redirect(url_for('redirect_district'))
+
 # Section of to delete in database
 
 @app.route('/delete/<string:id>')
@@ -216,6 +302,15 @@ def delete_province(id):
     mysql.connection.commit()
     flash('Province Removed Successfully')
     return redirect(url_for('redirect_province'))
+
+
+@app.route('/delete_district/<string:id>')
+def delete_district(id):
+    cur = mysql.connection.cursor()
+    cur.execute('DELETE FROM district WHERE id = {0}'.format(id))
+    mysql.connection.commit()
+    flash('District Removed Successfully')
+    return redirect(url_for('redirect_district'))
 
 
 # Section of to select in database
