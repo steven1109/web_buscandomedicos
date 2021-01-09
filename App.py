@@ -14,10 +14,7 @@ app.secret_key = 'mysecretkey'
 
 @app.route('/')
 def Index():
-    cur = mysql.connection.cursor()
-    cur.execute('SELECT * FROM contacts')
-    data = cur.fetchall()
-    return render_template('index.html', contacts=data)
+    return redirect(url_for('redirect_searchSpecialization'))
 
 
 # Page redirection section
@@ -76,6 +73,11 @@ def redirect_informationSearch():
     return render_template('result-search.html')
 
 
+@app.route('/doctor')
+def redirect_doctor():
+    return render_template('add-doctor.html')
+
+
 @app.route('/principal')
 def redirect_searchSpecialization():
     cur = mysql.connection.cursor()
@@ -84,19 +86,29 @@ def redirect_searchSpecialization():
     return render_template('principal.html', departments=data)
 
 
+@app.route('/specialization')
+def redirect_specialization():
+    cur = mysql.connection.cursor()
+    cur.execute('SELECT * FROM specializations')
+    data = cur.fetchall()
+    return render_template('add-specialization.html', specializations=data)
+
+
 # Section of to insert in database
 
-@app.route('/add_contact', methods=['POST'])
-def add_contact():
+@app.route('/add_specialization', methods=['POST'])
+def add_specialization():
     if request.method == 'POST':
-        fullname = request.form['fullname']
-        phone = request.form['phone']
-        email = request.form['email']
+        name_specialization = request.form['specialization']
+        if request.form.get('chbxActivo'):
+            value = 1
+        else:
+            value = 0
         cur = mysql.connection.cursor()
-        cur.execute('INSERT INTO contacts (fullname, phone, email) VALUES(%s, %s, %s)', (fullname, phone, email))
+        cur.execute('INSERT INTO specializations (Name_Specialization, Active) VALUES(%s, %s)', (name_specialization, value))
         mysql.connection.commit()
-        flash('Contact Added Successfully')
-        return redirect(url_for('Index'))
+        flash('Specialization Added Successfully')
+        return redirect(url_for('redirect_specialization'))
 
 
 @app.route('/add_department', methods=['POST'])
@@ -150,31 +162,32 @@ def add_district():
 
 # Section of to update in database
 
-@app.route('/edit/<id>')
-def get_contact(id):
+@app.route('/edit_specialization/<id>')
+def get_specialization(id):
     cur = mysql.connection.cursor()
-    cur.execute('SELECT * FROM contacts WHERE id = %s', (id))
+    cur.execute('SELECT * FROM specializations WHERE id = %s', (id))
     data = cur.fetchall()
-    return render_template('edit-contact.html', contact=data[0])
+    return render_template('edit-specialization.html', specialization=data[0])
 
 
-@app.route('/update/<id>', methods=['POST'])
-def update_contact(id):
+@app.route('/update_specialization/<id>', methods=['POST'])
+def update_specialization(id):
     if request.method == 'POST':
-        fullname = request.form['fullname']
-        phone = request.form['phone']
-        email = request.form['email']
+        name_specialization = request.form['specialization']
+        if request.form.get('chbxActivo'):
+            value = 1
+        else:
+            value = 0
         cur = mysql.connection.cursor()
         cur.execute("""
-            UPDATE contacts
-            SET fullname = %s,
-                phone = %s,
-                email = %s
+            UPDATE specializations
+            SET name_specialization = %s,
+                Active = %s
             WHERE id = %s
-        """, (fullname, phone, email, id))
+        """, (name_specialization, value, id))
         mysql.connection.commit()
-        flash('Contact Updated Successfully')
-        return redirect(url_for('Index'))
+        flash('Specialization Updated Successfully')
+        return redirect(url_for('redirect_specialization'))
 
 
 @app.route('/edit_department/<id>')
@@ -277,13 +290,13 @@ def update_district(id):
 
 # Section of to delete in database
 
-@app.route('/delete/<string:id>')
-def delete_contact(id):
+@app.route('/delete_specialization/<string:id>')
+def delete_specialization(id):
     cur = mysql.connection.cursor()
-    cur.execute('DELETE FROM contacts WHERE id = {0}'.format(id))
+    cur.execute('DELETE FROM specializations WHERE id = {0}'.format(id))
     mysql.connection.commit()
-    flash('Contact Removed Successfully')
-    return redirect(url_for('Index'))
+    flash('Specialization Removed Successfully')
+    return redirect(url_for('redirect_specialization'))
 
 
 @app.route('/delete_department/<string:id>')
