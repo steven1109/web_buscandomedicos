@@ -9,7 +9,7 @@
                     <select name="slProvince" class="form-select" id="dpDepart">
                         <option value="0" selected><strong>Departamento</strong> -- Provincia</option>
                         {% for province in provinces %}
-                        {% if district.3 == province.0 %}
+                        {% if district.5 == province.0 %}
                         <option value="{{province.0}}" selected>{{province.4}}</option>
                         {% else %}
                         <option value="{{province.0}}">{{province.4}}</option>

@@ -1,0 +1,259 @@
+{% extends 'layout.html' %}
+{% block body %}
+
+<div class="container p-1">
+    <div class="row justify-content-center">
+        <form action="" method="post" class="card card-lg">
+            <!-- Datos personales del Doctor -->
+            <label class="form-label fs-3 mt-2">Datos Personales</label>
+            <div class="dropdown-divider"></div>
+            <div class="row g-2 mt-2">
+                <div class="col-md">
+                    <div class="form-floating">
+                        <input type="text" class="form-control" id="floatingInputGrid" placeholder="Nombre"
+                            name="namedoctor">
+                        <label for="floatingInputGrid">Nombre *</label>
+                    </div>
+                </div>
+                <div class="col-md">
+                    <div class="form-floating">
+                        <input type="text" class="form-control" id="floatingInputGrid" placeholder="Apellidos"
+                            name="lastnamedoctor">
+                        <label for="floatingInputGrid">Apellidos *</label>
+                    </div>
+                </div>
+                <div class="col-md">
+                    <div class="form-floating">
+                        <input type="text" class="form-control" id="floatingInputGrid" placeholder="Dni"
+                            name="dnidoctor">
+                        <label for="floatingInputGrid">DNI *</label>
+                    </div>
+                </div>
+                <div class="col-md">
+                    <div class="form-floating">
+                        <select name="slGenero" class="form-select" id="dpGenero">
+                            <option value="0" selected>Género</option>
+                            <option value="1">Masculino</option>
+                            <option value="2">Femenino</option>
+                        </select>
+                        <label for="slGenero">Elija su Género</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-2 mt-2">
+                <div class="col-md">
+                    <div class="form-floating">
+                        <input type="text" class="form-control" id="floatingInputGrid" placeholder="Teléfono Trabajo"
+                            name="workphonedoctor">
+                        <label for="floatingInputGrid">Teléfono Trabajo *</label>
+                    </div>
+                </div>
+                <div class="col-md">
+                    <div class="form-floating">
+                        <input type="text" class="form-control" id="floatingInputGrid" placeholder="Teléfono Personal"
+                            name="personalphonedoctor">
+                        <label for="floatingInputGrid">Teléfono Personal</label>
+                    </div>
+                </div>
+                <div class="col-md">
+                    <div class="form-check mt-4">
+                        <input class="form-check-input" type="checkbox" id="gridCheck" name="chbxColegiado">
+                        <label class="form-check-label" for="gridCheck">
+                            Colegiado
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <!-- end Datos personales -->
+
+            <!-- Información de la ubicación laboral del doctor -->
+            <label class="form-label fs-3 mt-4">Ubicación Laboral</label>
+            <div class="dropdown-divider"></div>
+            <!-- <div class="card-body row no-gutters align-items-center mt-2"> -->
+            <div class="row g-2 mt-2">
+                <div class="col-md">
+                    <div class="form-floating">
+                        <select name="slDepartment" class="form-select" id="dpDepart">
+                            <option value="0" selected>Departamento</option>
+                            {% for department in departments %}
+                            <option value="{{department.0}}">{{department.1}}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="sldepartment">Elija su Departamento</label>
+                    </div>
+                </div>
+                <div class="col-md">
+                    <div class="form-floating">
+                        <select name="slProvince" class="form-select" id="dpProvince">
+                            <option value="0" selected>Provincia</option>
+                        </select>
+                        <label for="slprovince">Elija su Provincia</label>
+                    </div>
+                </div>
+                <div class="col-md">
+                    <div class="form-floating">
+                        <select name="slDistrict" class="form-select" id="dpDistrict">
+                            <option value="0" selected>Distrito</option>
+                        </select>
+                        <label for="sldistrict">Elija su Distrito</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-2 mt-2">
+                <div class="col-md">
+                    <div class="form-floating">
+                        <input type="text" class="form-control" id="floatingInputGrid" placeholder="Dirección"
+                            name="addressdoctor">
+                        <label for="floatingInputGrid">Dirección</label>
+                    </div>
+                </div>
+            </div>
+            <!-- end Información de la ubicación -->
+
+            <!-- Datos profesionales -->
+            <label class="form-label fs-3 mt-4">Datos Profesionales</label>
+            <div class="dropdown-divider"></div>
+
+            <div class="container">
+                <div class="row g-2 mt-2">
+                    <div class="col-auto">
+                        <div class="form-floating">
+                            <input type="text" class="form-control" id="floatingInputGrid"
+                                placeholder="Código del Colegiado" name="collegiatecodedoctor">
+                            <label for="floatingInputGrid">Código del Colegiado *</label>
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <label for="formFile" class="form-label">Adjuntar CV</label>
+                        <input class="form-control" type="file" id="formFile">
+                    </div>
+                </div>
+                <div class="row g-2 mt-2">
+                    <div class="col-md-4">
+                        <div class="form-floating">
+                            <select name="slSpecialty" class="form-select" id="dpSpecialty">
+                                <option value="0" selected>Especialidades</option>
+                            </select>
+                            <label for="slspecialty">Elija su Especialidad</label>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="form-floating">
+                            <input type="text" class="form-control" id="floatingInputGrid" placeholder="Código RME"
+                                name="codermedoctor">
+                            <label for="floatingInputGrid">Código RME</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row g-2 mt-2">
+                    <div class="col-md-4">
+                        <div class="form-floating">
+                            <select name="slSpecialty" class="form-select" id="dpSpecialty">
+                                <option value="0" selected>Especialidades</option>
+                            </select>
+                            <label for="slspecialty">Elija su Especialidad</label>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="form-floating">
+                            <input type="text" class="form-control" id="floatingInputGrid" placeholder="Código RME"
+                                name="codermedoctor">
+                            <label for="floatingInputGrid">Código RME</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row g-2 mt-2">
+                    <div class="col-md-4">
+                        <div class="form-floating">
+                            <select name="slSpecialty" class="form-select" id="dpSpecialty">
+                                <option value="0" selected>Especialidades</option>
+                            </select>
+                            <label for="slspecialty">Elija su Especialidad</label>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="form-floating">
+                            <input type="text" class="form-control" id="floatingInputGrid" placeholder="Código RME"
+                                name="codermedoctor">
+                            <label for="floatingInputGrid">Código RME</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row g-2 mt-2">
+                    <div class="col-md-4">
+                        <div class="form-floating">
+                            <select name="slSpecialty" class="form-select" id="dpSpecialty">
+                                <option value="0" selected>Especialidades</option>
+                            </select>
+                            <label for="slspecialty">Elija su Especialidad</label>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="form-floating">
+                            <input type="text" class="form-control" id="floatingInputGrid" placeholder="Código RME"
+                                name="codermedoctor">
+                            <label for="floatingInputGrid">Código RME</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row g-2 mt-2">
+                    <div class="col-md-4">
+                        <div class="form-floating">
+                            <select name="slSpecialty" class="form-select" id="dpSpecialty">
+                                <option value="0" selected>Especialidades</option>
+                            </select>
+                            <label for="slspecialty">Elija su Especialidad</label>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="form-floating">
+                            <input type="text" class="form-control" id="floatingInputGrid" placeholder="Código RME"
+                                name="codermedoctor">
+                            <label for="floatingInputGrid">Código RME</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row g-2 mt-2">
+                    <div class="col-sm-5 col-md-6">
+                        <div class="form-floating">
+                            <textarea class="form-control" placeholder="Leave a comment here" id="floatingTextarea2"
+                                style="height: 100px"></textarea>
+                            <label for="floatingTextarea2">Acerca de ti</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- end datos profesionales -->
+
+            <!-- Datos de cuenta -->
+            <label class="form-label fs-3 mt-4">Crear cuenta</label>
+            <div class="dropdown-divider"></div>
+            <div class="row g-2 mt-2">
+                <div class="col-md">
+                    <div class="form-floating">
+                        <input type="email" class="form-control" id="floatingInputGrid" placeholder="name@example.com"
+                            name="emaildoctor">
+                        <label for="floatingInputGrid">Correo Electrónico *</label>
+                    </div>
+                </div>
+                <div class="col-md">
+                    <div class="form-floating">
+                        <input type="password" class="form-control" id="floatingPassword" placeholder="Contraseña"
+                            name="passworddoctor">
+                        <label for="floatingPassword">Contraseña *</label>
+                    </div>
+                </div>
+            </div>
+            <!-- end datos de cuenta -->
+
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-3 mb-4">
+                <button class="btn btn-primary me-md-2" type="button">Save</button>
+                <button class="btn btn-danger" type="button">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{%endblock%}

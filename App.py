@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 from flask_mysqldb import MySQL
+from datetime import datetime
 
 app = Flask(__name__)
 # MySQL Connection
@@ -22,7 +23,7 @@ def Index():
 @app.route('/department')
 def redirect_department():
     cur = mysql.connection.cursor()
-    cur.execute('SELECT * FROM department')
+    cur.execute('SELECT * FROM department WHERE n_active = 1')
     data = cur.fetchall()
     return render_template('add-department.html', departments=data)
 
@@ -30,10 +31,10 @@ def redirect_department():
 @app.route('/province')
 def redirect_province():
     cur = mysql.connection.cursor()
-    cur.execute('SELECT * FROM province')
+    cur.execute('SELECT * FROM province WHERE n_active = 1')
     data = cur.fetchall()
 
-    cur.execute('SELECT * FROM department')
+    cur.execute('SELECT * FROM department WHERE n_active = 1')
     dataDepartment = cur.fetchall()
     return render_template('add-province.html', provinces=data, departments=dataDepartment)
 
@@ -46,6 +47,7 @@ def redirect_district():
         dp.t_name_department, CONCAT(dp.t_name_department, ' -- ', pr.t_name_province) AS fullProvince
     FROM province AS pr
     INNER JOIN department AS dp ON pr.cod_department = dp.cod_department
+    WHERE dp.n_active = 1 AND pr.n_active = 1
     ORDER BY dp.cod_department
     """)
     dataProvince = cur.fetchall()
@@ -62,6 +64,7 @@ def redirect_district():
     SELECT ds.cod_district, ds.t_name_district, ds.n_active, ds.cod_province, pr.t_name_province
     FROM district AS ds
     INNER JOIN province AS pr ON ds.cod_province = pr.cod_province
+    WHERE pr.n_active = 1 AND ds.n_active = 1
     ORDER BY pr.cod_province
     """)
     dataDistrict = cur.fetchall()
@@ -81,7 +84,7 @@ def redirect_doctor():
 @app.route('/principal')
 def redirect_searchSpecialization():
     cur = mysql.connection.cursor()
-    cur.execute('SELECT * FROM department')
+    cur.execute('SELECT * FROM department WHERE n_active = 1')
     data = cur.fetchall()
     # print(cur.rowcount)
     return render_template('principal.html', departments=data)
@@ -90,7 +93,7 @@ def redirect_searchSpecialization():
 @app.route('/specialization')
 def redirect_specialization():
     cur = mysql.connection.cursor()
-    cur.execute('SELECT * FROM specialty')
+    cur.execute('SELECT * FROM specialty WHERE n_active = 1')
     data = cur.fetchall()
     return render_template('add-specialization.html', specializations=data)
 
@@ -106,8 +109,8 @@ def add_specialization():
         else:
             value = 0
         cur = mysql.connection.cursor()
-        cur.execute('INSERT INTO specialty (t_name_specialty, n_active) VALUES(%s, %s)',
-                    (name_specialization, value))
+        cur.execute('INSERT INTO specialty (t_name_specialty, n_active, d_creation_date) VALUES(%s, %s, %s)',
+                    (name_specialization, value, datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
         mysql.connection.commit()
         flash('Specialization Added Successfully')
         return redirect(url_for('redirect_specialization'))
@@ -122,8 +125,8 @@ def add_department():
             value = 0
         name_department = request.form['departamento']
         cur = mysql.connection.cursor()
-        cur.execute('INSERT INTO department (t_name_department, n_active, cod_country) VALUES(%s, %s, %s)',
-                    (name_department, value, 1))
+        cur.execute('INSERT INTO department (t_name_department, n_active, cod_country, d_creation_date) VALUES(%s, %s, %s, %s)',
+                    (name_department, value, 1, datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
         mysql.connection.commit()
         flash('Departamento Added Successfully')
         return redirect(url_for('redirect_department'))
@@ -139,8 +142,8 @@ def add_province():
         name_province = request.form['province']
         slDepartment = request.form.get('slDepartment')
         cur = mysql.connection.cursor()
-        cur.execute('INSERT INTO province (t_name_province, n_active, cod_department) VALUES(%s, %s, %s)',
-                    (name_province, value, slDepartment))
+        cur.execute('INSERT INTO province (t_name_province, n_active, cod_department, d_creation_date) VALUES(%s, %s, %s, %s)',
+                    (name_province, value, slDepartment, datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
         mysql.connection.commit()
         flash('Province Added Successfully')
         return redirect(url_for('redirect_province'))
@@ -156,8 +159,8 @@ def add_district():
         name_district = request.form['district']
         slProvince = request.form.get('slProvince')
         cur = mysql.connection.cursor()
-        cur.execute('INSERT INTO district (t_name_district, n_active, cod_province) VALUES(%s, %s, %s)',
-                    (name_district, value, slProvince))
+        cur.execute('INSERT INTO district (t_name_district, n_active, cod_province, d_creation_date) VALUES(%s, %s, %s, %s)',
+                    (name_district, value, slProvince, datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
         mysql.connection.commit()
         flash('District Added Successfully')
         return redirect(url_for('redirect_district'))
@@ -185,9 +188,10 @@ def update_specialization(id):
         cur.execute("""
             UPDATE specialty
             SET t_name_specialty = %s,
-                n_active = %s
+                n_active = %s,
+                d_modification_date = %s
             WHERE cod_specialty = %s
-        """, (name_specialization, value, id))
+        """, (name_specialization, value, datetime.now().strftime("%Y-%m-%d %H:%M:%S"), id))
         mysql.connection.commit()
         flash('Specialization Updated Successfully')
         return redirect(url_for('redirect_specialization'))
@@ -213,9 +217,10 @@ def update_department(id):
         cur.execute("""
             UPDATE department
             SET t_name_department = %s,
-                n_active = %s
+                n_active = %s,
+                d_modification_date = %s
             WHERE cod_department = %s
-        """, (name_department, value, id))
+        """, (name_department, value, datetime.now().strftime("%Y-%m-%d %H:%M:%S"), id))
         mysql.connection.commit()
         flash('Department Updated Successfully')
         return redirect(url_for('redirect_department'))
@@ -227,7 +232,7 @@ def get_province(id):
     cur.execute('SELECT * FROM province WHERE cod_province = {0}'.format(id))
     data = cur.fetchall()
     # cur.execute('SELECT * FROM department WHERE id = {0}'.format(data[0][3]))
-    cur.execute('SELECT * FROM department')
+    cur.execute('SELECT * FROM department WHERE n_active = 1')
     dataDepartment = cur.fetchall()
     return render_template('edit-province.html', province=data[0], departments=dataDepartment)
 
@@ -246,9 +251,10 @@ def update_province(id):
             UPDATE province
             SET t_name_province = %s,
                 n_active = %s,
-                cod_department = %s
+                cod_department = %s,
+                d_modification_date = %s
             WHERE cod_province = %s
-        """, (name_province, value, slDepartment, id))
+        """, (name_province, value, slDepartment, datetime.now().strftime("%Y-%m-%d %H:%M:%S"), id))
         mysql.connection.commit()
         flash('Province Updated Successfully')
         return redirect(url_for('redirect_province'))
@@ -264,6 +270,7 @@ def get_district(id):
         dp.t_name_department, CONCAT(dp.t_name_department, ' -- ', pr.t_name_province) AS fullProvince
     FROM province AS pr
     INNER JOIN department AS dp ON pr.cod_department = dp.cod_department
+    WHERE dp.n_active = 1
     ORDER BY dp.cod_department
     """)
     dataProvince = cur.fetchall()
@@ -284,9 +291,10 @@ def update_district(id):
             UPDATE district
             SET t_name_district = %s,
                 n_active = %s,
-                cod_province = %s
+                cod_province = %s,
+                d_modification_date = %s
             WHERE cod_district = %s
-        """, (name_district, value, slProvince, id))
+        """, (name_district, value, slProvince, datetime.now().strftime("%Y-%m-%d %H:%M:%S"), id))
         mysql.connection.commit()
         flash('District Updated Successfully')
         return redirect(url_for('redirect_district'))
@@ -297,7 +305,8 @@ def update_district(id):
 @app.route('/delete_specialization/<string:id>')
 def delete_specialization(id):
     cur = mysql.connection.cursor()
-    cur.execute('DELETE FROM specialty WHERE cod_specialty = {0}'.format(id))
+    # cur.execute('DELETE FROM specialty WHERE cod_specialty = {0}'.format(id))
+    cur.execute('UPDATE specialty SET n_active = 0, d_modification_date = %s WHERE cod_specialty = %s', (datetime.now().strftime("%Y-%m-%d %H:%M:%S"), id))
     mysql.connection.commit()
     flash('Specialization Removed Successfully')
     return redirect(url_for('redirect_specialization'))
@@ -305,8 +314,10 @@ def delete_specialization(id):
 
 @app.route('/delete_department/<string:id>')
 def delete_department(id):
+    modification_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     cur = mysql.connection.cursor()
-    cur.execute('DELETE FROM department WHERE cod_deparment = {0}'.format(id))
+    # cur.execute('DELETE FROM department WHERE cod_department = {0}'.format(id))
+    cur.execute('UPDATE department SET n_active = 0, d_modification_date = %s WHERE cod_department = %s',(modification_date,id))
     mysql.connection.commit()
     flash('Department Removed Successfully')
     return redirect(url_for('redirect_department'))
@@ -315,7 +326,8 @@ def delete_department(id):
 @app.route('/delete_province/<string:id>')
 def delete_province(id):
     cur = mysql.connection.cursor()
-    cur.execute('DELETE FROM province WHERE cod_province = {0}'.format(id))
+    # cur.execute('DELETE FROM province WHERE cod_province = {0}'.format(id))
+    cur.execute('UPDATE province SET n_active = 0, d_modification_date = %s WHERE cod_province = %s', (datetime.now().strftime("%Y-%m-%d %H:%M:%S"), id))
     mysql.connection.commit()
     flash('Province Removed Successfully')
     return redirect(url_for('redirect_province'))
@@ -324,7 +336,8 @@ def delete_province(id):
 @app.route('/delete_district/<string:id>')
 def delete_district(id):
     cur = mysql.connection.cursor()
-    cur.execute('DELETE FROM district WHERE cod_district = {0}'.format(id))
+    # cur.execute('DELETE FROM district WHERE cod_district = {0}'.format(id))
+    cur.execute('UPDATE district SET n_active = 0, d_modification_date = %s WHERE cod_district = %s', (datetime.now().strftime("%Y-%m-%d %H:%M:%S"), id))
     mysql.connection.commit()
     flash('District Removed Successfully')
     return redirect(url_for('redirect_district'))

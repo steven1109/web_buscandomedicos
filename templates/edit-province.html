@@ -9,7 +9,7 @@
                     <select name="slDepartment" class="form-select" id="dpDepart">
                         <option value="0">Departamento</option>
                         {% for department in departments %}
-                        {% if province.3 == department.0 %}
+                        {% if province.5 == department.0 %}
                         <option value="{{department.0}}" selected>{{department.1}}</option>
                         {% else %}
                         <option value="{{department.0}}">{{department.1}}</option>
