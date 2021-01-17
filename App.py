@@ -42,11 +42,11 @@ def redirect_province():
 def redirect_district():
     cur = mysql.connection.cursor()
     cur.execute("""
-    SELECT pr.Id, pr.Name_province, pr.Id_deoartment,
-        dp.Name_department, CONCAT(dp.Name_department, ' -- ', pr.Name_province) AS fullProvince
-    FROM province as pr
-    INNER JOIN department AS dp ON pr.Id_deoartment = dp.Id
-    ORDER BY dp.Id
+    SELECT pr.cod_province, pr.t_name_province, pr.cod_department,
+        dp.t_name_department, CONCAT(dp.t_name_department, ' -- ', pr.t_name_province) AS fullProvince
+    FROM province AS pr
+    INNER JOIN department AS dp ON pr.cod_department = dp.cod_department
+    ORDER BY dp.cod_department
     """)
     dataProvince = cur.fetchall()
     # selectArray = []
@@ -59,10 +59,10 @@ def redirect_district():
     #     selectArray.append(dpObj)
     # print(selectArray)
     cur.execute("""
-    SELECT ds.Id, ds.Name_district, ds.Active, ds.Id_province, pr.Name_province
+    SELECT ds.cod_district, ds.t_name_district, ds.n_active, ds.cod_province, pr.t_name_province
     FROM district AS ds
-    INNER JOIN province AS pr ON ds.Id_province = pr.Id
-    ORDER BY pr.Id
+    INNER JOIN province AS pr ON ds.cod_province = pr.cod_province
+    ORDER BY pr.cod_province
     """)
     dataDistrict = cur.fetchall()
     return render_template('add-district.html', provinces=dataProvince, districts=dataDistrict)
@@ -83,13 +83,14 @@ def redirect_searchSpecialization():
     cur = mysql.connection.cursor()
     cur.execute('SELECT * FROM department')
     data = cur.fetchall()
+    # print(cur.rowcount)
     return render_template('principal.html', departments=data)
 
 
 @app.route('/specialization')
 def redirect_specialization():
     cur = mysql.connection.cursor()
-    cur.execute('SELECT * FROM specializations')
+    cur.execute('SELECT * FROM specialty')
     data = cur.fetchall()
     return render_template('add-specialization.html', specializations=data)
 
@@ -105,7 +106,8 @@ def add_specialization():
         else:
             value = 0
         cur = mysql.connection.cursor()
-        cur.execute('INSERT INTO specializations (Name_Specialization, Active) VALUES(%s, %s)', (name_specialization, value))
+        cur.execute('INSERT INTO specialty (t_name_specialty, n_active) VALUES(%s, %s)',
+                    (name_specialization, value))
         mysql.connection.commit()
         flash('Specialization Added Successfully')
         return redirect(url_for('redirect_specialization'))
@@ -120,7 +122,8 @@ def add_department():
             value = 0
         name_department = request.form['departamento']
         cur = mysql.connection.cursor()
-        cur.execute('INSERT INTO department (Name_department, Active) VALUES(%s, %s)', (name_department, value))
+        cur.execute('INSERT INTO department (t_name_department, n_active, cod_country) VALUES(%s, %s, %s)',
+                    (name_department, value, 1))
         mysql.connection.commit()
         flash('Departamento Added Successfully')
         return redirect(url_for('redirect_department'))
@@ -136,13 +139,13 @@ def add_province():
         name_province = request.form['province']
         slDepartment = request.form.get('slDepartment')
         cur = mysql.connection.cursor()
-        cur.execute('INSERT INTO province (Name_province, Active, Id_deoartment) VALUES(%s, %s, %s)', 
-        (name_province, value, slDepartment))
+        cur.execute('INSERT INTO province (t_name_province, n_active, cod_department) VALUES(%s, %s, %s)',
+                    (name_province, value, slDepartment))
         mysql.connection.commit()
         flash('Province Added Successfully')
         return redirect(url_for('redirect_province'))
 
-    
+
 @app.route('/add_district', methods=['POST'])
 def add_district():
     if request.method == 'POST':
@@ -153,8 +156,8 @@ def add_district():
         name_district = request.form['district']
         slProvince = request.form.get('slProvince')
         cur = mysql.connection.cursor()
-        cur.execute('INSERT INTO district (Name_district, Active, Id_province) VALUES(%s, %s, %s)', 
-        (name_district, value, slProvince))
+        cur.execute('INSERT INTO district (t_name_district, n_active, cod_province) VALUES(%s, %s, %s)',
+                    (name_district, value, slProvince))
         mysql.connection.commit()
         flash('District Added Successfully')
         return redirect(url_for('redirect_district'))
@@ -165,7 +168,7 @@ def add_district():
 @app.route('/edit_specialization/<id>')
 def get_specialization(id):
     cur = mysql.connection.cursor()
-    cur.execute('SELECT * FROM specializations WHERE id = %s', (id))
+    cur.execute('SELECT * FROM specialty WHERE cod_specialty = %s', (id))
     data = cur.fetchall()
     return render_template('edit-specialization.html', specialization=data[0])
 
@@ -180,10 +183,10 @@ def update_specialization(id):
             value = 0
         cur = mysql.connection.cursor()
         cur.execute("""
-            UPDATE specializations
-            SET name_specialization = %s,
-                Active = %s
-            WHERE id = %s
+            UPDATE specialty
+            SET t_name_specialty = %s,
+                n_active = %s
+            WHERE cod_specialty = %s
         """, (name_specialization, value, id))
         mysql.connection.commit()
         flash('Specialization Updated Successfully')
@@ -193,7 +196,7 @@ def update_specialization(id):
 @app.route('/edit_department/<id>')
 def get_department(id):
     cur = mysql.connection.cursor()
-    cur.execute('SELECT * FROM department WHERE id = %s', (id))
+    cur.execute('SELECT * FROM department WHERE cod_department = %s', (id))
     data = cur.fetchall()
     return render_template('edit-department.html', department=data[0])
 
@@ -209,9 +212,9 @@ def update_department(id):
         cur = mysql.connection.cursor()
         cur.execute("""
             UPDATE department
-            SET Name_department = %s,
-                Active = %s
-            WHERE id = %s
+            SET t_name_department = %s,
+                n_active = %s
+            WHERE cod_department = %s
         """, (name_department, value, id))
         mysql.connection.commit()
         flash('Department Updated Successfully')
@@ -221,7 +224,7 @@ def update_department(id):
 @app.route('/edit_province/<string:id>')
 def get_province(id):
     cur = mysql.connection.cursor()
-    cur.execute('SELECT * FROM province WHERE id = {0}'.format(id))
+    cur.execute('SELECT * FROM province WHERE cod_province = {0}'.format(id))
     data = cur.fetchall()
     # cur.execute('SELECT * FROM department WHERE id = {0}'.format(data[0][3]))
     cur.execute('SELECT * FROM department')
@@ -241,10 +244,10 @@ def update_province(id):
         cur = mysql.connection.cursor()
         cur.execute("""
             UPDATE province
-            SET Name_province = %s,
-                Active = %s,
-                Id_deoartment = %s
-            WHERE id = %s
+            SET t_name_province = %s,
+                n_active = %s,
+                cod_department = %s
+            WHERE cod_province = %s
         """, (name_province, value, slDepartment, id))
         mysql.connection.commit()
         flash('Province Updated Successfully')
@@ -254,14 +257,14 @@ def update_province(id):
 @app.route('/edit_district/<id>')
 def get_district(id):
     cur = mysql.connection.cursor()
-    cur.execute('SELECT * FROM district WHERE id = {0}'.format(id))
+    cur.execute('SELECT * FROM district WHERE cod_district = {0}'.format(id))
     dataDistrict = cur.fetchall()
     cur.execute("""
-    SELECT pr.Id, pr.Name_province, pr.Id_deoartment,
-        dp.Name_department, CONCAT(dp.Name_department, ' -- ', pr.Name_province) AS fullProvince
-    FROM province as pr
-    INNER JOIN department AS dp ON pr.Id_deoartment = dp.Id
-    ORDER BY dp.Id
+    SELECT pr.cod_province, pr.t_name_province, pr.cod_department,
+        dp.t_name_department, CONCAT(dp.t_name_department, ' -- ', pr.t_name_province) AS fullProvince
+    FROM province AS pr
+    INNER JOIN department AS dp ON pr.cod_department = dp.cod_department
+    ORDER BY dp.cod_department
     """)
     dataProvince = cur.fetchall()
     return render_template('edit-district.html', district=dataDistrict[0], provinces=dataProvince)
@@ -279,10 +282,10 @@ def update_district(id):
         cur = mysql.connection.cursor()
         cur.execute("""
             UPDATE district
-            SET Name_district = %s,
-                Active = %s,
-                Id_province = %s
-            WHERE id = %s
+            SET t_name_district = %s,
+                n_active = %s,
+                cod_province = %s
+            WHERE cod_district = %s
         """, (name_district, value, slProvince, id))
         mysql.connection.commit()
         flash('District Updated Successfully')
@@ -290,10 +293,11 @@ def update_district(id):
 
 # Section of to delete in database
 
+
 @app.route('/delete_specialization/<string:id>')
 def delete_specialization(id):
     cur = mysql.connection.cursor()
-    cur.execute('DELETE FROM specializations WHERE id = {0}'.format(id))
+    cur.execute('DELETE FROM specialty WHERE cod_specialty = {0}'.format(id))
     mysql.connection.commit()
     flash('Specialization Removed Successfully')
     return redirect(url_for('redirect_specialization'))
@@ -302,7 +306,7 @@ def delete_specialization(id):
 @app.route('/delete_department/<string:id>')
 def delete_department(id):
     cur = mysql.connection.cursor()
-    cur.execute('DELETE FROM department WHERE id = {0}'.format(id))
+    cur.execute('DELETE FROM department WHERE cod_deparment = {0}'.format(id))
     mysql.connection.commit()
     flash('Department Removed Successfully')
     return redirect(url_for('redirect_department'))
@@ -311,7 +315,7 @@ def delete_department(id):
 @app.route('/delete_province/<string:id>')
 def delete_province(id):
     cur = mysql.connection.cursor()
-    cur.execute('DELETE FROM province WHERE id = {0}'.format(id))
+    cur.execute('DELETE FROM province WHERE cod_province = {0}'.format(id))
     mysql.connection.commit()
     flash('Province Removed Successfully')
     return redirect(url_for('redirect_province'))
@@ -320,7 +324,7 @@ def delete_province(id):
 @app.route('/delete_district/<string:id>')
 def delete_district(id):
     cur = mysql.connection.cursor()
-    cur.execute('DELETE FROM district WHERE id = {0}'.format(id))
+    cur.execute('DELETE FROM district WHERE cod_district = {0}'.format(id))
     mysql.connection.commit()
     flash('District Removed Successfully')
     return redirect(url_for('redirect_district'))
@@ -330,7 +334,7 @@ def delete_district(id):
 @app.route('/selectProvince/<id>')
 def getProvinceByIdDepartment(id):
     cur = mysql.connection.cursor()
-    cur.execute('SELECT * FROM province WHERE Id_deoartment = %s', (id))
+    cur.execute('SELECT * FROM province WHERE cod_department = %s', (id))
     provinces = cur.fetchall()
     provinceArray = []
     for province in provinces:
@@ -345,7 +349,7 @@ def getProvinceByIdDepartment(id):
 @app.route('/selectDistrict/<id>')
 def getDistrictByProvince(id):
     cur = mysql.connection.cursor()
-    cur.execute('SELECT * FROM district WHERE Id_province = %s', (id))
+    cur.execute('SELECT * FROM district WHERE cod_province = %s', (id))
     districts = cur.fetchall()
     districtArray = []
     for district in districts:
@@ -363,6 +367,7 @@ def getSearchSpecialization():
     slProvince = request.form.get('slProvince')
     slDistrict = request.form.get('slDistrict')
     return (slDepartment+", "+slProvince+", "+slDistrict)
+
 
 if __name__ == '__main__':
     app.run(port=3000, debug=True)
