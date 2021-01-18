@@ -379,7 +379,8 @@ def getSearchSpecialization():
     slDepartment = request.form.get('slDepartment')
     slProvince = request.form.get('slProvince')
     slDistrict = request.form.get('slDistrict')
-    return (slDepartment+", "+slProvince+", "+slDistrict)
+    slGenero = request.form.get('slGenero')
+    return (slGenero+", "+slDepartment+", "+slProvince+", "+slDistrict)
 
 
 if __name__ == '__main__':

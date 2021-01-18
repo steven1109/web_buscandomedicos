@@ -11,15 +11,11 @@ if (btnDelete) {
     });
 }
 
-// let state_select = document.getElementById('dpDepart');
-// state_select.onchange = function() {
-//     state = state_select.nodeValue;
-//     console.log(state);
-// };
-$('#dpDepart').change(function () {
-    let department_select = document.getElementById('dpDepart');
-    let province_select = document.getElementById('dpProvince');
+let department_select = document.getElementById('dpDepart');
+let province_select = document.getElementById('dpProvince');
+let district_select = document.getElementById('dpDistrict');
 
+department_select.onchange = function () {
     value_depart = department_select.value;
     if (value_depart != 0) {
         fetch('/selectProvince/' + value_depart).then(function (response) {
@@ -35,12 +31,9 @@ $('#dpDepart').change(function () {
     } else {
         cleanSelectProvince();
     }
-})
+};
 
-$('#dpProvince').change(function () {
-    let province_select = document.getElementById('dpProvince');
-    let district_select = document.getElementById('dpDistrict')
-
+province_select.onchange = function () {
     value_province = province_select.value;
     if (value_province != 0) {
         fetch('/selectDistrict/' + value_province).then(function (response) {
@@ -55,7 +48,8 @@ $('#dpProvince').change(function () {
     } else {
         cleanSelectDistrict();
     }
-})
+};
+
 
 function cleanSelectProvince() {
     province_select = document.getElementById('dpProvince');
@@ -71,3 +65,24 @@ function cleanSelectDistrict() {
     select = document.getElementById('dpDistrict');
     select.innerHTML = '<option value="0" selected>Distrito</option>';
 }
+
+// $('#dpDepart').change(function () {
+//     let department_select = document.getElementById('dpDepart');
+//     let province_select = document.getElementById('dpProvince');
+
+//     value_depart = department_select.value;
+//     if (value_depart != 0) {
+//         fetch('/selectProvince/' + value_depart).then(function (response) {
+
+//             response.json().then(function (data) {
+//                 let optionHTML = '<option value="0" selected>Provincia</option>';
+//                 for (let province of data.provinces) {
+//                     optionHTML += '<option value="' + province.id + '">' + province.name_province + '</option>';
+//                 }
+//                 province_select.innerHTML = optionHTML;
+//             });
+//         });
+//     } else {
+//         cleanSelectProvince();
+//     }
+// })

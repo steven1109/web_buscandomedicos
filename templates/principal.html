@@ -13,12 +13,19 @@
                     </div>
                     <!--end of col-->
                     <div class="col">
-                        <input name="ipEspecializacion" class="form-control form-control-lg form-control-borderless" type="search"
-                            placeholder="Buscar Especialización">
+                        <input name="ipEspecializacion" class="form-control form-control-lg form-control-borderless"
+                            type="search" placeholder="Buscar Especialización">
                     </div>
                     <!--end of col-->
-                    <div class="col-auto">
-                        <button class="btn btn-lg btn-primary" type="submit">Search</button>
+                    <div class="col-lg-3">
+                        <div class="form-floating">
+                            <select name="slGenero" class="form-select" id="dpGenero">
+                                <option value="0" selected>Genero</option>
+                                <option value="1">Femenino</option>
+                                <option value="2">Masculino</option>
+                            </select>
+                            <label for="sldistrict">Elija su Genero</label>
+                        </div>
                     </div>
                     <!--end of col-->
                 </div>
@@ -51,6 +58,9 @@
                             </select>
                             <label for="sldistrict">Elija su Distrito</label>
                         </div>
+                    </div>
+                    <div class="col-auto">
+                        <button class="btn btn-lg btn-primary" type="submit">Search</button>
                     </div>
                 </div>
 
