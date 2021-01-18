@@ -1,33 +1,36 @@
 {% extends 'layout.html' %}
 {% block body %}
 
-<div class="col-md-4 offset-md-4">
-    <div class="card card-body">
-        <form action="/update_specialization/{{specialization.0}}" method="post">
-            <div class="form-group">
-                <div class="form-floating mb-3">
-                    <input type="text" class="form-control" id="floatingInput" placeholder="Especialización"
-                        name="specialization" value="{{specialization.1}}">
-                    <label for="floatingInput">Especialización</label>
+<div class="container pt-4">
+    <div class="col-md-4 offset-md-4">
+        <div class="card card-body">
+            <form action="/update_specialization/{{specialization.0}}" method="post">
+                <div class="form-group">
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" id="floatingInput" placeholder="Especialización"
+                            name="specialization" value="{{specialization.1}}">
+                        <label for="floatingInput">Especialización</label>
+                    </div>
                 </div>
-            </div>
-            {% if specialization.2 == 1 %}
-            <div class="form-group form-check form-switch">
-                <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault" name="chbxActivo" checked>
-                <label class="form-check-label" for="flexSwitchCheckDefault">Active</label>
-            </div>
-            {% else %}
-            <div class="form-group form-check form-switch">
-                <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault" name="chbxActivo">
-                <label class="form-check-label" for="flexSwitchCheckDefault">Active</label>
-            </div>
-            {% endif %}
-            <div class="form-group">
-                <button type="submit" class="btn btn-primary btn-block">
-                    Save
-                </button>
-            </div>
-        </form>
+                {% if specialization.2 == 1 %}
+                <div class="form-group form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault" name="chbxActivo"
+                        checked>
+                    <label class="form-check-label" for="flexSwitchCheckDefault">Active</label>
+                </div>
+                {% else %}
+                <div class="form-group form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault" name="chbxActivo">
+                    <label class="form-check-label" for="flexSwitchCheckDefault">Active</label>
+                </div>
+                {% endif %}
+                <div class="form-group">
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-success btn-lg" type="button">Save</button>
+                    </div>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 

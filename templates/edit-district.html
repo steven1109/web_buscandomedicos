@@ -1,48 +1,52 @@
 {% extends 'layout.html' %}
-
 {% block body%}
-<div class="col-md-4 offset-md-4">
-    <div class="card card-body">
-        <form action="/update_district/{{district.0}}" method="post">
-            <div class="form-group">
-                <div class="form-floating">
-                    <select name="slProvince" class="form-select" id="dpDepart">
-                        <option value="0" selected><strong>Departamento</strong> -- Provincia</option>
-                        {% for province in provinces %}
-                        {% if district.5 == province.0 %}
-                        <option value="{{province.0}}" selected>{{province.4}}</option>
-                        {% else %}
-                        <option value="{{province.0}}">{{province.4}}</option>
-                        {% endif %}
-                        {% endfor %}
-                    </select>
-                    <label for="slProvince">Elija su Provincia</label>
+
+<div class="container pt-4">
+    <div class="col-md-4 offset-md-4">
+        <div class="card card-body">
+            <form action="/update_district/{{district.0}}" method="post">
+                <div class="form-group">
+                    <div class="form-floating">
+                        <select name="slProvince" class="form-select" id="dpDepart">
+                            <option value="0" selected><strong>Departamento</strong> -- Provincia</option>
+                            {% for province in provinces %}
+                            {% if district.5 == province.0 %}
+                            <option value="{{province.0}}" selected>{{province.4}}</option>
+                            {% else %}
+                            <option value="{{province.0}}">{{province.4}}</option>
+                            {% endif %}
+                            {% endfor %}
+                        </select>
+                        <label for="slProvince">Elija su Provincia</label>
+                    </div>
                 </div>
-            </div>
-            <div class="form-group">
-                <div class="form-floating mb-3">
-                    <input type="text" class="form-control" id="floatingInput" placeholder="Provincia"
-                        name="district" value="{{district.1}}">
-                    <label for="floatingInput">Distrito</label>
+                <div class="form-group">
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" id="floatingInput" placeholder="Provincia"
+                            name="district" value="{{district.1}}">
+                        <label for="floatingInput">Distrito</label>
+                    </div>
                 </div>
-            </div>
-            {% if district.2 == 1 %}
-            <div class="form-group form-check form-switch">
-                <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault" name="chbxActivo" checked>
-                <label class="form-check-label" for="flexSwitchCheckDefault">Active</label>
-            </div>
-            {% else %}
-            <div class="form-group form-check form-switch">
-                <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault" name="chbxActivo">
-                <label class="form-check-label" for="flexSwitchCheckDefault">Active</label>
-            </div>
-            {% endif %}
-            <div class="form-group">
-                <button type="submit" class="btn btn-success btn-block">
-                    Save
-                </button>
-            </div>
-        </form>
+                {% if district.2 == 1 %}
+                <div class="form-group form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault" name="chbxActivo"
+                        checked>
+                    <label class="form-check-label" for="flexSwitchCheckDefault">Active</label>
+                </div>
+                {% else %}
+                <div class="form-group form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault" name="chbxActivo">
+                    <label class="form-check-label" for="flexSwitchCheckDefault">Active</label>
+                </div>
+                {% endif %}
+                <div class="form-group">
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-success btn-lg" type="button">Save</button>
+                    </div>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
+
 {% endblock %}

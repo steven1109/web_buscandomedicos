@@ -1,0 +1,86 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+
+<!--end of col-->
+{% set cod_department = data['departamento'] | int() %}
+{% set cod_provincia = data['provincia'] | int() %}
+{% set cod_distrito = data['distrito'] | int() %}
+{% set cod_genero = data['genero'] | int() %}
+
+<div class="container-fluid navbar-light bg-light">
+    <form action="" method="post">
+        <div class="card-body row no-gutters align-items-center mt-1">
+            <div class="col-md">
+                <div class="form-floating">
+                    <select name="slGenero" class="form-select" id="dpGenero">
+                        <option value="0" selected>Genero</option>
+                        {% for genero in generos %}
+                        {% if genero.0 == cod_genero %}
+                        <option value="{{genero.0}}" selected>{{genero.1}}</option>
+                        {% else %}
+                        <option value="{{genero.0}}">{{genero.1}}</option>
+                        {% endif %}
+                        {% endfor %}
+                    </select>
+                    <label for="sldistrict">Elija su Genero</label>
+                </div>
+            </div>
+
+            <div class="col-md">
+                <div class="form-floating">
+                    <select name="slDepartment" class="form-select" id="dpDepart">
+                        <option value="0" selected>Departamento</option>
+                        {% for department in departments %}
+                        {% if department.0 == cod_department %}
+                        <option value="{{department.0}}" selected>{{department.1}}</option>
+                        {% else %}
+                        <option value="{{department.0}}">{{department.1}}</option>
+                        {% endif %}
+                        {% endfor %}
+                    </select>
+                    <label for="sldepartment">Elija su Departamento</label>
+                </div>
+            </div>
+            <div class="col-md">
+                <div class="form-floating">
+                    <select name="slProvince" class="form-select" id="dpProvince">
+                        <option value="0" selected>Provincia</option>
+                        {% for province in provinces %}
+                        {% if province.0 == cod_provincia %}
+                        <option value="{{province.0}}" selected>{{province.1}}</option>
+                        {% else %}
+                        <option value="{{province.0}}">{{province.1}}</option>
+                        {% endif %}
+                        {% endfor %}
+                    </select>
+                    <label for="slprovince">Elija su Provincia</label>
+                </div>
+            </div>
+            <div class="col-md">
+                <div class="form-floating">
+                    <select name="slDistrict" class="form-select" id="dpDistrict">
+                        <option value="0" selected>Distrito</option>
+                        {% for district in districts %}
+                        {% if district.0 == cod_distrito %}
+                        <option value="{{district.0}}" selected>{{district.1}}</option>
+                        {% else %}
+                        <option value="{{district.0}}">{{district.1}}</option>
+                        {% endif %}
+                        {% endfor %}
+                    </select>
+                    <label for="sldistrict">Elija su Distrito</label>
+                </div>
+            </div>
+            <div class="col-auto">
+                <button class="btn btn-lg btn-primary" type="submit">Search</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- {% for k, v in data.items() %}
+    <p>{{k}} -- {{v}}</p>
+    {% endfor %} -->
+
+{% endblock %}

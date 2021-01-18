@@ -76,6 +76,39 @@ def redirect_informationSearch():
     return render_template('result-search.html')
 
 
+@app.route('/search-specialty')
+def redirect_search_specialty():
+    return render_template('search-specialty.html')
+
+
+@app.route('/search_specialization', methods=['POST'])
+def getSearchSpecialization():
+    slDepartment = request.form.get('slDepartment')
+    slProvince = request.form.get('slProvince')
+    slDistrict = request.form.get('slDistrict')
+    slGenero = request.form.get('slGenero')
+    dataObj = {}
+    dataObj['genero'] = slGenero
+    dataObj['departamento'] = slDepartment
+    dataObj['provincia'] = slProvince
+    dataObj['distrito'] = slDistrict
+
+    cur = mysql.connection.cursor()
+    cur.execute('SELECT * FROM department WHERE n_active = 1')
+    dataDepartment = cur.fetchall()
+
+    cur.execute('SELECT * FROM province WHERE n_active = 1 and cod_department = {}'.format(slDepartment))
+    dataProvince = cur.fetchall()
+
+    cur.execute('SELECT * FROM district WHERE n_active = 1 and cod_province = {}'.format(slProvince))
+    dataDistrict = cur.fetchall()
+    
+    cur.execute('SELECT * FROM gender WHERE n_active = 1')
+    dataGenero = cur.fetchall()
+
+    return render_template('search-specialty.html', data=dataObj, departments=dataDepartment, provinces=dataProvince, districts=dataDistrict, generos=dataGenero)
+
+
 @app.route('/doctor')
 def redirect_doctor():
     return render_template('add-doctor.html')
@@ -359,10 +392,10 @@ def getProvinceByIdDepartment(id):
     return jsonify({'provinces': provinceArray})
 
 
-@app.route('/selectDistrict/<id>')
+@app.route('/selectDistrict/<int:id>')
 def getDistrictByProvince(id):
     cur = mysql.connection.cursor()
-    cur.execute('SELECT * FROM district WHERE cod_province = %s', (id))
+    cur.execute('SELECT * FROM district WHERE cod_province = {}'.format(id))
     districts = cur.fetchall()
     districtArray = []
     for district in districts:
@@ -372,15 +405,6 @@ def getDistrictByProvince(id):
         districtArray.append(districtObj)
 
     return jsonify({'districts': districtArray})
-
-
-@app.route('/search_specialization', methods=['POST'])
-def getSearchSpecialization():
-    slDepartment = request.form.get('slDepartment')
-    slProvince = request.form.get('slProvince')
-    slDistrict = request.form.get('slDistrict')
-    slGenero = request.form.get('slGenero')
-    return (slGenero+", "+slDepartment+", "+slProvince+", "+slDistrict)
 
 
 if __name__ == '__main__':
