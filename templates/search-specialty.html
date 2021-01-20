@@ -79,6 +79,60 @@
     </form>
 </div>
 
+<div class="container pt-3">
+    {% for doctor in doctors %}
+    {% if doctor.4 == 'Masculino' %}
+    {% set gen_doctor = 'Dr.' %}
+    {% else %}
+    {% set gen_doctor = 'Dra.' %}
+    {% endif %}
+    <div class="card w-75 border-primary shadow-lg mb-3 bg-white rounded" style="width: 18rem;">
+        <div class="row g-0">
+            <div class="col-md-3">
+                <img src="{{url_for('static', filename='img/logo.svg')}}" class="card-img-top" alt="...">
+            </div>
+            <div class="col-md-8">
+                <div class="card-body">
+                    <h5 class="card-title">{{gen_doctor}} {{doctor.1}} {{doctor.2}}</h5>
+                    <p class="card-text">{{doctor.14}}</p>
+                    <a href="#" class="card-link">Card link</a>
+                    <a href="#" class="card-link align-items-end">Another link</a>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+
+    {% for doctor in doctors %}
+    {% if doctor.4 == 'Masculino' %}
+    {% set gen_doctor = 'Dr.' %}
+    {% else %}
+    {% set gen_doctor = 'Dra.' %}
+    {% endif %}
+    <div class="card w-75 border-light text-dark bg-light mb-3" style="width: 18rem;">
+        <div class="row g-0">
+            <div class="col-md-3">
+                <img src="{{url_for('static', filename='img/logo.svg')}}" class="card-img-top" alt="...">
+            </div>
+            <div class="col-md-8">
+                <div class="card-header">
+                    <h5 class="card-title">{{gen_doctor}} {{doctor.1}} {{doctor.2}}</h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">{{doctor.14}}</p>
+                    <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
+                </div>
+                <div class="d-grid gap-2 justify-content-md-end">
+                    <a class="btn btn-primary" href="/more-information/{{doctor.0}}" role="button">Mas Información</a>
+                    <a class="btn btn-primary" href="/book-appointment/{{doctor.0}}" role="button">Sacar Cita</a>
+                  </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
 <!-- {% for k, v in data.items() %}
     <p>{{k}} -- {{v}}</p>
     {% endfor %} -->

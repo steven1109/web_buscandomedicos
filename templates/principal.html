@@ -1,11 +1,17 @@
 {% extends 'layout.html' %}
 {% block body %}
 
-<div class="container pt-4">
+<div class="container pt-2">
     <div class="row justify-content-center">
         <div class="col-12 col-md-10 col-lg-8">
             <form action="/search_specialization" method="post" class="card card-lg">
                 <div class="card-body row no-gutters align-items-center mt-5">
+                    <!-- <img src="{{url_for('static', filename='img/undraw_medicine_b1ol.svg')}}" class="img-fluid" alt="..."> -->
+                    <img src="{{url_for('static', filename='img/undraw_medicine_b1ol.svg')}}"
+                        class="col-md-6 rounded mx-auto d-block" alt="...">
+                </div>
+
+                <div class="card-body row no-gutters align-items-center mt-2">
                     <div class="col-auto">
                         <i class="fas fa-search h3 text-body m-2"></i>
                         <!-- <i class="fab fa-sistrix h3 text-body"></i> -->

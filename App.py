@@ -106,7 +106,23 @@ def getSearchSpecialization():
     cur.execute('SELECT * FROM gender WHERE n_active = 1')
     dataGenero = cur.fetchall()
 
-    return render_template('search-specialty.html', data=dataObj, departments=dataDepartment, provinces=dataProvince, districts=dataDistrict, generos=dataGenero)
+    clausulas = ""
+
+    if int(slGenero) > 0:
+        if int(slGenero) == 1:
+            clausulas += ' and t_gender_doctor = "Femenino"'
+        else:
+            clausulas += ' and t_gender_doctor = "Masculino"'
+
+    cur.execute('SELECT cod_doctor, t_name_doctor, t_lastname_doctor, t_dni_doctor, t_gender_doctor, t_workphone_1_doctor, ' \
+    ' t_workphone_2_doctor, t_personalphone_doctor, n_collegiate, t_collegiate_code, cod_office_department, ' \
+    ' cod_office_province, cod_office_district, t_office_address, t_professional_resume, n_years_practicing, ' \
+    ' n_attend_patients_covid, n_attend_patients_vih, t_current_job_title ' \
+    ' FROM doctors WHERE n_active = 1 {}'.format(clausulas))
+    dataDoctors = cur.fetchall()
+
+    return render_template('search-specialty.html', data=dataObj, departments=dataDepartment, provinces=dataProvince, districts=dataDistrict, 
+    generos=dataGenero, doctors=dataDoctors)
 
 
 @app.route('/doctor')
