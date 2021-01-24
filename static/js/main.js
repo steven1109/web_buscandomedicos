@@ -31,6 +31,7 @@ department_select.onchange = function () {
     } else {
         cleanSelectProvince();
     }
+    cleanSelectDistrict();
 };
 
 province_select.onchange = function () {

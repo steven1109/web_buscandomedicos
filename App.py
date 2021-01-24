@@ -87,6 +87,7 @@ def getSearchSpecialization():
     slProvince = request.form.get('slProvince')
     slDistrict = request.form.get('slDistrict')
     slGenero = request.form.get('slGenero')
+    name_specialization = request.form['ipEspecializacion']
     dataObj = {}
     dataObj['genero'] = slGenero
     dataObj['departamento'] = slDepartment
@@ -97,32 +98,51 @@ def getSearchSpecialization():
     cur.execute('SELECT * FROM department WHERE n_active = 1')
     dataDepartment = cur.fetchall()
 
-    cur.execute('SELECT * FROM province WHERE n_active = 1 and cod_department = {}'.format(slDepartment))
+    cur.execute(
+        'SELECT * FROM province WHERE n_active = 1 and cod_department = {}'.format(slDepartment))
     dataProvince = cur.fetchall()
 
-    cur.execute('SELECT * FROM district WHERE n_active = 1 and cod_province = {}'.format(slProvince))
+    cur.execute(
+        'SELECT * FROM district WHERE n_active = 1 and cod_province = {}'.format(slProvince))
     dataDistrict = cur.fetchall()
-    
+
     cur.execute('SELECT * FROM gender WHERE n_active = 1')
     dataGenero = cur.fetchall()
 
     clausulas = ""
 
     if int(slGenero) > 0:
-        if int(slGenero) == 1:
-            clausulas += ' and t_gender_doctor = "Femenino"'
-        else:
-            clausulas += ' and t_gender_doctor = "Masculino"'
+        clausulas += ' AND doc.cod_gender_doctor = {}'.format(slGenero)
 
-    cur.execute('SELECT cod_doctor, t_name_doctor, t_lastname_doctor, t_dni_doctor, t_gender_doctor, t_workphone_1_doctor, ' \
-    ' t_workphone_2_doctor, t_personalphone_doctor, n_collegiate, t_collegiate_code, cod_office_department, ' \
-    ' cod_office_province, cod_office_district, t_office_address, t_professional_resume, n_years_practicing, ' \
-    ' n_attend_patients_covid, n_attend_patients_vih, t_current_job_title ' \
-    ' FROM doctors WHERE n_active = 1 {}'.format(clausulas))
+    if int(slDepartment) > 0:
+        clausulas += ' AND doc.cod_office_department = {}'.format(slDepartment)
+
+    if int(slProvince) > 0:
+        clausulas += ' AND doc.cod_office_province = {}'.format(slProvince)
+
+    if int(slDistrict) > 0:
+        clausulas += ' AND doc.cod_office_district = {}'.format(slDistrict)
+    
+    if len(name_specialization) > 0:
+        clausulas += ' AND sp.t_name_specialty LIKE "%{}%"'.format(name_specialization)
+        cur.execute('SELECT * FROM specialty WHERE t_name_specialty LIKE "%{}%"'.format(name_specialization))
+        dataSpecialty = cur.fetchall()
+        print(dataSpecialty)
+
+    query = 'SELECT doc.cod_doctor, ds.t_rne, sp.t_name_specialty, doc.t_name_doctor, doc.t_lastname_doctor, doc.t_dni_doctor,' \
+        ' doc.cod_gender_doctor, doc.t_workphone_1_doctor,doc.t_workphone_2_doctor, doc.t_personalphone_doctor, doc.n_collegiate,' \
+        ' doc.t_collegiate_code, doc.cod_office_department, doc.cod_office_province, doc.cod_office_district, doc.t_office_address,' \
+        ' doc.t_professional_resume, doc.n_years_practicing, doc.n_attend_patients_covid, doc.n_attend_patients_vih, doc.t_current_job_title' \
+        ' FROM doctors doc' \
+        ' INNER JOIN doctor_specialty ds ON doc.cod_doctor = ds.cod_doctor' \
+        ' INNER JOIN specialty sp ON ds.cod_specialty = sp.cod_specialty' \
+        ' WHERE doc.n_active = 1 AND sp.n_active = 1 {}'.format(clausulas)
+
+    cur.execute(query)
     dataDoctors = cur.fetchall()
 
-    return render_template('search-specialty.html', data=dataObj, departments=dataDepartment, provinces=dataProvince, districts=dataDistrict, 
-    generos=dataGenero, doctors=dataDoctors)
+    return render_template('search-specialty.html', data=dataObj, departments=dataDepartment, provinces=dataProvince, districts=dataDistrict,
+                           generos=dataGenero, doctors=dataDoctors, valueSpecialty=name_specialization)
 
 
 @app.route('/doctor')
@@ -355,7 +375,8 @@ def update_district(id):
 def delete_specialization(id):
     cur = mysql.connection.cursor()
     # cur.execute('DELETE FROM specialty WHERE cod_specialty = {0}'.format(id))
-    cur.execute('UPDATE specialty SET n_active = 0, d_modification_date = %s WHERE cod_specialty = %s', (datetime.now().strftime("%Y-%m-%d %H:%M:%S"), id))
+    cur.execute('UPDATE specialty SET n_active = 0, d_modification_date = %s WHERE cod_specialty = %s',
+                (datetime.now().strftime("%Y-%m-%d %H:%M:%S"), id))
     mysql.connection.commit()
     flash('Specialization Removed Successfully')
     return redirect(url_for('redirect_specialization'))
@@ -366,7 +387,8 @@ def delete_department(id):
     modification_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     cur = mysql.connection.cursor()
     # cur.execute('DELETE FROM department WHERE cod_department = {0}'.format(id))
-    cur.execute('UPDATE department SET n_active = 0, d_modification_date = %s WHERE cod_department = %s',(modification_date,id))
+    cur.execute('UPDATE department SET n_active = 0, d_modification_date = %s WHERE cod_department = %s',
+                (modification_date, id))
     mysql.connection.commit()
     flash('Department Removed Successfully')
     return redirect(url_for('redirect_department'))
@@ -376,7 +398,8 @@ def delete_department(id):
 def delete_province(id):
     cur = mysql.connection.cursor()
     # cur.execute('DELETE FROM province WHERE cod_province = {0}'.format(id))
-    cur.execute('UPDATE province SET n_active = 0, d_modification_date = %s WHERE cod_province = %s', (datetime.now().strftime("%Y-%m-%d %H:%M:%S"), id))
+    cur.execute('UPDATE province SET n_active = 0, d_modification_date = %s WHERE cod_province = %s',
+                (datetime.now().strftime("%Y-%m-%d %H:%M:%S"), id))
     mysql.connection.commit()
     flash('Province Removed Successfully')
     return redirect(url_for('redirect_province'))
@@ -386,7 +409,8 @@ def delete_province(id):
 def delete_district(id):
     cur = mysql.connection.cursor()
     # cur.execute('DELETE FROM district WHERE cod_district = {0}'.format(id))
-    cur.execute('UPDATE district SET n_active = 0, d_modification_date = %s WHERE cod_district = %s', (datetime.now().strftime("%Y-%m-%d %H:%M:%S"), id))
+    cur.execute('UPDATE district SET n_active = 0, d_modification_date = %s WHERE cod_district = %s',
+                (datetime.now().strftime("%Y-%m-%d %H:%M:%S"), id))
     mysql.connection.commit()
     flash('District Removed Successfully')
     return redirect(url_for('redirect_district'))

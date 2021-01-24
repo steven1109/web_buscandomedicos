@@ -9,8 +9,13 @@
 {% set cod_genero = data['genero'] | int() %}
 
 <div class="container-fluid navbar-light bg-light">
-    <form action="" method="post">
+    <form action="/search_specialization" method="post">
         <div class="card-body row no-gutters align-items-center mt-1">
+            <div class="col">
+                <input name="ipEspecializacion" class="form-control form-control-lg form-control-borderless"
+                    type="search" placeholder="Buscar Especialización" 
+                    value="{{valueSpecialty}}">
+            </div>
             <div class="col-md">
                 <div class="form-floating">
                     <select name="slGenero" class="form-select" id="dpGenero">
@@ -81,7 +86,7 @@
 
 <div class="container pt-3">
     {% for doctor in doctors %}
-    {% if doctor.4 == 'Masculino' %}
+    {% if doctor.4 == 2 %}
     {% set gen_doctor = 'Dr.' %}
     {% else %}
     {% set gen_doctor = 'Dra.' %}
@@ -93,8 +98,8 @@
             </div>
             <div class="col-md-8">
                 <div class="card-body">
-                    <h5 class="card-title">{{gen_doctor}} {{doctor.1}} {{doctor.2}}</h5>
-                    <p class="card-text">{{doctor.14}}</p>
+                    <h5 class="card-title">{{gen_doctor}} {{doctor.3}} {{doctor.4}}</h5>
+                    <p class="card-text">{{doctor.16}}</p>
                     <a href="#" class="card-link">Card link</a>
                     <a href="#" class="card-link align-items-end">Another link</a>
 
@@ -105,7 +110,7 @@
     {% endfor %}
 
     {% for doctor in doctors %}
-    {% if doctor.4 == 'Masculino' %}
+    {% if doctor.4 == 2 %}
     {% set gen_doctor = 'Dr.' %}
     {% else %}
     {% set gen_doctor = 'Dra.' %}
@@ -117,10 +122,10 @@
             </div>
             <div class="col-md-8">
                 <div class="card-header">
-                    <h5 class="card-title">{{gen_doctor}} {{doctor.1}} {{doctor.2}}</h5>
+                    <h5 class="card-title">{{gen_doctor}} {{doctor.3}} {{doctor.4}}</h5>
                 </div>
                 <div class="card-body">
-                    <p class="card-text">{{doctor.14}}</p>
+                    <p class="card-text">{{doctor.16}}</p>
                     <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
                 </div>
                 <div class="d-grid gap-2 justify-content-md-end">
