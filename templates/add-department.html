@@ -9,7 +9,12 @@
             {% with messages = get_flashed_messages() %}
             {% if messages %}
             {% for message in messages %}
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {% if 'vacío' in message %}
+            {% set alert_status = 'alert-danger' %}
+            {% else %}
+            {% set alert_status = 'alert-success' %}
+            {% endif %}
+            <div class="alert {{alert_status}} alert-dismissible fade show" role="alert">
                 {{ message }}
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
