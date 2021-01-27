@@ -7,14 +7,15 @@
 {% set cod_provincia = data['provincia'] | int() %}
 {% set cod_distrito = data['distrito'] | int() %}
 {% set cod_genero = data['genero'] | int() %}
+{% set puntuacion = dataOrder | int() %}
+{% set estrellas = dataStar | int() %}
 
 <div class="container-fluid navbar-light bg-light">
     <form action="/search_specialization" method="post">
         <div class="card-body row no-gutters align-items-center mt-1">
-            <div class="col">
+            <div class="col-auto">
                 <input name="ipEspecializacion" class="form-control form-control-lg form-control-borderless"
-                    type="search" placeholder="Buscar Especialización" 
-                    value="{{valueSpecialty}}">
+                    type="search" placeholder="Buscar Especialización" value="{{valueSpecialty}}">
             </div>
             <div class="col-md">
                 <div class="form-floating">
@@ -77,8 +78,29 @@
                     <label for="sldistrict">Elija su Distrito</label>
                 </div>
             </div>
+            <div class="col-md">
+                <div class="form-floating">
+                    <select name="slOrder" class="form-select" id="dpOrder">
+                        <option value="0" {{'selected' if puntuacion==0 else '' }}>Puntuación</option>
+                        <option value="1" {{'selected' if puntuacion==1 else '' }}>Mayor a menor</option>
+                        <option value="2" {{'selected' if puntuacion==2 else '' }}>Menor a mayor</option>
+                    </select>
+                    <label for="slorder">Ordenar por Puntuación</label>
+                </div>
+            </div>
+            <div class="col-md">
+                <div class="form-floating">
+                    <select name="slFilterStar" class="form-select" id="dpFilterStar">
+                        <option value="0" {{'selected' if estrellas==0 else '' }}>Estrellas</option>
+                        {% for i in range(5) %}
+                        <option value="{{i + 1}}" {{'selected' if estrellas==(i + 1) else '' }}>{{i + 1}}</option>
+                        {% endfor %}
+                    </select>
+                    <label for="slfilterStar">Filtrar por Estrellas</label>
+                </div>
+            </div>
             <div class="col-auto">
-                <button class="btn btn-lg btn-primary" type="submit">Search</button>
+                <button class="btn btn-lg btn-primary" type="submit">Filtrar</button>
             </div>
         </div>
     </form>
@@ -86,7 +108,7 @@
 
 <div class="container pt-3">
     {% for doctor in doctors %}
-    {% if doctor.4 == 2 %}
+    {% if doctor.6 == 2 %}
     {% set gen_doctor = 'Dr.' %}
     {% else %}
     {% set gen_doctor = 'Dra.' %}
@@ -96,50 +118,40 @@
             <div class="col-md-3">
                 <img src="{{url_for('static', filename='img/logo.svg')}}" class="card-img-top" alt="...">
             </div>
-            <div class="col-md-8">
+            <div class="col-md-9">
                 <div class="card-body">
-                    <h5 class="card-title">{{gen_doctor}} {{doctor.3}} {{doctor.4}}</h5>
+                    <!-- <h5 class="card-title">{{gen_doctor}} {{doctor.3}} {{doctor.4}}</h5> -->
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="card-title mb-3">{{gen_doctor}} {{doctor.3}} {{doctor.4}}</h5>
+                        <small>
+                            <span style="font-size: 1.1em; color: goldenrod;">
+                                {% set num = doctor.23 %}
+                                {% set int_part = "{:.2f}".format(num).split('.')[0] | int() %}
+                                {% set decimal_part = "{:.2f}".format(num).split('.')[1] | int() %}
+                                {% for star in range(int_part) %}
+                                <i class="fa fa-star"></i>
+                                {% endfor %}
+                                {% set semi = 1 if decimal_part >= 50 else 0 | int() %}
+                                {% if semi == 1 %}
+                                <i class="fas fa-star-half-alt"></i>
+                                {% endif %}
+                                {% for star in range(5-(int_part+semi)) %}
+                                <i class="fa fa-star-o"></i>
+                                {% endfor %}
+                            </span>
+                        </small>
+                    </div>
                     <p class="card-text">{{doctor.16}}</p>
-                    <a href="#" class="card-link">Card link</a>
-                    <a href="#" class="card-link align-items-end">Another link</a>
+                    <a href="#" class="btn btn-primary">Sacar Cita</a>
+                    <!-- <a href="#" class="card-link">Card link</a> -->
+                    <a href="#" class="btn btn-primary align-items-end">Más Información</a>
+                    <!-- <a href="#" class="card-link align-items-end">Another link</a> -->
 
                 </div>
-            </div>
-        </div>
-    </div>
-    {% endfor %}
-
-    {% for doctor in doctors %}
-    {% if doctor.4 == 2 %}
-    {% set gen_doctor = 'Dr.' %}
-    {% else %}
-    {% set gen_doctor = 'Dra.' %}
-    {% endif %}
-    <div class="card w-75 border-light text-dark bg-light mb-3" style="width: 18rem;">
-        <div class="row g-0">
-            <div class="col-md-3">
-                <img src="{{url_for('static', filename='img/logo.svg')}}" class="card-img-top" alt="...">
-            </div>
-            <div class="col-md-8">
-                <div class="card-header">
-                    <h5 class="card-title">{{gen_doctor}} {{doctor.3}} {{doctor.4}}</h5>
-                </div>
-                <div class="card-body">
-                    <p class="card-text">{{doctor.16}}</p>
-                    <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
-                </div>
-                <div class="d-grid gap-2 justify-content-md-end">
-                    <a class="btn btn-primary" href="/more-information/{{doctor.0}}" role="button">Mas Información</a>
-                    <a class="btn btn-primary" href="/book-appointment/{{doctor.0}}" role="button">Sacar Cita</a>
-                  </div>
             </div>
         </div>
     </div>
     {% endfor %}
 </div>
-
-<!-- {% for k, v in data.items() %}
-    <p>{{k}} -- {{v}}</p>
-    {% endfor %} -->
 
 {% endblock %}

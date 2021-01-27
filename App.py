@@ -94,6 +94,23 @@ def getSearchSpecialization():
     dataObj['provincia'] = slProvince
     dataObj['distrito'] = slDistrict
 
+    slOrder = request.form.get('slOrder', None)
+    orderby = "ORDER BY doc.t_lastname_doctor ASC"
+    if slOrder is not None:
+        if int(slOrder) > 0:
+            orderby = "ORDER BY prom DESC" if int(slOrder) == 1 else "ORDER BY prom ASC"
+        else:
+            orderby = "ORDER BY doc.t_lastname_doctor ASC"
+    else:
+        slOrder = 0
+
+    filterStar = ""
+    slFilterStar = request.form.get('slFilterStar', None)
+    if slFilterStar is not None:
+        filterStar = f"HAVING prom < {slFilterStar}" if int(slFilterStar) > 0 else ""
+    else:
+        slFilterStar = 0
+
     cur = mysql.connection.cursor()
     cur.execute('SELECT * FROM department WHERE n_active = 1')
     dataDepartment = cur.fetchall()
@@ -122,27 +139,37 @@ def getSearchSpecialization():
 
     if int(slDistrict) > 0:
         clausulas += ' AND doc.cod_office_district = {}'.format(slDistrict)
-    
+
     if len(name_specialization) > 0:
-        clausulas += ' AND sp.t_name_specialty LIKE "%{}%"'.format(name_specialization)
-        cur.execute('SELECT * FROM specialty WHERE t_name_specialty LIKE "%{}%"'.format(name_specialization))
+        clausulas += ' AND sp.t_name_specialty LIKE "%{}%"'.format(
+            name_specialization)
+        cur.execute(
+            'SELECT * FROM specialty WHERE t_name_specialty LIKE "%{}%"'.format(name_specialization))
         dataSpecialty = cur.fetchall()
         print(dataSpecialty)
 
     query = 'SELECT doc.cod_doctor, ds.t_rne, sp.t_name_specialty, doc.t_name_doctor, doc.t_lastname_doctor, doc.t_dni_doctor,' \
         ' doc.cod_gender_doctor, doc.t_workphone_1_doctor,doc.t_workphone_2_doctor, doc.t_personalphone_doctor, doc.n_collegiate,' \
         ' doc.t_collegiate_code, doc.cod_office_department, doc.cod_office_province, doc.cod_office_district, doc.t_office_address,' \
-        ' doc.t_professional_resume, doc.n_years_practicing, doc.n_attend_patients_covid, doc.n_attend_patients_vih, doc.t_current_job_title' \
-        ' FROM doctors doc' \
+        ' doc.t_professional_resume, doc.n_years_practicing, doc.n_attend_patients_covid, doc.n_attend_patients_vih, doc.t_current_job_title,' \
+        ' COUNT(con.cod_doctor) AS count_doc, SUM(con.n_clasificacion) AS sum_com, ROUND(AVG(con.n_clasificacion),2) AS prom' \
+        ' FROM doctors AS doc' \
         ' INNER JOIN doctor_specialty ds ON doc.cod_doctor = ds.cod_doctor' \
         ' INNER JOIN specialty sp ON ds.cod_specialty = sp.cod_specialty' \
-        ' WHERE doc.n_active = 1 AND sp.n_active = 1 {}'.format(clausulas)
+        ' INNER JOIN comentario AS con ON doc.cod_doctor = con.cod_doctor' \
+        ' WHERE doc.n_active = 1 AND sp.n_active = 1 {0}' \
+        ' GROUP BY doc.cod_doctor, ds.t_rne, sp.t_name_specialty, doc.t_name_doctor, doc.t_lastname_doctor, doc.t_dni_doctor,' \
+        ' doc.cod_gender_doctor, doc.t_workphone_1_doctor,doc.t_workphone_2_doctor, doc.t_personalphone_doctor, doc.n_collegiate,' \
+        ' doc.t_collegiate_code, doc.cod_office_department, doc.cod_office_province, doc.cod_office_district, doc.t_office_address,' \
+        ' doc.t_professional_resume, doc.n_years_practicing, doc.n_attend_patients_covid, doc.n_attend_patients_vih, doc.t_current_job_title' \
+        ' {1}' \
+        ' {2};'.format(clausulas, filterStar, orderby)
 
     cur.execute(query)
     dataDoctors = cur.fetchall()
 
     return render_template('search-specialty.html', data=dataObj, departments=dataDepartment, provinces=dataProvince, districts=dataDistrict,
-                           generos=dataGenero, doctors=dataDoctors, valueSpecialty=name_specialization)
+                           generos=dataGenero, doctors=dataDoctors, valueSpecialty=name_specialization, dataOrder=slOrder, dataStar=slFilterStar)
 
 
 @app.route('/doctor')
@@ -193,11 +220,15 @@ def add_department():
         else:
             value = 0
         name_department = request.form['departamento']
-        cur = mysql.connection.cursor()
-        cur.execute('INSERT INTO department (t_name_department, n_active, cod_country, d_creation_date) VALUES(%s, %s, %s, %s)',
-                    (name_department, value, 1, datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
-        mysql.connection.commit()
-        flash('Departamento Added Successfully')
+        if len(name_department.strip()) == 0:
+            flash('Campo departamento vacío')
+        else:
+            cur = mysql.connection.cursor()
+            cur.execute('INSERT INTO department (t_name_department, n_active, cod_country, d_creation_date) VALUES(%s, %s, %s, %s)',
+                        (name_department, value, 1, datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
+            mysql.connection.commit()
+            flash('Departamento Added Successfully')
+
         return redirect(url_for('redirect_department'))
 
 
@@ -210,11 +241,16 @@ def add_province():
             value = 0
         name_province = request.form['province']
         slDepartment = request.form.get('slDepartment')
-        cur = mysql.connection.cursor()
-        cur.execute('INSERT INTO province (t_name_province, n_active, cod_department, d_creation_date) VALUES(%s, %s, %s, %s)',
-                    (name_province, value, slDepartment, datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
-        mysql.connection.commit()
-        flash('Province Added Successfully')
+        if len(name_province.strip()) == 0:
+            flash('Campo provincia vacío')
+        elif int(slDepartment) == 0:
+            flash('Debe seleccionar un Departamento')
+        else:
+            cur = mysql.connection.cursor()
+            cur.execute('INSERT INTO province (t_name_province, n_active, cod_department, d_creation_date) VALUES(%s, %s, %s, %s)',
+                        (name_province, value, slDepartment, datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
+            mysql.connection.commit()
+            flash('Province Added Successfully')
         return redirect(url_for('redirect_province'))
 
 
@@ -227,11 +263,16 @@ def add_district():
             value = 0
         name_district = request.form['district']
         slProvince = request.form.get('slProvince')
-        cur = mysql.connection.cursor()
-        cur.execute('INSERT INTO district (t_name_district, n_active, cod_province, d_creation_date) VALUES(%s, %s, %s, %s)',
-                    (name_district, value, slProvince, datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
-        mysql.connection.commit()
-        flash('District Added Successfully')
+        if len(name_district.strip()) == 0:
+            flash('Campo distrito vacío')
+        elif int(slProvince) == 0:
+            flash('Debe seleccionar una Provincia')
+        else:
+            cur = mysql.connection.cursor()
+            cur.execute('INSERT INTO district (t_name_district, n_active, cod_province, d_creation_date) VALUES(%s, %s, %s, %s)',
+                        (name_district, value, slProvince, datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
+            mysql.connection.commit()
+            flash('District Added Successfully')
         return redirect(url_for('redirect_district'))
 
 
@@ -282,17 +323,21 @@ def update_department(id):
             value = 1
         else:
             value = 0
-        cur = mysql.connection.cursor()
-        cur.execute("""
-            UPDATE department
-            SET t_name_department = %s,
-                n_active = %s,
-                d_modification_date = %s
-            WHERE cod_department = %s
-        """, (name_department, value, datetime.now().strftime("%Y-%m-%d %H:%M:%S"), id))
-        mysql.connection.commit()
-        flash('Department Updated Successfully')
-        return redirect(url_for('redirect_department'))
+        if len(name_department.strip()) == 0:
+            flash('El campo departamento no puede estar vacío')
+            return redirect(f'/edit_department/{id}')
+        else:
+            cur = mysql.connection.cursor()
+            cur.execute("""
+                UPDATE department
+                SET t_name_department = %s,
+                    n_active = %s,
+                    d_modification_date = %s
+                WHERE cod_department = %s
+            """, (name_department, value, datetime.now().strftime("%Y-%m-%d %H:%M:%S"), id))
+            mysql.connection.commit()
+            flash('Department Updated Successfully')
+            return redirect(url_for('redirect_department'))
 
 
 @app.route('/edit_province/<string:id>')
@@ -315,18 +360,25 @@ def update_province(id):
             value = 1
         else:
             value = 0
-        cur = mysql.connection.cursor()
-        cur.execute("""
-            UPDATE province
-            SET t_name_province = %s,
-                n_active = %s,
-                cod_department = %s,
-                d_modification_date = %s
-            WHERE cod_province = %s
-        """, (name_province, value, slDepartment, datetime.now().strftime("%Y-%m-%d %H:%M:%S"), id))
-        mysql.connection.commit()
-        flash('Province Updated Successfully')
-        return redirect(url_for('redirect_province'))
+        if len(name_province.strip()) == 0:
+            flash('Campo provincia vacío')
+            return redirect(f'/edit_province/{id}')
+        elif int(slDepartment) == 0:
+            flash('Debe seleccionar un Departamento')
+            return redirect(f'/edit_province/{id}')
+        else:
+            cur = mysql.connection.cursor()
+            cur.execute("""
+                UPDATE province
+                SET t_name_province = %s,
+                    n_active = %s,
+                    cod_department = %s,
+                    d_modification_date = %s
+                WHERE cod_province = %s
+            """, (name_province, value, slDepartment, datetime.now().strftime("%Y-%m-%d %H:%M:%S"), id))
+            mysql.connection.commit()
+            flash('Province Updated Successfully')
+            return redirect(url_for('redirect_province'))
 
 
 @app.route('/edit_district/<id>')
@@ -355,18 +407,26 @@ def update_district(id):
             value = 1
         else:
             value = 0
-        cur = mysql.connection.cursor()
-        cur.execute("""
-            UPDATE district
-            SET t_name_district = %s,
-                n_active = %s,
-                cod_province = %s,
-                d_modification_date = %s
-            WHERE cod_district = %s
-        """, (name_district, value, slProvince, datetime.now().strftime("%Y-%m-%d %H:%M:%S"), id))
-        mysql.connection.commit()
-        flash('District Updated Successfully')
-        return redirect(url_for('redirect_district'))
+
+        if len(name_district.strip()) == 0:
+            flash('Campo distrito vacío')
+            return redirect(f'/edit_district/{id}')
+        elif int(slProvince) == 0:
+            flash('Debe seleccionar una Provincia')
+            return redirect(f'/edit_district/{id}')
+        else:
+            cur = mysql.connection.cursor()
+            cur.execute("""
+                UPDATE district
+                SET t_name_district = %s,
+                    n_active = %s,
+                    cod_province = %s,
+                    d_modification_date = %s
+                WHERE cod_district = %s
+            """, (name_district, value, slProvince, datetime.now().strftime("%Y-%m-%d %H:%M:%S"), id))
+            mysql.connection.commit()
+            flash('District Updated Successfully')
+            return redirect(url_for('redirect_district'))
 
 # Section of to delete in database
 
