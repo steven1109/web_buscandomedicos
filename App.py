@@ -1,41 +1,51 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 from flask_mysqldb import MySQL
 from datetime import datetime
+from src import Utils
+import math
+import unicodedata
 
 app = Flask(__name__)
-# MySQL Connection
+# MySQL Connection localhost
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
 app.config['MYSQL_PASSWORD'] = 'root'
 app.config['MYSQL_DB'] = 'buscando_medicos'
+# MySQL Connection AWS
+# app.config['MYSQL_HOST'] = 'mysqlflask.cpvlafhznktc.sa-east-1.rds.amazonaws.com'
+# app.config['MYSQL_USER'] = 'mysqlflask'
+# app.config['MYSQL_PASSWORD'] = 'mySqlFlasPlbmeP6'
+# app.config['MYSQL_DB'] = 'buscando_medicos'
 mysql = MySQL(app)
 # Settings
 app.secret_key = 'mysecretkey'
 
 
-@app.route('/')
-def Index():
-    return redirect(url_for('redirect_searchSpecialization'))
-
-
 # Page redirection section
+@app.route('/')
+def redirect_heartweb():
+    uConsulting = Utils.ConsultingBD('department', 'S')
+    return render_template('principal.html', departments=uConsulting.execQuery())
+
+
+@app.route('/login')
+def redirect_login():
+    return render_template('login.html')
+
 
 @app.route('/department')
-def redirect_department():
-    cur = mysql.connection.cursor()
-    cur.execute('SELECT * FROM department WHERE n_active = 1')
-    data = cur.fetchall()
-    return render_template('add-department.html', departments=data)
+def redirect_department():    
+    uConsulting = Utils.ConsultingBD('department', 'S')
+    return render_template('add-department.html', departments=uConsulting.execQuery())
 
 
 @app.route('/province')
 def redirect_province():
-    cur = mysql.connection.cursor()
-    cur.execute('SELECT * FROM province WHERE n_active = 1')
-    data = cur.fetchall()
+    uConsulting = Utils.ConsultingBD('province', 'S')
+    data = uConsulting.execQuery()
 
-    cur.execute('SELECT * FROM department WHERE n_active = 1')
-    dataDepartment = cur.fetchall()
+    uConsulting = Utils.ConsultingBD('department', 'S')
+    dataDepartment = uConsulting.execQuery()
     return render_template('add-province.html', provinces=data, departments=dataDepartment)
 
 
@@ -51,15 +61,6 @@ def redirect_district():
     ORDER BY dp.cod_department
     """)
     dataProvince = cur.fetchall()
-    # selectArray = []
-    # for dp in dataProvince:
-    #     dpObj = {}
-    #     dpObj['id_province'] = dp[0]
-    #     dpObj['id_department'] = dp[2]
-    #     dpObj['name_department'] = dp[3]
-    #     dpObj['name_province'] = dp[1]
-    #     selectArray.append(dpObj)
-    # print(selectArray)
     cur.execute("""
     SELECT ds.cod_district, ds.t_name_district, ds.n_active, ds.cod_province, pr.t_name_province
     FROM district AS ds
@@ -81,53 +82,75 @@ def redirect_search_specialty():
     return render_template('search-specialty.html')
 
 
-@app.route('/search_specialization', methods=['POST'])
-def getSearchSpecialization():
+@app.route('/search_specialization', methods=['POST'], defaults={'page': 1})
+# @app.route('/search_specialization/<int:page>', methods=['POST', 'GET'])
+def getSearchSpecialization(page):
+    limit = 5
+    # offset = page*limit - limit
     slDepartment = request.form.get('slDepartment')
     slProvince = request.form.get('slProvince')
     slDistrict = request.form.get('slDistrict')
     slGenero = request.form.get('slGenero')
-    name_specialization = request.form['ipEspecializacion']
+    name_specialization = request.form.get('ipEspecializacion', None)
     dataObj = {}
     dataObj['genero'] = slGenero
     dataObj['departamento'] = slDepartment
     dataObj['provincia'] = slProvince
     dataObj['distrito'] = slDistrict
+    form = ""
 
     slOrder = request.form.get('slOrder', None)
     orderby = "ORDER BY doc.t_lastname_doctor ASC"
     if slOrder is not None:
+        form = "RESULTADO_BUSQUEDA"
         if int(slOrder) > 0:
-            orderby = "ORDER BY prom DESC" if int(slOrder) == 1 else "ORDER BY prom ASC"
+            orderby = "ORDER BY prom DESC" if int(
+                slOrder) == 1 else "ORDER BY prom ASC"
         else:
             orderby = "ORDER BY doc.t_lastname_doctor ASC"
     else:
+        form = "PRINCIPAL"
         slOrder = 0
 
     filterStar = ""
     slFilterStar = request.form.get('slFilterStar', None)
     if slFilterStar is not None:
-        filterStar = f"HAVING prom < {slFilterStar}" if int(slFilterStar) > 0 else ""
+        form = "RESULTADO_BUSQUEDA"
+        filterStar = f"HAVING prom >= {int(slFilterStar)}" if int(
+            slFilterStar) > 0 else ""
     else:
+        form = "PRINCIPAL"
         slFilterStar = 0
 
     cur = mysql.connection.cursor()
+
+    # Pagination
+    cur.execute('SELECT * FROM doctors WHERE n_active = 1')
+    total_row = cur.rowcount
+    total_page = math.ceil(total_row/limit)
+    next_page = page + 1
+    prev_page = page - 1
+    # limit = "LIMIT {0} OFFSET {1}".format(limit, offset)
+
+    # Ubigeo
     cur.execute('SELECT * FROM department WHERE n_active = 1')
     dataDepartment = cur.fetchall()
-
+    slDepartment = 0 if slDepartment is None else slDepartment
     cur.execute(
         'SELECT * FROM province WHERE n_active = 1 and cod_department = {}'.format(slDepartment))
     dataProvince = cur.fetchall()
-
+    slProvince = 0 if slProvince is None else slProvince
     cur.execute(
         'SELECT * FROM district WHERE n_active = 1 and cod_province = {}'.format(slProvince))
     dataDistrict = cur.fetchall()
 
+    # Genero
     cur.execute('SELECT * FROM gender WHERE n_active = 1')
     dataGenero = cur.fetchall()
 
+    # Condiciolanes
     clausulas = ""
-
+    slGenero = 0 if slGenero is None else slGenero
     if int(slGenero) > 0:
         clausulas += ' AND doc.cod_gender_doctor = {}'.format(slGenero)
 
@@ -137,16 +160,16 @@ def getSearchSpecialization():
     if int(slProvince) > 0:
         clausulas += ' AND doc.cod_office_province = {}'.format(slProvince)
 
+    slDistrict = 0 if slDistrict is None else slDistrict
     if int(slDistrict) > 0:
         clausulas += ' AND doc.cod_office_district = {}'.format(slDistrict)
 
+    name_specialization = '' if name_specialization is None else name_specialization
     if len(name_specialization) > 0:
+        name_specialization = unicodedata.normalize(
+            'NFKD', name_specialization).encode('ASCII', 'ignore').upper().decode("utf-8")
         clausulas += ' AND sp.t_name_specialty LIKE "%{}%"'.format(
             name_specialization)
-        cur.execute(
-            'SELECT * FROM specialty WHERE t_name_specialty LIKE "%{}%"'.format(name_specialization))
-        dataSpecialty = cur.fetchall()
-        print(dataSpecialty)
 
     query = 'SELECT doc.cod_doctor, ds.t_rne, sp.t_name_specialty, doc.t_name_doctor, doc.t_lastname_doctor, doc.t_dni_doctor,' \
         ' doc.cod_gender_doctor, doc.t_workphone_1_doctor,doc.t_workphone_2_doctor, doc.t_personalphone_doctor, doc.n_collegiate,' \
@@ -155,7 +178,7 @@ def getSearchSpecialization():
         ' COUNT(con.cod_doctor) AS count_doc, SUM(con.n_clasificacion) AS sum_com, ROUND(AVG(con.n_clasificacion),2) AS prom' \
         ' FROM doctors AS doc' \
         ' INNER JOIN doctor_specialty ds ON doc.cod_doctor = ds.cod_doctor' \
-        ' INNER JOIN specialty sp ON ds.cod_specialty = sp.cod_specialty' \
+        ' INNER JOIN especialidad sp ON ds.cod_specialty = sp.cod_specialty' \
         ' INNER JOIN comentario AS con ON doc.cod_doctor = con.cod_doctor' \
         ' WHERE doc.n_active = 1 AND sp.n_active = 1 {0}' \
         ' GROUP BY doc.cod_doctor, ds.t_rne, sp.t_name_specialty, doc.t_name_doctor, doc.t_lastname_doctor, doc.t_dni_doctor,' \
@@ -163,13 +186,23 @@ def getSearchSpecialization():
         ' doc.t_collegiate_code, doc.cod_office_department, doc.cod_office_province, doc.cod_office_district, doc.t_office_address,' \
         ' doc.t_professional_resume, doc.n_years_practicing, doc.n_attend_patients_covid, doc.n_attend_patients_vih, doc.t_current_job_title' \
         ' {1}' \
-        ' {2};'.format(clausulas, filterStar, orderby)
+        ' {2}'.format(clausulas, filterStar, orderby)
+        # ' {3}'.format(clausulas, filterStar, orderby, limit)
 
     cur.execute(query)
     dataDoctors = cur.fetchall()
+    rows_affected = cur.rowcount
+
+    cur.execute('''
+    INSERT INTO m_log (n_tipo,t_formulario,t_especialidad_buscada,t_genero,t_departamento,
+    t_provincia,t_distrito,t_medico_buscado,t_cita_inconclusa,d_creation_date) 
+    VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+    ''', (1, form, name_specialization, slGenero, slDepartment, slProvince, slDistrict, '', '', datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
+    mysql.connection.commit()
 
     return render_template('search-specialty.html', data=dataObj, departments=dataDepartment, provinces=dataProvince, districts=dataDistrict,
-                           generos=dataGenero, doctors=dataDoctors, valueSpecialty=name_specialization, dataOrder=slOrder, dataStar=slFilterStar)
+                           generos=dataGenero, doctors=dataDoctors, valueSpecialty=name_specialization, dataOrder=slOrder, dataStar=slFilterStar,
+                           rows_affected=rows_affected, pages=total_page, next=next_page, prev=prev_page, actual_page=page)
 
 
 @app.route('/doctor')
@@ -177,25 +210,13 @@ def redirect_doctor():
     return render_template('add-doctor.html')
 
 
-@app.route('/principal')
-def redirect_searchSpecialization():
-    cur = mysql.connection.cursor()
-    cur.execute('SELECT * FROM department WHERE n_active = 1')
-    data = cur.fetchall()
-    # print(cur.rowcount)
-    return render_template('principal.html', departments=data)
-
-
 @app.route('/specialization')
 def redirect_specialization():
-    cur = mysql.connection.cursor()
-    cur.execute('SELECT * FROM specialty WHERE n_active = 1')
-    data = cur.fetchall()
-    return render_template('add-specialization.html', specializations=data)
+    uConsulting = Utils.ConsultingBD('especialidad', 'S')
+    return render_template('add-specialization.html', specializations=uConsulting.execQuery())
 
 
 # Section of to insert in database
-
 @app.route('/add_specialization', methods=['POST'])
 def add_specialization():
     if request.method == 'POST':
@@ -205,7 +226,7 @@ def add_specialization():
         else:
             value = 0
         cur = mysql.connection.cursor()
-        cur.execute('INSERT INTO specialty (t_name_specialty, n_active, d_creation_date) VALUES(%s, %s, %s)',
+        cur.execute('INSERT INTO especialidad (t_name_specialty, n_active, d_creation_date) VALUES(%s, %s, %s)',
                     (name_specialization, value, datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
         mysql.connection.commit()
         flash('Specialization Added Successfully')
@@ -276,12 +297,17 @@ def add_district():
         return redirect(url_for('redirect_district'))
 
 
-# Section of to update in database
+@app.route('/add_doctors', methods=['POST'])
+def add_doctors():
+    if request.method == 'POST':
+        return 'add doctor'
 
+
+# Section of to update in database
 @app.route('/edit_specialization/<id>')
 def get_specialization(id):
     cur = mysql.connection.cursor()
-    cur.execute('SELECT * FROM specialty WHERE cod_specialty = %s', (id))
+    cur.execute('SELECT * FROM especialidad WHERE cod_specialty = {}'.format(id))
     data = cur.fetchall()
     return render_template('edit-specialization.html', specialization=data[0])
 
@@ -296,7 +322,7 @@ def update_specialization(id):
             value = 0
         cur = mysql.connection.cursor()
         cur.execute("""
-            UPDATE specialty
+            UPDATE especialidad
             SET t_name_specialty = %s,
                 n_active = %s,
                 d_modification_date = %s
@@ -435,7 +461,7 @@ def update_district(id):
 def delete_specialization(id):
     cur = mysql.connection.cursor()
     # cur.execute('DELETE FROM specialty WHERE cod_specialty = {0}'.format(id))
-    cur.execute('UPDATE specialty SET n_active = 0, d_modification_date = %s WHERE cod_specialty = %s',
+    cur.execute('UPDATE especialidad SET n_active = 0, d_modification_date = %s WHERE cod_specialty = %s',
                 (datetime.now().strftime("%Y-%m-%d %H:%M:%S"), id))
     mysql.connection.commit()
     flash('Specialization Removed Successfully')
@@ -479,9 +505,11 @@ def delete_district(id):
 # Section of to select in database
 @app.route('/selectProvince/<id>')
 def getProvinceByIdDepartment(id):
-    cur = mysql.connection.cursor()
-    cur.execute('SELECT * FROM province WHERE cod_department = %s', (id))
-    provinces = cur.fetchall()
+    uConsulting = Utils.ConsultingBD('province', 'SP', 'cod_department', id)
+    # cur = mysql.connection.cursor()
+    # cur.execute('SELECT * FROM province WHERE cod_department = %s', (id))
+    # provinces = cur.fetchall()
+    provinces = uConsulting.execQuery()
     provinceArray = []
     for province in provinces:
         provinceObj = {}
@@ -494,9 +522,8 @@ def getProvinceByIdDepartment(id):
 
 @app.route('/selectDistrict/<int:id>')
 def getDistrictByProvince(id):
-    cur = mysql.connection.cursor()
-    cur.execute('SELECT * FROM district WHERE cod_province = {}'.format(id))
-    districts = cur.fetchall()
+    uConsulting = Utils.ConsultingBD('district', 'SP', 'cod_province', id)
+    districts = uConsulting.execQuery()
     districtArray = []
     for district in districts:
         districtObj = {}

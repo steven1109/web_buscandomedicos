@@ -3,7 +3,7 @@
 
 <div class="container pt-1">
     <div class="row justify-content-center">
-        <form action="" method="post" class="card card-lg">
+        <form action="/add_doctors" method="post" class="card card-lg">
             <!-- Datos personales del Doctor -->
             <label class="form-label fs-3 mt-2">Datos Personales</label>
             <div class="dropdown-divider"></div>
@@ -40,13 +40,19 @@
                     </div>
                 </div>
             </div>
-
             <div class="row g-2 mt-2">
                 <div class="col-md">
                     <div class="form-floating">
                         <input type="text" class="form-control" id="floatingInputGrid" placeholder="Teléfono Trabajo"
-                            name="workphonedoctor">
-                        <label for="floatingInputGrid">Teléfono Trabajo *</label>
+                            name="workphonedoctor1">
+                        <label for="floatingInputGrid">Teléfono Trabajo 1 *</label>
+                    </div>
+                </div>
+                <div class="col-md">
+                    <div class="form-floating">
+                        <input type="text" class="form-control" id="floatingInputGrid" placeholder="Teléfono Trabajo"
+                            name="workphonedoctor2">
+                        <label for="floatingInputGrid">Teléfono Trabajo 2 *</label>
                     </div>
                 </div>
                 <div class="col-md">
@@ -54,14 +60,6 @@
                         <input type="text" class="form-control" id="floatingInputGrid" placeholder="Teléfono Personal"
                             name="personalphonedoctor">
                         <label for="floatingInputGrid">Teléfono Personal</label>
-                    </div>
-                </div>
-                <div class="col-md">
-                    <div class="form-check mt-4">
-                        <input class="form-check-input" type="checkbox" id="gridCheck" name="chbxColegiado">
-                        <label class="form-check-label" for="gridCheck">
-                            Colegiado
-                        </label>
                     </div>
                 </div>
             </div>
@@ -100,7 +98,6 @@
                     </div>
                 </div>
             </div>
-
             <div class="row g-2 mt-2">
                 <div class="col-md">
                     <div class="form-floating">
@@ -115,9 +112,16 @@
             <!-- Datos profesionales -->
             <label class="form-label fs-3 mt-4">Datos Profesionales</label>
             <div class="dropdown-divider"></div>
-
             <div class="container">
                 <div class="row g-2 mt-2">
+                    <div class="col-auto">
+                        <div class="form-check mt-4">
+                            <input class="form-check-input" type="checkbox" id="gridCheck" name="chbxColegiado">
+                            <label class="form-check-label" for="gridCheck">
+                                Colegiado
+                            </label>
+                        </div>
+                    </div>
                     <div class="col-auto">
                         <div class="form-floating">
                             <input type="text" class="form-control" id="floatingInputGrid"
@@ -125,10 +129,6 @@
                             <label for="floatingInputGrid">Código del Colegiado *</label>
                         </div>
                     </div>
-                    <div class="col-md-5">
-                        <label for="formFile" class="form-label">Adjuntar CV</label>
-                        <input class="form-control" type="file" id="formFile">
-                    </div>
                 </div>
                 <div class="row g-2 mt-2">
                     <div class="col-md-4">
@@ -212,6 +212,22 @@
                             <input type="text" class="form-control" id="floatingInputGrid" placeholder="Código RME"
                                 name="codermedoctor">
                             <label for="floatingInputGrid">Código RME</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row g-2 mt-2">
+                    <div class="col-md">
+                        <div class="col-md-6">
+                            <label for="formFile" class="form-label">Subir Foto</label>
+                            <input class="form-control" type="file" id="formFilePhoto" name="photodoctor">
+                        </div>
+                    </div>
+                </div>
+                <div class="row g-2 mt-2">
+                    <div class="col-md">
+                        <div class="col-md-6">
+                            <label for="formFile" class="form-label">Adjuntar CV</label>
+                            <input class="form-control" type="file" id="formFileCV" name="cvdoctor">
                         </div>
                     </div>
                 </div>
@@ -247,10 +263,9 @@
                 </div>
             </div>
             <!-- end datos de cuenta -->
-
             <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-3 mb-4">
-                <button class="btn btn-primary me-md-2" type="button">Save</button>
-                <button class="btn btn-danger" type="button">Cancel</button>
+                <button type="submit" class="btn btn-primary me-md-2">Save</button>
+                <a href="#" class="btn btn-danger">Cancel</a>
             </div>
         </form>
     </div>

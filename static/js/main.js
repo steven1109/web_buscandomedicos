@@ -51,21 +51,24 @@ province_select.onchange = function () {
     }
 };
 
-
 function cleanSelectProvince() {
     province_select = document.getElementById('dpProvince');
-    // if(province_select.length > 0){
-    //     var options = document.querySelectorAll('#dpProvince option');
-    //     options.forEach(o => o.remove());
-    // }
-    let optionHTML = '<option value="0" selected>Provincia</option>';
-    province_select.innerHTML = optionHTML;
-}
+    province_select.innerHTML = '<option value="0" selected>Provincia</option>';
+};
 
 function cleanSelectDistrict() {
     select = document.getElementById('dpDistrict');
     select.innerHTML = '<option value="0" selected>Distrito</option>';
-}
+};
+
+// function cleanSelectProvince() {
+//     province_select = document.getElementById('dpProvince');
+    // if(province_select.length > 0){
+    //     var options = document.querySelectorAll('#dpProvince option');
+    //     options.forEach(o => o.remove());
+    // }
+//     province_select.innerHTML = '<option value="0" selected>Provincia</option>';
+// }
 
 // $('#dpDepart').change(function () {
 //     let department_select = document.getElementById('dpDepart');
