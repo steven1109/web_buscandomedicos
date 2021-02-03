@@ -4,6 +4,7 @@ from datetime import datetime
 from src import Utils
 import math
 import unicodedata
+from config import Config
 
 app = Flask(__name__)
 # MySQL Connection localhost
