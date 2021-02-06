@@ -1,10 +1,9 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 from flask_mysqldb import MySQL
 from datetime import datetime
-from src import Utils
+from utils import ConsultingBD, BD
 import math
 import unicodedata
-from config import Config
 
 app = Flask(__name__)
 # MySQL Connection localhost
@@ -12,11 +11,6 @@ app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
 app.config['MYSQL_PASSWORD'] = 'root'
 app.config['MYSQL_DB'] = 'buscando_medicos'
-# MySQL Connection AWS
-# app.config['MYSQL_HOST'] = 'mysqlflask.cpvlafhznktc.sa-east-1.rds.amazonaws.com'
-# app.config['MYSQL_USER'] = 'mysqlflask'
-# app.config['MYSQL_PASSWORD'] = 'mySqlFlasPlbmeP6'
-# app.config['MYSQL_DB'] = 'buscando_medicos'
 mysql = MySQL(app)
 # Settings
 app.secret_key = 'mysecretkey'
@@ -25,7 +19,15 @@ app.secret_key = 'mysecretkey'
 # Page redirection section
 @app.route('/')
 def redirect_heartweb():
-    uConsulting = Utils.ConsultingBD('department', 'S')
+    platform = request.user_agent.platform
+    browser = request.user_agent.browser
+    bdInfo = BD('m_log')
+    cur = mysql.connection.cursor()
+    cur.execute('INSERT INTO m_log ({}) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'.format(bdInfo.getColumnsTable()),
+                (1, 'INICIO', '', '', '', '', '', '', '', platform, browser, datetime.now().strftime("%Y-%m-%d %H:%M:%S"), None))
+    mysql.connection.commit()
+
+    uConsulting = ConsultingBD('department', 'S')
     return render_template('principal.html', departments=uConsulting.execQuery())
 
 
@@ -35,17 +37,17 @@ def redirect_login():
 
 
 @app.route('/department')
-def redirect_department():    
-    uConsulting = Utils.ConsultingBD('department', 'S')
+def redirect_department():
+    uConsulting = ConsultingBD('department', 'S')
     return render_template('add-department.html', departments=uConsulting.execQuery())
 
 
 @app.route('/province')
 def redirect_province():
-    uConsulting = Utils.ConsultingBD('province', 'S')
+    uConsulting = ConsultingBD('province', 'S')
     data = uConsulting.execQuery()
 
-    uConsulting = Utils.ConsultingBD('department', 'S')
+    uConsulting = ConsultingBD('department', 'S')
     dataDepartment = uConsulting.execQuery()
     return render_template('add-province.html', provinces=data, departments=dataDepartment)
 
@@ -188,17 +190,20 @@ def getSearchSpecialization(page):
         ' doc.t_professional_resume, doc.n_years_practicing, doc.n_attend_patients_covid, doc.n_attend_patients_vih, doc.t_current_job_title' \
         ' {1}' \
         ' {2}'.format(clausulas, filterStar, orderby)
-        # ' {3}'.format(clausulas, filterStar, orderby, limit)
+    # ' {3}'.format(clausulas, filterStar, orderby, limit)
 
     cur.execute(query)
     dataDoctors = cur.fetchall()
     rows_affected = cur.rowcount
 
+    platform = request.user_agent.platform
+    browser = request.user_agent.browser
     cur.execute('''
     INSERT INTO m_log (n_tipo,t_formulario,t_especialidad_buscada,t_genero,t_departamento,
-    t_provincia,t_distrito,t_medico_buscado,t_cita_inconclusa,d_creation_date) 
-    VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-    ''', (1, form, name_specialization, slGenero, slDepartment, slProvince, slDistrict, '', '', datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
+    t_provincia,t_distrito,t_medico_buscado,t_cita_inconclusa,t_platform,t_browser,d_creation_date) 
+    VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+    ''', (1, form, name_specialization, slGenero, slDepartment, slProvince, slDistrict, '', '',
+          platform, browser, datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
     mysql.connection.commit()
 
     return render_template('search-specialty.html', data=dataObj, departments=dataDepartment, provinces=dataProvince, districts=dataDistrict,
@@ -208,12 +213,16 @@ def getSearchSpecialization(page):
 
 @app.route('/doctor')
 def redirect_doctor():
-    return render_template('add-doctor.html')
+    uConsulting = ConsultingBD('department', 'S')
+    dataDepartments = uConsulting.execQuery()
+    uConsulting = ConsultingBD('especialidad', 'S')
+    dataEspecialidad = uConsulting.execQuery()
+    return render_template('add-doctor.html', departments=dataDepartments, especialidades=dataEspecialidad)
 
 
 @app.route('/specialization')
 def redirect_specialization():
-    uConsulting = Utils.ConsultingBD('especialidad', 'S')
+    uConsulting = ConsultingBD('especialidad', 'S')
     return render_template('add-specialization.html', specializations=uConsulting.execQuery())
 
 
@@ -298,10 +307,45 @@ def add_district():
         return redirect(url_for('redirect_district'))
 
 
-@app.route('/add_doctors', methods=['POST'])
+@app.route('/add_doctors', methods=['POST','GET'])
 def add_doctors():
-    if request.method == 'POST':
-        return 'add doctor'
+    # if request.method == 'POST':
+    namedoctor = request.form['namedoctor']
+    lastnamedoctor = request.form['lastnamedoctor']
+    dnidoctor = request.form['dnidoctor']
+    phonework1 = request.form['workphonedoctor1']
+    phonework2 = request.form['workphonedoctor2']
+    phonepersonal = request.form['personalphonedoctor']
+    slGenero = request.form.get('slGenero')
+    slDepartment = request.form.get('slDepartment')
+    slProvince = request.form.get('slProvince')
+    slDistrict = request.form.get('slDistrict')
+    addressdoctor = request.form['addressdoctor']
+    collegiatecodedoctor = request.form['collegiatecodedoctor']
+    slSpecialty1 = request.form.get('slSpecialty1')
+    codermedoctor1 = request.form['codermedoctor1']
+    slSpecialty2 = request.form.get('slSpecialty2')
+    codermedoctor2 = request.form['codermedoctor2']
+    slSpecialty3 = request.form.get('slSpecialty3')
+    codermedoctor3 = request.form['codermedoctor3']
+    slSpecialty4 = request.form.get('slSpecialty4')
+    codermedoctor4 = request.form['codermedoctor4']
+    slSpecialty5 = request.form.get('slSpecialty5')
+    codermedoctor5 = request.form['codermedoctor5']
+
+    if request.form.get('chbxColegiado'):
+        value = 1
+    else:
+        value = 0
+
+    columns = 't_name_doctor,t_lastname_doctor,t_dni_doctor,cod_gender_doctor,t_workphone_1_doctor,' \
+        't_workphone_2_doctor,t_personalphone_doctor,n_collegiate,t_collegiate_code,cod_office_department,' \
+        'cod_office_province,cod_office_district,t_office_address,n_uploaded_file,t_professional_resume,' \
+        'n_years_practicing, n_attend_patients_covid, n_attend_patients_vih, t_link_facebook, t_link_instagram,' \
+        't_link_linkedin,t_current_job_title,n_active,d_creation_date,d_modification_date'
+    flash('District Added Successfully')
+
+    return redirect(url_for('redirect_doctor'))
 
 
 # Section of to update in database
@@ -456,8 +500,6 @@ def update_district(id):
             return redirect(url_for('redirect_district'))
 
 # Section of to delete in database
-
-
 @app.route('/delete_specialization/<string:id>')
 def delete_specialization(id):
     cur = mysql.connection.cursor()
@@ -506,7 +548,7 @@ def delete_district(id):
 # Section of to select in database
 @app.route('/selectProvince/<id>')
 def getProvinceByIdDepartment(id):
-    uConsulting = Utils.ConsultingBD('province', 'SP', 'cod_department', id)
+    uConsulting = ConsultingBD('province', 'SP', 'cod_department', id)
     # cur = mysql.connection.cursor()
     # cur.execute('SELECT * FROM province WHERE cod_department = %s', (id))
     # provinces = cur.fetchall()
@@ -523,7 +565,7 @@ def getProvinceByIdDepartment(id):
 
 @app.route('/selectDistrict/<int:id>')
 def getDistrictByProvince(id):
-    uConsulting = Utils.ConsultingBD('district', 'SP', 'cod_province', id)
+    uConsulting = ConsultingBD('district', 'SP', 'cod_province', id)
     districts = uConsulting.execQuery()
     districtArray = []
     for district in districts:
@@ -533,6 +575,19 @@ def getDistrictByProvince(id):
         districtArray.append(districtObj)
 
     return jsonify({'districts': districtArray})
+
+@app.route('/allEspecialidades')
+def getAllEspecialidades():
+    uConsulting = ConsultingBD('especialidad', 'S')
+    especialidades = uConsulting.execQuery()
+    especialidadArray = []
+    for especialidad in especialidades:
+        especialidadObj = {}
+        especialidadObj['id'] = especialidad[0]
+        especialidadObj['name_especialidad'] = especialidad[1]
+        especialidadArray.append(especialidadObj)
+
+    return jsonify({'especialidades': especialidadArray})
 
 
 if __name__ == '__main__':

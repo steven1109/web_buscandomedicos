@@ -11,6 +11,17 @@ if (btnDelete) {
     });
 }
 
+let input = document.getElementById('idCodeColegio');
+let checkedColegio = document.getElementById('idCheckColegio');
+checkedColegio.onchange = function () {
+    if (this.checked == true) {
+        input.disabled = false;
+        input.focus();
+    } else {
+        input.disabled = true;
+    }
+};
+
 let department_select = document.getElementById('dpDepart');
 let province_select = document.getElementById('dpProvince');
 let district_select = document.getElementById('dpDistrict');
@@ -61,32 +72,48 @@ function cleanSelectDistrict() {
     select.innerHTML = '<option value="0" selected>Distrito</option>';
 };
 
-// function cleanSelectProvince() {
-//     province_select = document.getElementById('dpProvince');
-    // if(province_select.length > 0){
-    //     var options = document.querySelectorAll('#dpProvince option');
-    //     options.forEach(o => o.remove());
-    // }
-//     province_select.innerHTML = '<option value="0" selected>Provincia</option>';
-// }
+const search = document.getElementById('searchEspecialidad');
+const matchlist = document.getElementById('match-list');
 
-// $('#dpDepart').change(function () {
-//     let department_select = document.getElementById('dpDepart');
-//     let province_select = document.getElementById('dpProvince');
+const searchStates = async searchText => {
+    const res = await fetch('/allEspecialidades');
+    const states = await res.json();
 
-//     value_depart = department_select.value;
-//     if (value_depart != 0) {
-//         fetch('/selectProvince/' + value_depart).then(function (response) {
+    let matches = states.especialidades.filter(state => {
+        const regex = new RegExp(`^${searchText}`, 'gi');
+        return state.name_especialidad.match(regex);
+    });
 
-//             response.json().then(function (data) {
-//                 let optionHTML = '<option value="0" selected>Provincia</option>';
-//                 for (let province of data.provinces) {
-//                     optionHTML += '<option value="' + province.id + '">' + province.name_province + '</option>';
-//                 }
-//                 province_select.innerHTML = optionHTML;
-//             });
-//         });
-//     } else {
-//         cleanSelectProvince();
-//     }
-// })
+    if (searchText.length === 0){
+        matches = [];
+        matchlist.innerHTML = '';
+    }
+
+    outputHtml(matches);
+}
+
+const outputHtml = matches => {
+    if(matches.length > 0){
+        let html = ``;
+        for (es of matches) {
+            html += `
+                <div class="card card-body mb-1">
+                    <h6>${es.name_especialidad}</h6>
+                </div>
+            `;
+        }
+
+        matchlist.innerHTML = html;
+    }
+}
+
+search.addEventListener('input', () => searchStates(search.value));
+
+function filterValuePart(arr, part) {
+    return arr.filter(function (obj) {
+        return Object.keys(obj)
+            .some(function (k) {
+                return obj[k].indexOf(part) !== -1;
+            });
+    });
+};
