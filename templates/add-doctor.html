@@ -7,7 +7,7 @@
         {% with messages = get_flashed_messages() %}
         {% if messages %}
         {% for message in messages %}
-        {% if 'vacío' in message %}
+        {% if 'vacío' in message or 'vacío' in message %}
         {% set alert_status = 'alert-danger' %}
         {% else %}
         {% set alert_status = 'alert-success' %}
@@ -21,15 +21,41 @@
         {% endwith %}
         <!-- <input type="text" name="searchEspecialidad" id="searchEspecialidad">
         <div id="match-list"></div> -->
-        <form action="/add_doctors" method="post" class="card card-lg">
+        <form action="/add_doctors" method="post" class="card card-lg" enctype=multipart/form-data>
+
+            <div class="date-picker">
+                <div class="selected-date">30 / 07 / 2019</div>
+
+                <div class="dates">
+                    <div class="month">
+                        <div class="arrows prev-mth">&lt;</div>
+                        <div class="mth"></div>
+                        <div class="arrows next-mth">&gt;</div>
+                    </div>
+
+                    <div class="days"></div>
+
+                </div>
+            </div>
+
+            <div class="row g-2 mt-2">
+                <div class="col-md">
+                    <div class="form-floating">
+                        <input data-datepicker="" class="form-control" id="birthday" type="text"
+                            placeholder="dd/mm/yyyy" required>
+                        <label for="floatingInputGrid">Fecha de Nacimiento *</label>
+                    </div>
+                </div>
+            </div>
+
             <!-- Datos personales del Doctor -->
-            <label class="form-label fs-3 mt-2">Datos Personales</label>
+            <label class="form-label fs-4 mt-1">Datos Personales</label>
             <div class="dropdown-divider"></div>
             <div class="row g-2 mt-2">
                 <div class="col-md">
                     <div class="form-floating">
                         <input type="text" class="form-control" id="floatingInputGrid" placeholder="Nombre"
-                            name="namedoctor">
+                            name="namedoctor" required>
                         <label for="floatingInputGrid">Nombre *</label>
                     </div>
                 </div>
@@ -55,6 +81,35 @@
                             <option value="2">Femenino</option>
                         </select>
                         <label for="slGenero">Elija su Género</label>
+                    </div>
+                </div>
+            </div>
+            <div class="row g-2 mt-2">
+                <div class="col-md">
+                    <div class="form-floating">
+                        <select name="slDepartmentBorn" class="form-select" id="dpDepartBorn">
+                            <option value="0" selected>Departamento</option>
+                            {% for department in departments %}
+                            <option value="{{department.0}}">{{department.1}}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="sldepartmentBorn">Elija su</label>
+                    </div>
+                </div>
+                <div class="col-md">
+                    <div class="form-floating">
+                        <select name="slProvinceBorn" class="form-select" id="dpProvinceBorn">
+                            <option value="0" selected>Provincia</option>
+                        </select>
+                        <label for="slprovinceBorn">Elija su</label>
+                    </div>
+                </div>
+                <div class="col-md">
+                    <div class="form-floating">
+                        <select name="slDistrictBorn" class="form-select" id="dpDistrictBorn">
+                            <option value="0" selected>Distrito</option>
+                        </select>
+                        <label for="sldistrictBorn">Elija su</label>
                     </div>
                 </div>
             </div>
@@ -87,7 +142,7 @@
             <!-- end Datos personales -->
 
             <!-- Información de la ubicación laboral del doctor -->
-            <label class="form-label fs-3 mt-4">Ubicación Laboral</label>
+            <label class="form-label fs-4 mt-2">Ubicación Laboral</label>
             <div class="dropdown-divider"></div>
             <!-- <div class="card-body row no-gutters align-items-center mt-2"> -->
             <div class="row g-2 mt-2">
@@ -131,23 +186,59 @@
             <!-- end Información de la ubicación -->
 
             <!-- Datos profesionales -->
-            <label class="form-label fs-3 mt-4">Datos Profesionales</label>
+            <label class="form-label fs-4 mt-2">Datos Profesionales</label>
             <div class="dropdown-divider"></div>
             <div class="container">
                 <div class="row g-2 mt-2">
                     <div class="col-auto">
-                        <div class="form-check mt-4">
+                        <div class="form-check mt-3">
                             <input class="form-check-input" type="checkbox" id="idCheckColegio" name="chbxColegiado">
                             <label class="form-check-label" for="gridCheck">
                                 Colegiado
                             </label>
                         </div>
                     </div>
-                    <div class="col-auto">
+                    <div class="col-auto ms-3">
                         <div class="form-floating">
                             <input type="text" class="form-control" id="idCodeColegio"
                                 placeholder="Código del Colegiado" name="collegiatecodedoctor" disabled="disabled">
                             <label for="floatingInputGrid">Código del Colegiado *</label>
+                        </div>
+                    </div>
+                    <div class="col-auto ms-3">
+                        <div class="form-check mt-3">
+                            <input class="form-check-input" type="checkbox" id="idCheckCovid" name="chbxCovid">
+                            <label class="form-check-label" for="gridCheck">
+                                ¿Atiende pacientes Covid?
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-auto ms-3">
+                        <div class="form-check mt-3">
+                            <input class="form-check-input" type="checkbox" id="idCheckVih" name="chbxVih">
+                            <label class="form-check-label" for="gridCheck">
+                                ¿Atiende pacientes VIH?
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row g-2 mt-2">
+                    <div class="col-md-4">
+                        <div class="form-floating">
+                            <select name="slYear" class="form-select" id="dpYear">
+                                <option value="0" selected>Años de Experiencia?</option>
+                                {% for i in range(15) %}
+                                <option value="{{loop.index}}">{{loop.index}}</option>
+                                {% endfor %}
+                            </select>
+                            <label for="slyear">Cuantos</label>
+                        </div>
+                    </div>
+                    <div class="col-md">
+                        <div class="form-floating">
+                            <input type="text" class="form-control" id="floatingInputGrid" placeholder="Trabajo Actual"
+                                name="currentjobdoctor">
+                            <label for="floatingInputGrid">Trabajo Actual *</label>
                         </div>
                     </div>
                 </div>
@@ -155,12 +246,12 @@
                     <div class="col-md-4">
                         <div class="form-floating">
                             <select name="slSpecialty1" class="form-select" id="dpSpecialty">
-                                <option value="0" selected>Especialidades</option>
+                                <option value="0" selected>Especialidad</option>
                                 {% for especialidad in especialidades %}
                                 <option value="{{especialidad.0}}">{{especialidad.1}}</option>
                                 {% endfor %}
                             </select>
-                            <label for="slspecialty1">Elija su Especialidad</label>
+                            <label for="slspecialty1">Elija su</label>
                         </div>
                     </div>
                     <div class="col-auto">
@@ -171,108 +262,38 @@
                         </div>
                     </div>
                 </div>
-                <div class="row g-2 mt-2">
-                    <div class="col-md-4">
-                        <div class="form-floating">
-                            <select name="slSpecialty2" class="form-select" id="dpSpecialty">
-                                <option value="0" selected>Especialidades</option>
-                                {% for especialidad in especialidades %}
-                                <option value="{{especialidad.0}}">{{especialidad.1}}</option>
-                                {% endfor %}
-                            </select>
-                            <label for="slspecialty2">Elija su Especialidad</label>
-                        </div>
-                    </div>
-                    <div class="col-auto">
-                        <div class="form-floating">
-                            <input type="text" class="form-control" id="floatingInputGrid" placeholder="Código RME"
-                                name="codermedoctor2">
-                            <label for="floatingInputGrid">Código RME</label>
-                        </div>
-                    </div>
+                <div class="input-group mt-2">
+                    <span class="input-group-text" id="basic-addon1"><i class="fab fa-facebook"></i></span>
+                    <input type="text" class="form-control" placeholder="Link Facebook" aria-label="Facebook"
+                        aria-describedby="basic-addon1" name="linkFace">
                 </div>
-                <div class="row g-2 mt-2">
-                    <div class="col-md-4">
-                        <div class="form-floating">
-                            <select name="slSpecialty3" class="form-select" id="dpSpecialty">
-                                <option value="0" selected>Especialidades</option>
-                                {% for especialidad in especialidades %}
-                                <option value="{{especialidad.0}}">{{especialidad.1}}</option>
-                                {% endfor %}
-                            </select>
-                            <label for="slspecialty3">Elija su Especialidad</label>
-                        </div>
-                    </div>
-                    <div class="col-auto">
-                        <div class="form-floating">
-                            <input type="text" class="form-control" id="floatingInputGrid" placeholder="Código RME"
-                                name="codermedoctor3">
-                            <label for="floatingInputGrid">Código RME</label>
-                        </div>
-                    </div>
+                <div class="input-group mt-2">
+                    <span class="input-group-text" id="basic-addon1"><i class="fab fa-instagram"></i></span>
+                    <input type="text" class="form-control" placeholder="Link Instagram" aria-label="Instagram"
+                        aria-describedby="basic-addon1" name="linkInstagram">
                 </div>
-                <div class="row g-2 mt-2">
-                    <div class="col-md-4">
-                        <div class="form-floating">
-                            <select name="slSpecialty4" class="form-select" id="dpSpecialty">
-                                <option value="0" selected>Especialidades</option>
-                                {% for especialidad in especialidades %}
-                                <option value="{{especialidad.0}}">{{especialidad.1}}</option>
-                                {% endfor %}
-                            </select>
-                            <label for="slspecialty4">Elija su Especialidad</label>
-                        </div>
-                    </div>
-                    <div class="col-auto">
-                        <div class="form-floating">
-                            <input type="text" class="form-control" id="floatingInputGrid" placeholder="Código RME"
-                                name="codermedoctor4">
-                            <label for="floatingInputGrid">Código RME</label>
-                        </div>
-                    </div>
+                <div class="input-group mt-2">
+                    <span class="input-group-text" id="basic-addon1"><i class="fab fa-linkedin"></i></span>
+                    <input type="text" class="form-control" placeholder="Link Linkedin" aria-label="Linkedin"
+                        aria-describedby="basic-addon1" name="linkLinkedin">
                 </div>
+
                 <div class="row g-2 mt-2">
-                    <div class="col-md-4">
-                        <div class="form-floating">
-                            <select name="slSpecialty5" class="form-select" id="dpSpecialty">
-                                <option value="0" selected>Especialidades</option>
-                                {% for especialidad in especialidades %}
-                                <option value="{{especialidad.0}}">{{especialidad.1}}</option>
-                                {% endfor %}
-                            </select>
-                            <label for="slspecialty5">Elija su Especialidad</label>
-                        </div>
+                    <div class="col-md">
+                        <label for="formFile" class="form-label">Adjuntar CV <strong>(PDF)</strong></label>
+                        <input class="form-control" type="file" id="formFileCV" name="cvdoctor">
                     </div>
-                    <div class="col-auto">
-                        <div class="form-floating">
-                            <input type="text" class="form-control" id="floatingInputGrid" placeholder="Código RME"
-                                name="codermedoctor5">
-                            <label for="floatingInputGrid">Código RME</label>
-                        </div>
+                    <div class="col-md">
+                        <label for="formFile" class="form-label">Subir Foto</label>
+                        <input class="form-control" type="file" id="formFilePhoto" name="photodoctor">
                     </div>
                 </div>
                 <div class="row g-2 mt-2">
                     <div class="col-md">
-                        <div class="col-md-6">
-                            <label for="formFile" class="form-label">Subir Foto</label>
-                            <input class="form-control" type="file" id="formFilePhoto" name="photodoctor">
-                        </div>
-                    </div>
-                </div>
-                <div class="row g-2 mt-2">
-                    <div class="col-md">
-                        <div class="col-md-6">
-                            <label for="formFile" class="form-label">Adjuntar CV</label>
-                            <input class="form-control" type="file" id="formFileCV" name="cvdoctor">
-                        </div>
-                    </div>
-                </div>
-                <div class="row g-2 mt-2">
-                    <div class="col-sm-5 col-md-6">
                         <div class="form-floating">
                             <textarea class="form-control" placeholder="Leave a comment here" id="floatingTextarea2"
-                                style="height: 100px"></textarea>
-                            <label for="floatingTextarea2">Acerca de ti</label>
+                                style="height: 100px" name="resumeProfessional"></textarea>
+                            <label for="floatingTextarea2">¿Cómo te podemos presentar?</label>
                         </div>
                     </div>
                 </div>
@@ -280,7 +301,7 @@
             <!-- end datos profesionales -->
 
             <!-- Datos de cuenta -->
-            <label class="form-label fs-3 mt-4">Crear cuenta</label>
+            <label class="form-label fs-4 mt-2">Crear cuenta</label>
             <div class="dropdown-divider"></div>
             <div class="row g-2 mt-2">
                 <div class="col-md">
@@ -306,5 +327,24 @@
         </form>
     </div>
 </div>
+
+<script>
+    // const fecha_select = document.getElementById('fecha');
+    // fecha_select.addEventListener('focus', (event) => {
+    //     uiLibrary: 'bootstrap4';
+    // });
+
+    // document.getElementById('datepicker').addEventListener('focus', (event) => {
+    //     format: 'mm/dd/yyyy';
+    //     startDate: '-3d';
+    // });
+
+    var datepickers = [].slice.call(document.querySelectorAll('[data-datepicker]'))
+    var datepickersList = datepickers.map(function (el) {
+        return new Datepicker(el, {
+            buttonClass: 'btn'
+        });
+    });
+</script>
 
 {%endblock%}

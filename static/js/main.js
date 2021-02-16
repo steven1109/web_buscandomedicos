@@ -107,13 +107,14 @@ const outputHtml = matches => {
     }
 }
 
-search.addEventListener('input', () => searchStates(search.value));
+// search.addEventListener('input', () => searchStates(search.value));
 
-function filterValuePart(arr, part) {
-    return arr.filter(function (obj) {
-        return Object.keys(obj)
-            .some(function (k) {
-                return obj[k].indexOf(part) !== -1;
-            });
-    });
-};
+// function filterValuePart(arr, part) {
+//     return arr.filter(function (obj) {
+//         return Object.keys(obj)
+//             .some(function (k) {
+//                 return obj[k].indexOf(part) !== -1;
+//             });
+//     });
+// };
+
