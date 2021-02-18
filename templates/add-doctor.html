@@ -24,18 +24,17 @@
         <form action="/add_doctors" method="post" class="card card-lg" enctype=multipart/form-data>
 
             <div class="date-picker">
-                <div class="selected-date">30 / 07 / 2019</div>
+                <select name="slYearBorn" id="dpYearBorn">
+                    <option value="0" selected>Año de Nacimiento</option>
+                </select>
 
-                <div class="dates">
-                    <div class="month">
-                        <div class="arrows prev-mth">&lt;</div>
-                        <div class="mth"></div>
-                        <div class="arrows next-mth">&gt;</div>
-                    </div>
+                <select name="slMonthBorn" id="dpMonthBorn">
+                    <option value="0" selected>Mes de Nacimiento</option>
+                </select>
 
-                    <div class="days"></div>
-
-                </div>
+                <select name="slDayBorn" id="dpDayBorn">
+                    <option value="0" selected>Día de Nacimiento</option>
+                </select>
             </div>
 
             <div class="row g-2 mt-2">
@@ -327,24 +326,5 @@
         </form>
     </div>
 </div>
-
-<script>
-    // const fecha_select = document.getElementById('fecha');
-    // fecha_select.addEventListener('focus', (event) => {
-    //     uiLibrary: 'bootstrap4';
-    // });
-
-    // document.getElementById('datepicker').addEventListener('focus', (event) => {
-    //     format: 'mm/dd/yyyy';
-    //     startDate: '-3d';
-    // });
-
-    var datepickers = [].slice.call(document.querySelectorAll('[data-datepicker]'))
-    var datepickersList = datepickers.map(function (el) {
-        return new Datepicker(el, {
-            buttonClass: 'btn'
-        });
-    });
-</script>
 
 {%endblock%}

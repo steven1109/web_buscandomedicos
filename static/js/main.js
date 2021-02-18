@@ -72,49 +72,72 @@ function cleanSelectDistrict() {
     select.innerHTML = '<option value="0" selected>Distrito</option>';
 };
 
-const search = document.getElementById('searchEspecialidad');
-const matchlist = document.getElementById('match-list');
+let yearborn_select = document.getElementById('dpYearBorn');
+let monthborn_select = document.getElementById('dpMonthBorn');
+let dayborn_select = document.getElementById('dpDayBorn');
 
-const searchStates = async searchText => {
-    const res = await fetch('/allEspecialidades');
-    const states = await res.json();
+yearborn_select.innerHTML = getYear();
 
-    let matches = states.especialidades.filter(state => {
-        const regex = new RegExp(`^${searchText}`, 'gi');
-        return state.name_especialidad.match(regex);
-    });
-
-    if (searchText.length === 0){
-        matches = [];
-        matchlist.innerHTML = '';
+yearborn_select.onchange = function () {
+    value_year = yearborn_select.value;
+    if (value_year > 0) {
+        monthborn_select.innerHTML = getMonth();
     }
-
-    outputHtml(matches);
-}
-
-const outputHtml = matches => {
-    if(matches.length > 0){
-        let html = ``;
-        for (es of matches) {
-            html += `
-                <div class="card card-body mb-1">
-                    <h6>${es.name_especialidad}</h6>
-                </div>
-            `;
-        }
-
-        matchlist.innerHTML = html;
+    else {
+        monthborn_select.innerHTML = '<option value="0" selected>Mes de Nacimiento</option>';
     }
-}
+    dayborn_select.innerHTML = '<option value="0" selected>Día de Nacimiento</option>';
+};
 
-// search.addEventListener('input', () => searchStates(search.value));
+monthborn_select.onchange = function () {
+    value_year = yearborn_select.value;
+    value_month = monthborn_select.value;
+    if (value_year > 0 && value_month > 0) {
+        dayborn_select.innerHTML = getDay(value_year, value_month);
+    }
+    else {
+        dayborn_select.innerHTML = '<option value="0" selected>Día de Nacimiento</option>';
+    }
+};
 
-// function filterValuePart(arr, part) {
-//     return arr.filter(function (obj) {
-//         return Object.keys(obj)
-//             .some(function (k) {
-//                 return obj[k].indexOf(part) !== -1;
-//             });
-//     });
-// };
+function getYear() {
+    var yearborn = new Date().getFullYear();
+    let optionHTML = '<option value="0" selected>Año de Nacimiento</option>';
+    for (var i = yearborn; i >= (yearborn - 65); i--) {
+        optionHTML += '<option value="' + i + '">' + i + '</option>';
+    }
+    return optionHTML;
+};
 
+function getMonth() {
+    var monthYear = ['Enero', 'Febrero', 'Marzo', 'Abril',
+        'Mayo', 'Junio', 'Julio', 'Agosto',
+        'Setiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+    let optionHTML = '<option value="0" selected>Mes de Nacimiento</option>';
+    for (i = 0; i < monthYear.length; i++) {
+        optionHTML += '<option value="' + (i + 1) + '">' + monthYear[i] + '</option>';
+    }
+    return optionHTML;
+};
+
+function getDay(year, month) {
+    if ((year % 4) == 0) {
+        var day = {
+            1: 31, 2: 29, 3: 31, 4: 30,
+            5: 31, 6: 30, 7: 31, 8: 31,
+            9: 30, 10: 31, 11: 30, 12: 31
+        };
+    }
+    else {
+        var day = {
+            1: 31, 2: 28, 3: 31, 4: 30,
+            5: 31, 6: 30, 7: 31, 8: 31,
+            9: 30, 10: 31, 11: 30, 12: 31
+        };
+    }
+    let optionHTML = '<option value="0" selected>Día de Nacimiento</option>';
+    for (i = 0; i < day[month]; i++) {
+        optionHTML += '<option value="' + (i + 1) + '">' + (i + 1) + '</option>';
+    }
+    return optionHTML;
+};
