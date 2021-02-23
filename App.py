@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 from flask_mysqldb import MySQL
-from datetime import datetime
+import datetime
 from utils import ConsultingBD, BD
 import os
 import math
@@ -8,7 +8,8 @@ import unicodedata
 from werkzeug.utils import secure_filename
 
 UPLOAD_FOLDER = '.'
-ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
+ALLOWED_EXTENSIONS = {'pdf', 'png', 'jpg', 'jpeg'}
+ALLOWED_EXTENSIONS_PHOTO = {'png', 'jpg', 'jpeg'}
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -31,7 +32,7 @@ def redirect_heartweb():
     bdInfo = BD('m_log')
     cur = mysql.connection.cursor()
     cur.execute('INSERT INTO m_log ({}) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'.format(bdInfo.getColumnsTable()),
-                (1, 'INICIO', '', '', '', '', '', '', '', platform, browser, datetime.now().strftime("%Y-%m-%d %H:%M:%S"), None))
+                (1, 'INICIO', '', '', '', '', '', '', '', platform, browser, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), None))
     mysql.connection.commit()
 
     uConsulting = ConsultingBD('department', 'S')
@@ -185,11 +186,13 @@ def getSearchSpecialization(page):
         ' doc.cod_gender_doctor, doc.t_workphone_1_doctor,doc.t_workphone_2_doctor, doc.t_personalphone_doctor, doc.n_collegiate,' \
         ' doc.t_collegiate_code, doc.cod_office_department, doc.cod_office_province, doc.cod_office_district, doc.t_office_address,' \
         ' doc.t_professional_resume, doc.n_years_practicing, doc.n_attend_patients_covid, doc.n_attend_patients_vih, doc.t_current_job_title,' \
-        ' COUNT(con.cod_doctor) AS count_doc, SUM(con.n_clasificacion) AS sum_com, ROUND(AVG(con.n_clasificacion),2) AS prom' \
+        ' COUNT(con.cod_doctor) AS count_doc, ' \
+        ' CASE WHEN COUNT(con.cod_doctor) > 0 THEN SUM(con.n_clasificacion) ELSE 0 END AS sum_com, ' \
+        ' CASE WHEN COUNT(con.cod_doctor) > 0 THEN ROUND(AVG(con.n_clasificacion),2) ELSE 0 END AS prom' \
         ' FROM doctors AS doc' \
         ' INNER JOIN doctor_specialty ds ON doc.cod_doctor = ds.cod_doctor' \
         ' INNER JOIN especialidad sp ON ds.cod_specialty = sp.cod_specialty' \
-        ' INNER JOIN comentario AS con ON doc.cod_doctor = con.cod_doctor' \
+        ' LEFT JOIN comentario AS con ON doc.cod_doctor = con.cod_doctor' \
         ' WHERE doc.n_active = 1 AND sp.n_active = 1 {0}' \
         ' GROUP BY doc.cod_doctor, ds.t_rne, sp.t_name_specialty, doc.t_name_doctor, doc.t_lastname_doctor, doc.t_dni_doctor,' \
         ' doc.cod_gender_doctor, doc.t_workphone_1_doctor,doc.t_workphone_2_doctor, doc.t_personalphone_doctor, doc.n_collegiate,' \
@@ -198,7 +201,7 @@ def getSearchSpecialization(page):
         ' {1}' \
         ' {2}'.format(clausulas, filterStar, orderby)
     # ' {3}'.format(clausulas, filterStar, orderby, limit)
-
+    print(query)
     cur.execute(query)
     dataDoctors = cur.fetchall()
     rows_affected = cur.rowcount
@@ -210,7 +213,7 @@ def getSearchSpecialization(page):
     t_provincia,t_distrito,t_medico_buscado,t_cita_inconclusa,t_platform,t_browser,d_creation_date) 
     VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
     ''', (1, form, name_specialization, slGenero, slDepartment, slProvince, slDistrict, '', '',
-          platform, browser, datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
+          platform, browser, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
     mysql.connection.commit()
 
     return render_template('search-specialty.html', data=dataObj, departments=dataDepartment, provinces=dataProvince, districts=dataDistrict,
@@ -225,6 +228,16 @@ def redirect_doctor():
     uConsulting = ConsultingBD('especialidad', 'S')
     dataEspecialidad = uConsulting.execQuery()
     return render_template('add-doctor.html', departments=dataDepartments, especialidades=dataEspecialidad)
+
+
+@app.route('/view_doctor')
+def redirect_viewdoctor():
+    uConsulting = ConsultingBD('doctors', 'S')
+    query = 'SELECT cod_doctor,t_name_doctor,t_lastname_doctor,t_dni_doctor,cod_gender_doctor,d_birthday, ' \
+        'cod_born_department,cod_born_province,cod_born_district,t_workphone_1_doctor,t_workphone_2_doctor, ' \
+        't_personalphone_doctor,n_collegiate,t_collegiate_code,cod_office_department,cod_office_province, ' \
+        'cod_office_district,n_active FROM doctors where n_active = 1'
+    return render_template('view-doctor.html', doctors=uConsulting.execQuery(query))
 
 
 @app.route('/specialization')
@@ -244,7 +257,7 @@ def add_specialization():
             value = 0
         cur = mysql.connection.cursor()
         cur.execute('INSERT INTO especialidad (t_name_specialty, n_active, d_creation_date) VALUES(%s, %s, %s)',
-                    (name_specialization, value, datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
+                    (name_specialization, value, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
         mysql.connection.commit()
         flash('Specialization Added Successfully')
         return redirect(url_for('redirect_specialization'))
@@ -263,7 +276,7 @@ def add_department():
         else:
             cur = mysql.connection.cursor()
             cur.execute('INSERT INTO department (t_name_department, n_active, cod_country, d_creation_date) VALUES(%s, %s, %s, %s)',
-                        (name_department, value, 1, datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
+                        (name_department, value, 1, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
             mysql.connection.commit()
             flash('Departamento Added Successfully')
 
@@ -286,7 +299,7 @@ def add_province():
         else:
             cur = mysql.connection.cursor()
             cur.execute('INSERT INTO province (t_name_province, n_active, cod_department, d_creation_date) VALUES(%s, %s, %s, %s)',
-                        (name_province, value, slDepartment, datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
+                        (name_province, value, slDepartment, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
             mysql.connection.commit()
             flash('Province Added Successfully')
         return redirect(url_for('redirect_province'))
@@ -308,7 +321,7 @@ def add_district():
         else:
             cur = mysql.connection.cursor()
             cur.execute('INSERT INTO district (t_name_district, n_active, cod_province, d_creation_date) VALUES(%s, %s, %s, %s)',
-                        (name_district, value, slProvince, datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
+                        (name_district, value, slProvince, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
             mysql.connection.commit()
             flash('District Added Successfully')
         return redirect(url_for('redirect_district'))
@@ -319,43 +332,48 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
+def allowed_filephoto(filename):
+    return '.' in filename and \
+        filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS_PHOTO
+
+
 @app.route('/add_doctors', methods=['POST'])
 def add_doctors():
     if request.method == 'POST':
-
         namedoctor = request.form['namedoctor']
         lastnamedoctor = request.form['lastnamedoctor']
         dnidoctor = request.form['dnidoctor']
+        slGenero = request.form.get('slGenero')
+        slYearBorn = request.form.get('slYearBorn')
+        slMonthBorn = request.form.get('slMonthBorn')
+        slDayBorn = request.form.get('slDayBorn')
+        birthday = datetime.datetime(
+            int(slYearBorn), int(slMonthBorn), int(slDayBorn))
+
+        slDepartmentBorn = request.form.get('slDepartmentBorn')
+        slProvinceBorn = request.form.get('slProvinceBorn')
+        slDistrictBorn = request.form.get('slDistrictBorn')
         phonework1 = request.form['workphonedoctor1']
         phonework2 = request.form['workphonedoctor2']
         phonepersonal = request.form['personalphonedoctor']
-        slGenero = request.form.get('slGenero')
         slDepartment = request.form.get('slDepartment')
         slProvince = request.form.get('slProvince')
         slDistrict = request.form.get('slDistrict')
         addressdoctor = request.form['addressdoctor']
+        valueColegiado = 1 if request.form.get('chbxColegiado') else 0
         collegiatecodedoctor = request.form.get('collegiatecodedoctor', None)
-        slSpecialty1 = request.form.get('slSpecialty1')
-        codermedoctor1 = request.form['codermedoctor1']
-        slSpecialty2 = request.form.get('slSpecialty2')
-        codermedoctor2 = request.form['codermedoctor2']
-        slSpecialty3 = request.form.get('slSpecialty3')
-        codermedoctor3 = request.form['codermedoctor3']
-        slSpecialty4 = request.form.get('slSpecialty4')
-        codermedoctor4 = request.form['codermedoctor4']
-        slSpecialty5 = request.form.get('slSpecialty5')
-        codermedoctor5 = request.form['codermedoctor5']
-        resumeProfessional = request.form['resumeProfessional']
+        valueCovid = 1 if request.form.get('chbxCovid') else 0
+        valueVih = 1 if request.form.get('chbxVih') else 0
         slYear = request.form.get('slYear')
         currentjobdoctor = request.form['currentjobdoctor']
-        cvdoctor = request.files['cvdoctor']
+        slSpecialty1 = request.form.get('slSpecialty1')
+        codermedoctor1 = request.form['codermedoctor1']
         linkFace = request.form['linkFace']
         linkInstagram = request.form['linkInstagram']
         linkLinkedin = request.form['linkLinkedin']
-
-        valueColegiado = 1 if request.form.get('chbxColegiado') else 0
-        valueCovid = 1 if request.form.get('chbxCovid') else 0
-        valueVih = 1 if request.form.get('chbxVih') else 0
+        cvdoctor = request.files['cvdoctor']
+        photodoctor = request.files['photodoctor']
+        resumeProfessional = request.form['resumeProfessional']
         valueCV = 0
 
         if cvdoctor.filename == '':
@@ -363,14 +381,19 @@ def add_doctors():
             return redirect(url_for('redirect_doctor'))
 
         if cvdoctor and allowed_file(cvdoctor.filename):
-            # filename = secure_filename(cvdoctor.filename)
-            # cvdoctor.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            filenamecv = secure_filename(cvdoctor.filename)
+            # cvdoctor.save(os.path.join(app.config['UPLOAD_FOLDER'], filenamecv))
             valueCV = 1
 
-        columnsDoctors = 't_name_doctor,t_lastname_doctor,t_dni_doctor,cod_gender_doctor,t_workphone_1_doctor,' \
-            't_workphone_2_doctor,t_personalphone_doctor,n_collegiate,t_collegiate_code,cod_office_department,' \
-            'cod_office_province,cod_office_district,t_office_address,n_uploaded_file,t_professional_resume,' \
-            'n_years_practicing,n_attend_patients_covid,n_attend_patients_vih,t_link_facebook,t_link_instagram,' \
+        if photodoctor and allowed_filephoto(photodoctor.filename):
+            filenamephoto = secure_filename(photodoctor.filename)
+            # photodoctor.save(os.path.join(app.config['UPLOAD_FOLDER'], filenamephoto))
+
+        columnsDoctors = 't_name_doctor,t_lastname_doctor,t_dni_doctor,cod_gender_doctor,d_birthday, ' \
+            'cod_born_department,cod_born_province,cod_born_district,t_workphone_1_doctor,t_workphone_2_doctor, ' \
+            't_personalphone_doctor,n_collegiate,t_collegiate_code,cod_office_department,cod_office_province, ' \
+            'cod_office_district,t_office_address,n_uploaded_file,t_name_filecv,t_name_photo,t_professional_resume, ' \
+            'n_years_practicing,n_attend_patients_covid,n_attend_patients_vih,t_link_facebook,t_link_instagram, ' \
             't_link_linkedin,t_current_job_title,n_active,d_creation_date,d_modification_date'
 
         columnsSpecialty = 't_rne,cod_specialty,cod_doctor,d_creation_date,d_modification_date'
@@ -378,11 +401,11 @@ def add_doctors():
         args_doctors = ("("+",".join(["%s"]*lenDoctor)+")")
         cur = mysql.connection.cursor()
         queryInsertDoctor = f"""INSERT INTO doctors ({columnsDoctors}) VALUES {args_doctors}"""
-        cur.execute(queryInsertDoctor,
-                    (namedoctor, lastnamedoctor, dnidoctor, slGenero, phonework1, phonework2,
-                     phonepersonal, valueColegiado, collegiatecodedoctor, slDepartment, slProvince, slDistrict,
-                     addressdoctor, valueCV, resumeProfessional, slYear, valueCovid, valueVih, linkFace, linkInstagram,
-                     linkLinkedin, currentjobdoctor, 1, datetime.now().strftime("%Y-%m-%d %H:%M:%S"), None))
+        valueDoctor = (namedoctor, lastnamedoctor, dnidoctor, slGenero, birthday, slDepartmentBorn, slProvinceBorn, slDistrictBorn,
+                       phonework1, phonework2, phonepersonal, valueColegiado, collegiatecodedoctor, slDepartment, slProvince, slDistrict,
+                       addressdoctor, valueCV, filenamecv, filenamephoto, resumeProfessional, slYear, valueCovid, valueVih, linkFace,
+                       linkInstagram, linkLinkedin, currentjobdoctor, 1, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), None)
+        cur.execute(queryInsertDoctor, valueDoctor)
         mysql.connection.commit()
 
         lastDoctorId = cur.execute('select last_insert_id() from doctors')
@@ -390,19 +413,7 @@ def add_doctors():
         values = []
         if int(slSpecialty1) > 0:
             values.append((codermedoctor1, slSpecialty1, lastDoctorId,
-                           datetime.now().strftime("%Y-%m-%d %H:%M:%S"), None))
-        if int(slSpecialty2) > 0:
-            values.append((codermedoctor2, slSpecialty2, lastDoctorId,
-                           datetime.now().strftime("%Y-%m-%d %H:%M:%S"), None))
-        if int(slSpecialty3) > 0:
-            values.append((codermedoctor3, slSpecialty3, lastDoctorId,
-                           datetime.now().strftime("%Y-%m-%d %H:%M:%S"), None))
-        if int(slSpecialty4) > 0:
-            values.append((codermedoctor4, slSpecialty4, lastDoctorId,
-                           datetime.now().strftime("%Y-%m-%d %H:%M:%S"), None))
-        if int(slSpecialty5) > 0:
-            values.append((codermedoctor5, slSpecialty5, lastDoctorId,
-                           datetime.now().strftime("%Y-%m-%d %H:%M:%S"), None))
+                           datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), None))
 
         lens = len(values[0])
         args_str = ("("+",".join(["%s"]*lens)+")")
@@ -417,11 +428,10 @@ def add_doctors():
         args_user = ("("+",".join(["%s"]*lenUser)+")")
         queryInsertUserDoctor = f"""INSERT INTO users ({columnsUser}) VALUES {args_user}"""
         cur.execute(queryInsertUserDoctor,
-                        (emaildoctor, passworddoctor, 1, datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
+                    (emaildoctor, passworddoctor, 1, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
         mysql.connection.commit()
 
         flash('Doctor Added Successfully')
-
         return redirect(url_for('redirect_doctor'))
 
 
@@ -449,7 +459,7 @@ def update_specialization(id):
                 n_active = %s,
                 d_modification_date = %s
             WHERE cod_specialty = %s
-        """, (name_specialization, value, datetime.now().strftime("%Y-%m-%d %H:%M:%S"), id))
+        """, (name_specialization, value, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), id))
         mysql.connection.commit()
         flash('Specialization Updated Successfully')
         return redirect(url_for('redirect_specialization'))
@@ -482,7 +492,7 @@ def update_department(id):
                     n_active = %s,
                     d_modification_date = %s
                 WHERE cod_department = %s
-            """, (name_department, value, datetime.now().strftime("%Y-%m-%d %H:%M:%S"), id))
+            """, (name_department, value, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), id))
             mysql.connection.commit()
             flash('Department Updated Successfully')
             return redirect(url_for('redirect_department'))
@@ -523,7 +533,7 @@ def update_province(id):
                     cod_department = %s,
                     d_modification_date = %s
                 WHERE cod_province = %s
-            """, (name_province, value, slDepartment, datetime.now().strftime("%Y-%m-%d %H:%M:%S"), id))
+            """, (name_province, value, slDepartment, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), id))
             mysql.connection.commit()
             flash('Province Updated Successfully')
             return redirect(url_for('redirect_province'))
@@ -571,10 +581,57 @@ def update_district(id):
                     cod_province = %s,
                     d_modification_date = %s
                 WHERE cod_district = %s
-            """, (name_district, value, slProvince, datetime.now().strftime("%Y-%m-%d %H:%M:%S"), id))
+            """, (name_district, value, slProvince, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), id))
             mysql.connection.commit()
             flash('District Updated Successfully')
             return redirect(url_for('redirect_district'))
+
+
+@app.route('/edit_doctor/<id>')
+def get_doctor(id):
+    query = 'SELECT doc.cod_doctor, doc.t_name_doctor, doc.t_lastname_doctor, doc.t_dni_doctor, doc.cod_gender_doctor, gen.t_name_gender,' \
+        ' doc.d_birthday, doc.cod_born_department, doc.cod_born_province,doc.cod_born_district,' \
+        ' doc.t_workphone_1_doctor,doc.t_workphone_2_doctor, ' \
+        ' doc.t_personalphone_doctor, doc.n_collegiate, doc.t_collegiate_code, doc.cod_office_department, ' \
+        ' doc.cod_office_province, doc.cod_office_district, doc.t_office_address, doc.t_professional_resume, ' \
+        ' doc.n_years_practicing, doc.n_attend_patients_covid, doc.n_attend_patients_vih, doc.t_current_job_title,' \
+        ' ds.t_rne, sp.cod_specialty, sp.t_name_specialty, doc.t_link_facebook,doc.t_link_instagram,doc.t_link_linkedin' \
+        ' FROM doctors AS doc' \
+        ' INNER JOIN doctor_specialty ds ON doc.cod_doctor = ds.cod_doctor' \
+        ' INNER JOIN especialidad sp ON ds.cod_specialty = sp.cod_specialty' \
+        ' INNER JOIN gender AS gen ON doc.cod_gender_doctor = gen.cod_gender' \
+        ' WHERE doc.cod_doctor =  {0}'.format(id)
+
+    uConsulting = ConsultingBD('doctors', 'S')
+    data = uConsulting.execQuery(query)
+    # Data of the place of birth
+    uConsulting = ConsultingBD('department', 'S')
+    dataDepartment = uConsulting.execQuery()
+    uConsulting = ConsultingBD('province', 'SP', 'cod_department', data[0][7])
+    dataProvince = uConsulting.execQuery()
+    uConsulting = ConsultingBD('district', 'SP', 'cod_province', data[0][8])
+    dataDistrict = uConsulting.execQuery()
+    # Office location data
+    uConsulting = ConsultingBD('department', 'S')
+    dataDepartmentof = uConsulting.execQuery()
+    uConsulting = ConsultingBD('province', 'SP', 'cod_department', data[0][15])
+    dataProvinceof = uConsulting.execQuery()
+    uConsulting = ConsultingBD('district', 'SP', 'cod_province', data[0][16])
+    dataDistrictof = uConsulting.execQuery()
+
+    uConsulting = ConsultingBD('especialidad', 'S')
+    dataSpecialty = uConsulting.execQuery()
+
+    return render_template('edit-doctor.html', doctors=data[0], departments=dataDepartment, provinces=dataProvince,
+                           districts=dataDistrict, departmentsof=dataDepartmentof, provincesof=dataProvinceof, 
+                           districtsof=dataDistrictof, especialidades=dataSpecialty)
+
+
+@app.route('/update_doctor/<id>', methods=['POST'])
+def update_doctor(id):
+    if request.method == 'POST':
+        flash('Doctor Updated Successfully')
+        return redirect(url_for('redirect_viewdoctor'))
 
 # Section of to delete in database
 
@@ -584,7 +641,7 @@ def delete_specialization(id):
     cur = mysql.connection.cursor()
     # cur.execute('DELETE FROM specialty WHERE cod_specialty = {0}'.format(id))
     cur.execute('UPDATE especialidad SET n_active = 0, d_modification_date = %s WHERE cod_specialty = %s',
-                (datetime.now().strftime("%Y-%m-%d %H:%M:%S"), id))
+                (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), id))
     mysql.connection.commit()
     flash('Specialization Removed Successfully')
     return redirect(url_for('redirect_specialization'))
@@ -592,7 +649,7 @@ def delete_specialization(id):
 
 @app.route('/delete_department/<string:id>')
 def delete_department(id):
-    modification_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    modification_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     cur = mysql.connection.cursor()
     # cur.execute('DELETE FROM department WHERE cod_department = {0}'.format(id))
     cur.execute('UPDATE department SET n_active = 0, d_modification_date = %s WHERE cod_department = %s',
@@ -607,7 +664,7 @@ def delete_province(id):
     cur = mysql.connection.cursor()
     # cur.execute('DELETE FROM province WHERE cod_province = {0}'.format(id))
     cur.execute('UPDATE province SET n_active = 0, d_modification_date = %s WHERE cod_province = %s',
-                (datetime.now().strftime("%Y-%m-%d %H:%M:%S"), id))
+                (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), id))
     mysql.connection.commit()
     flash('Province Removed Successfully')
     return redirect(url_for('redirect_province'))
@@ -618,7 +675,7 @@ def delete_district(id):
     cur = mysql.connection.cursor()
     # cur.execute('DELETE FROM district WHERE cod_district = {0}'.format(id))
     cur.execute('UPDATE district SET n_active = 0, d_modification_date = %s WHERE cod_district = %s',
-                (datetime.now().strftime("%Y-%m-%d %H:%M:%S"), id))
+                (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), id))
     mysql.connection.commit()
     flash('District Removed Successfully')
     return redirect(url_for('redirect_district'))

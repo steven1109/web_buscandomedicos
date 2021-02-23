@@ -39,7 +39,7 @@
                     <!--end of col-->
                     <div class="col-md">
                         <div class="form-floating">
-                            <select name="slDepartment" class="form-select" id="dpDepart">
+                            <select name="slDepartment" class="form-select" id="dpDepartSearch">
                                 <option value="0" selected>Departamento</option>
                                 {% for department in departments %}
                                 <option value="{{department.0}}">{{department.1}}</option>
@@ -50,7 +50,7 @@
                     </div>
                     <div class="col-md">
                         <div class="form-floating">
-                            <select name="slProvince" class="form-select" id="dpProvince">
+                            <select name="slProvince" class="form-select" id="dpProvinceSearch">
                                 <option value="0" selected>Provincia</option>
                             </select>
                             <label for="slprovince">Elija su Provincia</label>
@@ -58,7 +58,7 @@
                     </div>
                     <div class="col-md">
                         <div class="form-floating">
-                            <select name="slDistrict" class="form-select" id="dpDistrict">
+                            <select name="slDistrict" class="form-select" id="dpDistrictSearch">
                                 <option value="0" selected>Distrito</option>
                             </select>
                             <label for="sldistrict">Elija su Distrito</label>
@@ -74,5 +74,58 @@
         <!--end of col-->
     </div>
 </div>
+
+{% include "footer.html" %}
+
+<script>
+    let department_search = document.getElementById('dpDepartSearch');
+    let province_search = document.getElementById('dpProvinceSearch');
+    let district_search = document.getElementById('dpDistrictSearch');
+
+    department_search.onchange = function () {
+        value_depart = department_search.value;
+        if (value_depart != 0) {
+            fetch('/selectProvince/' + value_depart).then(function (response) {
+                response.json().then(function (data) {
+                    let optionHTML = '<option value="0" selected>Provincia</option>';
+                    for (let province of data.provinces) {
+                        optionHTML += '<option value="' + province.id + '">' + province.name_province + '</option>';
+                    }
+                    province_search.innerHTML = optionHTML;
+                });
+            });
+        } else {
+            cleanSelectProvinceSearch("S");
+        }
+        cleanSelectDistrictSearch("S");
+    };
+
+    province_search.onchange = function () {
+        value_province = province_search.value;
+        if (value_province != 0) {
+            fetch('/selectDistrict/' + value_province).then(function (response) {
+                response.json().then(function (data) {
+                    let optionHTML = '<option value="0" selected>Distrito</option>';
+                    for (let district of data.districts) {
+                        optionHTML += '<option value="' + district.id + '">' + district.name_district + '</option>';
+                    }
+                    district_search.innerHTML = optionHTML;
+                });
+            });
+        } else {
+            cleanSelectDistrictSearch("S");
+        }
+    };
+
+    function cleanSelectProvinceSearch(dist) {
+        provinceborn_select = document.getElementById('dpProvinceSearch');
+        provinceborn_select.innerHTML = '<option value="0" selected>Provincia</option>';
+    };
+
+    function cleanSelectDistrictSearch(dist) {
+        select = document.getElementById('dpDistrictSearch');
+        select.innerHTML = '<option value="0" selected>Distrito</option>';
+    };
+</script>
 
 {% endblock %}

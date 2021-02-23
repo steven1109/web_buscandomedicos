@@ -1,4 +1,4 @@
-const btnDelete = document.querySelectorAll('.btn-delete')
+const btnDelete = document.querySelectorAll('.btn-delete');
 
 if (btnDelete) {
     const btnArray = Array.from(btnDelete);
@@ -26,6 +26,10 @@ let department_select = document.getElementById('dpDepart');
 let province_select = document.getElementById('dpProvince');
 let district_select = document.getElementById('dpDistrict');
 
+let departmentborn_select = document.getElementById('dpDepartBorn');
+let provinceborn_select = document.getElementById('dpProvinceBorn');
+let districtborn_select = document.getElementById('dpDistrictBorn');
+
 department_select.onchange = function () {
     value_depart = department_select.value;
     if (value_depart != 0) {
@@ -40,9 +44,9 @@ department_select.onchange = function () {
             });
         });
     } else {
-        cleanSelectProvince();
+        cleanSelectProvince("O");
     }
-    cleanSelectDistrict();
+    cleanSelectDistrict("O");
 };
 
 province_select.onchange = function () {
@@ -58,18 +62,67 @@ province_select.onchange = function () {
             });
         });
     } else {
-        cleanSelectDistrict();
+        cleanSelectDistrict("O");
     }
 };
 
-function cleanSelectProvince() {
-    province_select = document.getElementById('dpProvince');
-    province_select.innerHTML = '<option value="0" selected>Provincia</option>';
+departmentborn_select.onchange = function () {
+    value_depart = departmentborn_select.value;
+    if (value_depart != 0) {
+        fetch('/selectProvince/' + value_depart).then(function (response) {
+            response.json().then(function (data) {
+                let optionHTML = '<option value="0" selected>Provincia</option>';
+                for (let province of data.provinces) {
+                    optionHTML += '<option value="' + province.id + '">' + province.name_province + '</option>';
+                }
+                provinceborn_select.innerHTML = optionHTML;
+            });
+        });
+    } else {
+        cleanSelectProvince("B");
+    }
+    cleanSelectDistrict("B");
 };
 
-function cleanSelectDistrict() {
-    select = document.getElementById('dpDistrict');
-    select.innerHTML = '<option value="0" selected>Distrito</option>';
+provinceborn_select.onchange = function () {
+    value_province = provinceborn_select.value;
+    if (value_province != 0) {
+        fetch('/selectDistrict/' + value_province).then(function (response) {
+            response.json().then(function (data) {
+                let optionHTML = '<option value="0" selected>Distrito</option>';
+                for (let district of data.districts) {
+                    optionHTML += '<option value="' + district.id + '">' + district.name_district + '</option>';
+                }
+                districtborn_select.innerHTML = optionHTML;
+            });
+        });
+    } else {
+        cleanSelectDistrict("B");
+    }
+};
+
+
+
+function cleanSelectProvince(dist) {
+    if (dist == "B") {
+        provinceborn_select = document.getElementById('dpProvinceBorn');
+        provinceborn_select.innerHTML = '<option value="0" selected>Provincia</option>';
+    }
+    else {
+        province_select = document.getElementById('dpProvince');
+        province_select.innerHTML = '<option value="0" selected>Provincia</option>';
+    }
+};
+
+function cleanSelectDistrict(dist) {
+    if (dist == "B") {
+        select = document.getElementById('dpDistrictBorn');
+        select.innerHTML = '<option value="0" selected>Distrito</option>';
+    }
+    else {
+        select = document.getElementById('dpDistrict');
+        select.innerHTML = '<option value="0" selected>Distrito</option>';
+    }
 };
 
 let yearborn_select = document.getElementById('dpYearBorn');

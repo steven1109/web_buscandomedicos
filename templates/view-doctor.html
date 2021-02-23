@@ -1,0 +1,80 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+
+<div class="container pt-4">
+    <div class="row justify-content-center">
+        <!-- Confirmation Messages -->
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        {% for message in messages %}
+        {% if 'vacío' in message %}
+        {% set alert_status = 'alert-danger' %}
+        {% else %}
+        {% set alert_status = 'alert-success' %}
+        {% endif %}
+        <div class="alert {{alert_status}} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        <div class="col-md">
+            <div class="table-responsive">
+                <table class="table bg-white table-hover table-bordered border-primary">
+                    <thead class="table-dark">
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Nombre completo</th>
+                            <th scope="col">DNI</th>
+                            <th scope="col">Genero</th>
+                            <th scope="col">F.Nacimiento</th>
+                            <th scope="col">C.Colegio</th>
+                            <th scope="col">Estado</th>
+                            <th scope="col">Operaciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for doctor in doctors %}
+                        <tr>
+                            <th scope="row">{{doctor.0}}</th>
+                            <td>{{doctor.1.upper() + ', ' + doctor.2.upper()}}</td>
+                            <td>{{doctor.3}}</td>
+                            <td>{{ 'FEMENINO' if doctor.4 == 1 else 'MASCULINO' }}</td>
+                            <td>{{doctor.5.strftime('%Y-%m-%d')}}</td>
+                            <td>{{doctor.13}}</td>
+                            <td>
+                                {% if doctor.17 == 1 %}
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value=""
+                                        id="flexCheckCheckedDisabled" checked disabled>
+                                    <label class="form-check-label" for="flexCheckCheckedDisabled">
+                                        Activo
+                                    </label>
+                                </div>
+                                {% else %}
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="" id="flexCheckDisabled"
+                                        disabled>
+                                    <label class="form-check-label" for="flexCheckDisabled">
+                                        Inactivo
+                                    </label>
+                                </div>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="/edit_doctor/{{doctor.0}}" class="btn btn-secondary">Edit</a>
+                                <a href="/delete_doctor/{{doctor.0}}" class="btn btn-danger btn-delete">Delete</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+{%endblock%}

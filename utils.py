@@ -36,9 +36,12 @@ class ConsultingBD:
                     self.table, datetime.now().strftime("%Y-%m-%d %H:%M:%S"), self.column, self.codRow)
         return query
 
-    def execQuery(self):
+    def execQuery(self, query=None):
         cur = db.cursor()
-        cur.execute(self.getQuery())
+        if query is not None:
+            cur.execute(query)
+        else:
+            cur.execute(self.getQuery())
         self.data = cur.fetchall()
         return self.data
 

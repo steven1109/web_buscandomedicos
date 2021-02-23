@@ -3,25 +3,23 @@
 
 <div class="container pt-1">
     <div class="row justify-content-center">
+        {% set var_yearborn = doctors.6.strftime('%Y-%m-%d').split('-')[0] | int() %}
+        {% set var_monthborn = doctors.6.strftime('%Y-%m-%d').split('-')[1] | int() %}
+        {% set var_dayborn = doctors.6.strftime('%Y-%m-%d').split('-')[2] | int() %}
+
         <!-- Confirmation Messages -->
         {% with messages = get_flashed_messages() %}
         {% if messages %}
         {% for message in messages %}
-        {% if 'vacío' in message or 'vacío' in message %}
-        {% set alert_status = 'alert-danger' %}
-        {% else %}
-        {% set alert_status = 'alert-success' %}
-        {% endif %}
-        <div class="alert {{alert_status}} alert-dismissible fade show" role="alert">
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
             {{ message }}
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
         {% endfor %}
         {% endif %}
         {% endwith %}
-        <!-- <input type="text" name="searchEspecialidad" id="searchEspecialidad">
-        <div id="match-list"></div> -->
-        <form action="/add_doctors" method="post" class="card card-lg" enctype=multipart/form-data>
+
+        <form action="/update_doctor/{{doctors.0}}" method="post" class="card card-lg" enctype="multipart/form-data">
             <!-- Datos personales del Doctor -->
             <label class="form-label fs-4 mt-1">Datos Personales</label>
             <div class="dropdown-divider"></div>
@@ -29,67 +27,71 @@
                 <div class="col-md">
                     <div class="form-floating">
                         <input type="text" class="form-control" id="floatingInputGrid" placeholder="Nombre"
-                            name="namedoctor" required>
+                            name="namedoctor" value="{{doctors.1}}" required>
                         <label for="floatingInputGrid">Nombre *</label>
                     </div>
                 </div>
                 <div class="col-md">
                     <div class="form-floating">
                         <input type="text" class="form-control" id="floatingInputGrid" placeholder="Apellidos"
-                            name="lastnamedoctor">
+                            name="lastnamedoctor" value="{{doctors.2}}" required>
                         <label for="floatingInputGrid">Apellidos *</label>
                     </div>
                 </div>
                 <div class="col-md">
                     <div class="form-floating">
                         <input type="text" class="form-control" id="floatingInputGrid" placeholder="Dni"
-                            name="dnidoctor">
+                            name="dnidoctor" value="{{doctors.3}}" required>
                         <label for="floatingInputGrid">DNI *</label>
                     </div>
                 </div>
                 <div class="col-md">
                     <div class="form-floating">
                         <select name="slGenero" class="form-select" id="dpGenero">
-                            <option value="0" selected>Género</option>
-                            <option value="1">Femenino</option>
-                            <option value="2">Masculino</option>
+                            <option value="0">Género</option>
+                            <option value="1" {{'selected' if doctors.4==1 else '' }}>Femenino</option>
+                            <option value="2" {{'selected' if doctors.4==2 else '' }}>Masculino</option>
                         </select>
-                        <label for="slGenero">Elija su Género</label>
+                        <label for="slGenero">Elija su</label>
                     </div>
                 </div>
             </div>
+
             <div class="row g-2 mt-2">
                 <div class="col-auto">
                     <div class="form-floating">
-                        <select name="slYearBorn" class="form-select" id="dpYearBorn">
-                            <option value="0" selected>Año de Nacimiento</option>
+                        <select name="slYearBorn" class="form-select" id="dpYearBorn1">
+                            <option value="0">Año de Nacimiento</option>
                         </select>
                         <label for="slYearBorn">Elija su</label>
                     </div>
                 </div>
                 <div class="col-auto">
                     <div class="form-floating">
-                        <select name="slMonthBorn" class="form-select" id="dpMonthBorn">
-                            <option value="0" selected>Mes de Nacimiento</option>
+                        <select name="slMonthBorn" class="form-select" id="dpMonthBorn1">
+                            <option value="0">Mes de Nacimiento</option>
                         </select>
                         <label for="slMonthBorn">Elija su</label>
                     </div>
                 </div>
                 <div class="col-auto">
                     <div class="form-floating">
-                        <select name="slDayBorn" class="form-select" id="dpDayBorn">
-                            <option value="0" selected>Día de Nacimiento</option>
+                        <select name="slDayBorn" class="form-select" id="dpDayBorn1">
+                            <option value="0">Día de Nacimiento</option>
                         </select>
                         <label for="slDayBorn">Elija su</label>
                     </div>
                 </div>
-
                 <div class="col-md">
                     <div class="form-floating">
                         <select name="slDepartmentBorn" class="form-select" id="dpDepartBorn">
                             <option value="0" selected>Departamento</option>
                             {% for department in departments %}
+                            {% if department.0 == doctors.7 %}
+                            <option value="{{department.0}}" selected>{{department.1}}</option>
+                            {% else %}
                             <option value="{{department.0}}">{{department.1}}</option>
+                            {% endif %}
                             {% endfor %}
                         </select>
                         <label for="sldepartmentBorn">Elija su</label>
@@ -99,6 +101,13 @@
                     <div class="form-floating">
                         <select name="slProvinceBorn" class="form-select" id="dpProvinceBorn">
                             <option value="0" selected>Provincia</option>
+                            {% for province in provinces %}
+                            {% if province.0 == doctors.8 %}
+                            <option value="{{province.0}}" selected>{{province.1}}</option>
+                            {% else %}
+                            <option value="{{province.0}}">{{province.1}}</option>
+                            {% endif %}
+                            {% endfor %}
                         </select>
                         <label for="slprovinceBorn">Elija su</label>
                     </div>
@@ -107,6 +116,13 @@
                     <div class="form-floating">
                         <select name="slDistrictBorn" class="form-select" id="dpDistrictBorn">
                             <option value="0" selected>Distrito</option>
+                            {% for district in districts %}
+                            {% if district.0 == doctors.9 %}
+                            <option value="{{district.0}}" selected>{{district.1}}</option>
+                            {% else %}
+                            <option value="{{district.0}}">{{district.1}}</option>
+                            {% endif %}
+                            {% endfor %}
                         </select>
                         <label for="sldistrictBorn">Elija su</label>
                     </div>
@@ -115,8 +131,8 @@
             <div class="row g-2 mt-2">
                 <div class="col-md">
                     <div class="form-floating">
-                        <input autocomplete="false" type="text" class="form-control" id="floatingInputGrid"
-                            placeholder="Teléfono Trabajo" name="workphonedoctor1"
+                        <input type="text" class="form-control" id="floatingInputGrid" placeholder="Teléfono Trabajo"
+                            name="workphonedoctor1" value="{{doctors.10}}"
                             oninput="this.value = this.value.replace(/[^0-9.]/g, ''); this.value = this.value.replace(/(\..*)\./g, '$1');">
                         <label for="floatingInputGrid">Teléfono Trabajo 1 *</label>
                     </div>
@@ -124,7 +140,7 @@
                 <div class="col-md">
                     <div class="form-floating">
                         <input type="text" class="form-control" id="floatingInputGrid" placeholder="Teléfono Trabajo"
-                            name="workphonedoctor2"
+                            name="workphonedoctor2" value="{{doctors.11}}"
                             oninput="this.value = this.value.replace(/[^0-9.]/g, ''); this.value = this.value.replace(/(\..*)\./g, '$1');">
                         <label for="floatingInputGrid">Teléfono Trabajo 2 *</label>
                     </div>
@@ -132,7 +148,7 @@
                 <div class="col-md">
                     <div class="form-floating">
                         <input type="text" class="form-control" id="floatingInputGrid" placeholder="Teléfono Personal"
-                            name="personalphonedoctor"
+                            name="personalphonedoctor" value="{{doctors.12 if doctors.12 is not none else ''}}"
                             oninput="this.value = this.value.replace(/[^0-9.]/g, ''); this.value = this.value.replace(/(\..*)\./g, '$1');">
                         <label for="floatingInputGrid">Teléfono Personal</label>
                     </div>
@@ -148,28 +164,46 @@
                 <div class="col-md">
                     <div class="form-floating">
                         <select name="slDepartment" class="form-select" id="dpDepart">
-                            <option value="0" selected>Departamento</option>
-                            {% for department in departments %}
+                            <option value="0">Departamento</option>
+                            {% for department in departmentsof %}
+                            {% if department.0 == doctors.15 %}
+                            <option value="{{department.0}}" selected>{{department.1}}</option>
+                            {% else %}
                             <option value="{{department.0}}">{{department.1}}</option>
+                            {% endif %}
                             {% endfor %}
                         </select>
-                        <label for="sldepartment">Elija su Departamento</label>
+                        <label for="sldepartment">Elija su</label>
                     </div>
                 </div>
                 <div class="col-md">
                     <div class="form-floating">
                         <select name="slProvince" class="form-select" id="dpProvince">
                             <option value="0" selected>Provincia</option>
+                            {% for province in provincesof %}
+                            {% if province.0 == doctors.16 %}
+                            <option value="{{province.0}}" selected>{{province.1}}</option>
+                            {% else %}
+                            <option value="{{province.0}}">{{province.1}}</option>
+                            {% endif %}
+                            {% endfor %}
                         </select>
-                        <label for="slprovince">Elija su Provincia</label>
+                        <label for="slprovince">Elija su</label>
                     </div>
                 </div>
                 <div class="col-md">
                     <div class="form-floating">
                         <select name="slDistrict" class="form-select" id="dpDistrict">
                             <option value="0" selected>Distrito</option>
+                            {% for district in districtsof %}
+                            {% if district.0 == doctors.17 %}
+                            <option value="{{district.0}}" selected>{{district.1}}</option>
+                            {% else %}
+                            <option value="{{district.0}}">{{district.1}}</option>
+                            {% endif %}
+                            {% endfor %}
                         </select>
-                        <label for="sldistrict">Elija su Distrito</label>
+                        <label for="sldistrict">Elija su</label>
                     </div>
                 </div>
             </div>
@@ -177,7 +211,7 @@
                 <div class="col-md">
                     <div class="form-floating">
                         <input type="text" class="form-control" id="floatingInputGrid" placeholder="Dirección"
-                            name="addressdoctor">
+                            name="addressdoctor" value="{{doctors.18}}">
                         <label for="floatingInputGrid">Dirección</label>
                     </div>
                 </div>
@@ -191,7 +225,8 @@
                 <div class="row g-2 mt-2">
                     <div class="col-auto">
                         <div class="form-check mt-3">
-                            <input class="form-check-input" type="checkbox" id="idCheckColegio" name="chbxColegiado">
+                            <input class="form-check-input" type="checkbox" id="idCheckColegio" name="chbxColegiado"
+                                {{'checked' if doctors.13==1 else '' }}>
                             <label class="form-check-label" for="gridCheck">
                                 Colegiado
                             </label>
@@ -199,14 +234,15 @@
                     </div>
                     <div class="col-auto ms-3">
                         <div class="form-floating">
-                            <input type="text" class="form-control" id="idCodeColegio"
-                                placeholder="Código del Colegiado" name="collegiatecodedoctor" disabled="disabled">
+                            <input type="text" class="form-control" id="idCodeColegio" placeholder="Código Colegiado"
+                                name="collegiatecodedoctor" value="{{doctors.14}}">
                             <label for="floatingInputGrid">Código del Colegiado *</label>
                         </div>
                     </div>
                     <div class="col-auto ms-3">
                         <div class="form-check mt-3">
-                            <input class="form-check-input" type="checkbox" id="idCheckCovid" name="chbxCovid">
+                            <input class="form-check-input" type="checkbox" id="idCheckCovid" name="chbxCovid"
+                                {{'checked' if doctors.21==1 else '' }}>
                             <label class="form-check-label" for="gridCheck">
                                 ¿Atiende pacientes Covid?
                             </label>
@@ -214,7 +250,8 @@
                     </div>
                     <div class="col-auto ms-3">
                         <div class="form-check mt-3">
-                            <input class="form-check-input" type="checkbox" id="idCheckVih" name="chbxVih">
+                            <input class="form-check-input" type="checkbox" id="idCheckVih" name="chbxVih" {{'checked'
+                                if doctors.22==1 else '' }}>
                             <label class="form-check-label" for="gridCheck">
                                 ¿Atiende pacientes VIH?
                             </label>
@@ -227,7 +264,8 @@
                             <select name="slYear" class="form-select" id="dpYear">
                                 <option value="0" selected>Años de Experiencia?</option>
                                 {% for i in range(15) %}
-                                <option value="{{loop.index}}">{{loop.index}}</option>
+                                <option value="{{loop.index}}" {{'selected' if (i+1)==doctors.20 else '' }}>
+                                    {{loop.index}}</option>
                                 {% endfor %}
                             </select>
                             <label for="slyear">Cuantos</label>
@@ -236,7 +274,7 @@
                     <div class="col-md">
                         <div class="form-floating">
                             <input type="text" class="form-control" id="floatingInputGrid" placeholder="Trabajo Actual"
-                                name="currentjobdoctor">
+                                name="currentjobdoctor" value="{{doctors.23}}">
                             <label for="floatingInputGrid">Trabajo Actual *</label>
                         </div>
                     </div>
@@ -247,7 +285,11 @@
                             <select name="slSpecialty1" class="form-select" id="dpSpecialty">
                                 <option value="0" selected>Especialidad</option>
                                 {% for especialidad in especialidades %}
+                                {% if especialidad.0 == doctors.25 %}
+                                <option value="{{especialidad.0}}" selected>{{especialidad.1}}</option>
+                                {% else %}
                                 <option value="{{especialidad.0}}">{{especialidad.1}}</option>
+                                {% endif %}
                                 {% endfor %}
                             </select>
                             <label for="slspecialty1">Elija su</label>
@@ -256,7 +298,7 @@
                     <div class="col-auto">
                         <div class="form-floating">
                             <input type="text" class="form-control" id="floatingInputGrid" placeholder="Código RME"
-                                name="codermedoctor1">
+                                name="codermedoctor1" value="{{doctors.14}}">
                             <label for="floatingInputGrid">Código RME</label>
                         </div>
                     </div>
@@ -264,17 +306,17 @@
                 <div class="input-group mt-2">
                     <span class="input-group-text" id="basic-addon1"><i class="fab fa-facebook"></i></span>
                     <input type="text" class="form-control" placeholder="Link Facebook" aria-label="Facebook"
-                        aria-describedby="basic-addon1" name="linkFace">
+                        aria-describedby="basic-addon1" name="linkFace" value="{{doctors.27 if doctors.27 is not none else ''}}">
                 </div>
                 <div class="input-group mt-2">
                     <span class="input-group-text" id="basic-addon1"><i class="fab fa-instagram"></i></span>
                     <input type="text" class="form-control" placeholder="Link Instagram" aria-label="Instagram"
-                        aria-describedby="basic-addon1" name="linkInstagram">
+                        aria-describedby="basic-addon1" name="linkInstagram" value="{{doctors.28 if doctors.28 is not none else ''}}">
                 </div>
                 <div class="input-group mt-2">
                     <span class="input-group-text" id="basic-addon1"><i class="fab fa-linkedin"></i></span>
                     <input type="text" class="form-control" placeholder="Link Linkedin" aria-label="Linkedin"
-                        aria-describedby="basic-addon1" name="linkLinkedin">
+                        aria-describedby="basic-addon1" name="linkLinkedin" value="{{doctors.29 if doctors.29 is not none else ''}}">
                 </div>
 
                 <div class="row g-2 mt-2">
@@ -291,40 +333,91 @@
                     <div class="col-md">
                         <div class="form-floating">
                             <textarea class="form-control" placeholder="Leave a comment here" id="floatingTextarea2"
-                                style="height: 100px" name="resumeProfessional"></textarea>
+                                style="height: 100px" name="resumeProfessional">{{doctors.19}}</textarea>
                             <label for="floatingTextarea2">¿Cómo te podemos presentar?</label>
                         </div>
                     </div>
                 </div>
             </div>
-            <!-- end datos profesionales -->
 
-            <!-- Datos de cuenta -->
-            <label class="form-label fs-4 mt-2">Crear cuenta</label>
-            <div class="dropdown-divider"></div>
-            <div class="row g-2 mt-2">
-                <div class="col-md">
-                    <div class="form-floating">
-                        <input type="email" class="form-control" id="floatingInputGrid" placeholder="name@example.com"
-                            name="emaildoctor">
-                        <label for="floatingInputGrid">Correo Electrónico *</label>
-                    </div>
-                </div>
-                <div class="col-md">
-                    <div class="form-floating">
-                        <input type="password" class="form-control" id="floatingPassword" placeholder="Contraseña"
-                            name="passworddoctor">
-                        <label for="floatingPassword">Contraseña *</label>
-                    </div>
-                </div>
-            </div>
             <!-- end datos de cuenta -->
             <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-3 mb-4">
-                <button type="submit" class="btn btn-primary btn-lg me-md-2">Save</button>
-                <a href="/doctor" class="btn btn-danger btn-lg">Cancel</a>
+                <button type="submit" class="btn btn-primary btn-lg me-md-2">Actualizar</button>
+                <a href="/view_doctor" class="btn btn-danger btn-lg">Cancelar</a>
             </div>
         </form>
     </div>
 </div>
+
+<script>
+    let slyearborn = document.getElementById('dpYearBorn1');
+    let slmonthborn = document.getElementById('dpMonthBorn1');
+    let sldayborn = document.getElementById('dpDayBorn1');
+    slyearborn.innerHTML = getYearupdate();
+    slmonthborn.innerHTML = getMonthupdate();
+    sldayborn.innerHTML = getDayupdate();
+
+    function getYearupdate() {
+        var yearborn = new Date().getFullYear();
+        var yb = parseInt("{{var_yearborn}}");
+        let optionHTML = '<option value="0">Año de Nacimiento</option>';
+        for (var i = yearborn; i >= (yearborn - 65); i--) {
+            if (i == yb) {
+                optionHTML += '<option value="' + i + '" selected >' + i + '</option>';
+            } else {
+                optionHTML += '<option value="' + i + '"  >' + i + '</option>';
+            }
+        }
+        return optionHTML;
+    };
+
+    function getMonthupdate() {
+        var monthYear = ['Enero', 'Febrero', 'Marzo', 'Abril',
+            'Mayo', 'Junio', 'Julio', 'Agosto',
+            'Setiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+        let optionHTML = '<option value="0">Mes de Nacimiento</option>';
+        var mb = parseInt("{{var_monthborn}}");
+        for (i = 0; i < monthYear.length; i++) {
+            if (i == (mb - 1)) {
+                optionHTML += '<option value="' + (i + 1) + '" selected>' + monthYear[i] + '</option>';
+            }
+            else {
+                optionHTML += '<option value="' + (i + 1) + '">' + monthYear[i] + '</option>';
+            }
+        }
+        return optionHTML;
+    };
+
+    function getDayupdate() {
+        var year = parseInt("{{var_yearborn}}");
+        var month = parseInt("{{var_monthborn}}");
+        var db = parseInt("{{var_dayborn}}");
+        if ((year % 4) == 0) {
+            var day = {
+                1: 31, 2: 29, 3: 31, 4: 30,
+                5: 31, 6: 30, 7: 31, 8: 31,
+                9: 30, 10: 31, 11: 30, 12: 31
+            };
+        }
+        else {
+            var day = {
+                1: 31, 2: 28, 3: 31, 4: 30,
+                5: 31, 6: 30, 7: 31, 8: 31,
+                9: 30, 10: 31, 11: 30, 12: 31
+            };
+        }
+        let optionHTML = '<option value="0">Día de Nacimiento</option>';
+        for (i = 0; i < day[month]; i++) {
+            if (i == (db - 1)) {
+                optionHTML += '<option value="' + (i + 1) + '" selected>' + (i + 1) + '</option>';
+            }
+            else {
+                optionHTML += '<option value="' + (i + 1) + '">' + (i + 1) + '</option>';
+            }
+        }
+        return optionHTML;
+    };
+
+</script>
 
 {%endblock%}

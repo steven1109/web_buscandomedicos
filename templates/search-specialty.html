@@ -34,7 +34,7 @@
 
             <div class="col-md">
                 <div class="form-floating">
-                    <select name="slDepartment" class="form-select" id="dpDepart">
+                    <select name="slDepartment" class="form-select" id="dpDepartResult">
                         <option value="0" selected>Departamento</option>
                         {% for department in departments %}
                         {% if department.0 == cod_department %}
@@ -49,7 +49,7 @@
             </div>
             <div class="col-md">
                 <div class="form-floating">
-                    <select name="slProvince" class="form-select" id="dpProvince">
+                    <select name="slProvince" class="form-select" id="dpProvinceResult">
                         <option value="0" selected>Provincia</option>
                         {% for province in provinces %}
                         {% if province.0 == cod_provincia %}
@@ -64,7 +64,7 @@
             </div>
             <div class="col-md">
                 <div class="form-floating">
-                    <select name="slDistrict" class="form-select" id="dpDistrict">
+                    <select name="slDistrict" class="form-select" id="dpDistrictResult">
                         <option value="0" selected>Distrito</option>
                         {% for district in districts %}
                         {% if district.0 == cod_distrito %}
@@ -105,8 +105,6 @@
     </form>
 </div>
 
-
-
 <div class="container pt-1">
     <div class="row justify-content-center">
         {% if rows_affected > 0 %}
@@ -119,7 +117,11 @@
         <div class="card card-lg w-75 border-primary shadow-lg mb-1 bg-white rounded" style="width: 18rem;">
             <div class="row g-0">
                 <div class="col-md-3">
-                    <img src="{{url_for('static', filename='img/logo.svg')}}" class="card-img-top" alt="...">
+                    {% if doctor.6 == 2 %}
+                    <img src="{{url_for('static', filename='img/doctor.svg')}}" class="card-img-top" alt="...">
+                    {% else %}
+                    <img src="{{url_for('static', filename='img/doctora.svg')}}" class="card-img-top" alt="...">
+                    {% endif %}
                 </div>
                 <div class="col-md-9">
                     <div class="card-body">
@@ -128,6 +130,7 @@
                             <small>
                                 <span style="font-size: 1.1em; color: goldenrod;">
                                     {% set num = doctor.23 %}
+                                    {% if num > 0.0 %}
                                     {% set int_part = "{:.2f}".format(num).split('.')[0] | int() %}
                                     {% set decimal_part = "{:.2f}".format(num).split('.')[1] | int() %}
                                     {% for star in range(int_part) %}
@@ -140,6 +143,12 @@
                                     {% for star in range(5-(int_part+semi)) %}
                                     <i class="fa fa-star-o"></i>
                                     {% endfor %}
+
+                                    {% else %}
+                                    {% for star in range(5) %}
+                                    <i class="fa fa-star-o"></i>
+                                    {% endfor %}
+                                    {% endif %}
                                 </span>
                             </small>
                         </div>
@@ -198,5 +207,56 @@
         </li>
     </ul>
 </nav>
+
+<script>
+    let department_search = document.getElementById('dpDepartResult');
+    let province_search = document.getElementById('dpProvinceResult');
+    let district_search = document.getElementById('dpDistrictResult');
+
+    department_search.onchange = function () {
+        value_depart = department_search.value;
+        if (value_depart != 0) {
+            fetch('/selectProvince/' + value_depart).then(function (response) {
+                response.json().then(function (data) {
+                    let optionHTML = '<option value="0" selected>Provincia</option>';
+                    for (let province of data.provinces) {
+                        optionHTML += '<option value="' + province.id + '">' + province.name_province + '</option>';
+                    }
+                    province_search.innerHTML = optionHTML;
+                });
+            });
+        } else {
+            cleanSelectProvinceSearch("S");
+        }
+        cleanSelectDistrictSearch("S");
+    };
+
+    province_search.onchange = function () {
+        value_province = province_search.value;
+        if (value_province != 0) {
+            fetch('/selectDistrict/' + value_province).then(function (response) {
+                response.json().then(function (data) {
+                    let optionHTML = '<option value="0" selected>Distrito</option>';
+                    for (let district of data.districts) {
+                        optionHTML += '<option value="' + district.id + '">' + district.name_district + '</option>';
+                    }
+                    district_search.innerHTML = optionHTML;
+                });
+            });
+        } else {
+            cleanSelectDistrictSearch("S");
+        }
+    };
+
+    function cleanSelectProvinceSearch(dist) {
+        select = document.getElementById('dpProvinceResult');
+        select.innerHTML = '<option value="0" selected>Provincia</option>';
+    };
+
+    function cleanSelectDistrictSearch(dist) {
+        select = document.getElementById('dpDistrictResult');
+        select.innerHTML = '<option value="0" selected>Distrito</option>';
+    };
+</script>
 
 {% endblock %}
