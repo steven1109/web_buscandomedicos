@@ -53,9 +53,9 @@
                         <option value="0" selected>Provincia</option>
                         {% for province in provinces %}
                         {% if province.0 == cod_provincia %}
-                        <option value="{{province.0}}" selected>{{province.1}}</option>
+                        <option value="{{province.1}}" selected>{{province.2}}</option>
                         {% else %}
-                        <option value="{{province.0}}">{{province.1}}</option>
+                        <option value="{{province.1}}">{{province.2}}</option>
                         {% endif %}
                         {% endfor %}
                     </select>
@@ -68,9 +68,9 @@
                         <option value="0" selected>Distrito</option>
                         {% for district in districts %}
                         {% if district.0 == cod_distrito %}
-                        <option value="{{district.0}}" selected>{{district.1}}</option>
+                        <option value="{{district.1}}" selected>{{district.2}}</option>
                         {% else %}
-                        <option value="{{district.0}}">{{district.1}}</option>
+                        <option value="{{district.1}}">{{district.2}}</option>
                         {% endif %}
                         {% endfor %}
                     </select>
@@ -232,9 +232,10 @@
     };
 
     province_search.onchange = function () {
+        value_depart = department_search.value;
         value_province = province_search.value;
         if (value_province != 0) {
-            fetch('/selectDistrict/' + value_province).then(function (response) {
+            fetch('/selectDistrict/' + value_province + '/' + value_depart).then(function (response) {
                 response.json().then(function (data) {
                     let optionHTML = '<option value="0" selected>Distrito</option>';
                     for (let district of data.districts) {

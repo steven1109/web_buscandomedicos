@@ -1,0 +1,127 @@
+<!-- Contactanos -->
+{% extends 'layout.html' %} {% block body %}
+
+<div class="container mt-2 card card-body">
+  <div class="row justify-content-center">
+    <form action="" method="post">
+      <div class="d-flex justify-content-center mt-4">
+        <label class="form-label fs-4">NOS ENCANTARÍA CONOCERTE:</label>
+      </div>
+      <div class="dropdown-divider"></div>
+      <div class="row g-1 mt-2">
+        <div class="col-sm-3 mt-3">
+          <!-- <label class="form-label fs-5" for="date">Nombre y Apellidos:</label> -->
+          <p class="form-label fs-5 text-end" for="date">Nombre y Apellidos:</p>
+        </div>
+        <div class="col-md">
+          <input type="text" name="completename" class="form-control form-control-lg"/>
+        </div>
+      </div>
+
+      <div class="row g-1 mt-2">
+        <div class="col-sm-3 mt-3">
+          <p class="form-label fs-5 text-end" for="date">Fecha de Nacimiento:</p>
+        </div>
+        <div class="col-md">
+          <input type="date" name="birthday" id="date" class="form-control form-control-lg"/>
+        </div>
+      </div>
+
+      <div class="row g-1 mt-2">
+        <div class="col-sm-3 mt-3">
+          <p class="form-label fs-5 text-end" for="date">Genero:</p>
+        </div>
+        <div class="col-sm-2 mt-3">
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="rdGenero" id="flexRadioDefault1">
+            <label class="form-check-label fs-5" for="flexRadioDefault1">Masculino</label>
+          </div>
+        </div>
+        <div class="col-sm-2 mt-3">
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="rdGenero" id="flexRadioDefault2" checked>
+            <label class="form-check-label fs-5" for="flexRadioDefault2">Femenino</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="row g-1 mt-2">
+        <div class="col-sm-3 mt-3">
+          <p class="form-label fs-5 text-end" for="date">Celular:</p>
+        </div>
+        <div class="col-sm-5">
+          <input type="text" name="phone" class="form-control form-control-lg"/>
+        </div>
+      </div>
+
+      <div class="row g-1 mt-2">
+        <div class="col-sm-3 mt-3">
+          <p class="form-label fs-5 text-end" for="date">Email:</p>
+        </div>
+        <div class="col-sm-5">
+          <input type="email" name="email" class="form-control form-control-lg"/>
+        </div>
+      </div>
+
+      <div class="row g-1 mt-2">
+        <div class="col-sm-3 mt-3">
+          <p class="form-label fs-5 text-end" for="date">Especialidad:</p>
+        </div>
+        <div class="col-sm-5">
+          <select class="form-select form-select-lg" aria-label=".form-select-lg example">
+            <option value="0" selected>--- SELECCIONE ---</option>
+            <option value="1">One</option>
+            <option value="2">Two</option>
+            <option value="3">Three</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row g-1 mt-2">
+        <div class="col-sm-3 mt-3">
+          <p class="form-label fs-5 text-end" for="date">¿Qué quieres saber?</p>
+        </div>
+        <div class="col-md">
+          <textarea class="form-control" placeholder="Dejanos tu pregunta" id="floatingTextarea"></textarea>
+        </div>
+      </div>
+
+      <div class="row g-1 mt-2">
+        <div class="col-sm-3 mt-1">
+          <p class="form-label fs-5 text-end" for="date">¿A qué hora podemos llamarte?</p>
+        </div>
+        <div class="col-sm-5">
+          <select class="form-select form-select-lg" aria-label=".form-select-lg example">
+            <option value="0" selected>--- SELECCIONE LA HORA ---</option>
+            <option value="1">One</option>
+            <option value="2">Two</option>
+            <option value="3">Three</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row g-1 mt-2">
+        <div class="col-sm-3 mt-3">
+          <p class="form-label fs-5 text-end" for="date">¿Qué plan te interesa?</p>
+        </div>
+        <div class="col-sm-5">
+          <select class="form-select form-select-lg" aria-label=".form-select-lg example">
+            <option value="0" selected>--- SELECCIONE ---</option>
+            <option value="1">One</option>
+            <option value="2">Two</option>
+            <option value="3">Three</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="d-grid gap-2 d-md-flex justify-content-md-center mb-3 mt-3">
+        <button type="submit" class="btn btn-primary btn-lg me-md-2">Enviar</button>
+        <a href="/doctor" class="btn btn-danger btn-lg">Cancel</a>
+      </div>
+
+    </form>
+    <!-- Fin del formulario -->
+  </div>
+</div>
+
+{% include "footer.html" %} {% endblock %}

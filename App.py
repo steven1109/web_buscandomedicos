@@ -16,15 +16,17 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # max file 16MB
 # MySQL Connection localhost
 app.config['MYSQL_HOST'] = 'localhost'
-app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = 'root'
+app.config['MYSQL_USER'] = 'flaskuser'
+app.config['MYSQL_PASSWORD'] = 'P@ssW0rd'
 app.config['MYSQL_DB'] = 'buscando_medicos'
 mysql = MySQL(app)
 # Settings
 app.secret_key = 'mysecretkey'
-
+codi_depa = 0
 
 # Page redirection section
+
+
 @app.route('/')
 def redirect_heartweb():
     platform = request.user_agent.platform
@@ -201,7 +203,6 @@ def getSearchSpecialization(page):
         ' {1}' \
         ' {2}'.format(clausulas, filterStar, orderby)
     # ' {3}'.format(clausulas, filterStar, orderby, limit)
-    print(query)
     cur.execute(query)
     dataDoctors = cur.fetchall()
     rows_affected = cur.rowcount
@@ -244,6 +245,16 @@ def redirect_viewdoctor():
 def redirect_specialization():
     uConsulting = ConsultingBD('especialidad', 'S')
     return render_template('add-specialization.html', specializations=uConsulting.execQuery())
+
+
+@app.route('/contact_us')
+def redirect_contactus():
+    return render_template('contact-us.html')
+
+
+@app.route('/about_us')
+def redirect_aboutus():
+    return render_template('about-us.html')
 
 
 # Section of to insert in database
@@ -344,11 +355,14 @@ def add_doctors():
         lastnamedoctor = request.form['lastnamedoctor']
         dnidoctor = request.form['dnidoctor']
         slGenero = request.form.get('slGenero')
-        slYearBorn = request.form.get('slYearBorn')
-        slMonthBorn = request.form.get('slMonthBorn')
-        slDayBorn = request.form.get('slDayBorn')
-        birthday = datetime.datetime(
-            int(slYearBorn), int(slMonthBorn), int(slDayBorn))
+        # slYearBorn = request.form.get('slYearBorn')
+        # slMonthBorn = request.form.get('slMonthBorn')
+        # slDayBorn = request.form.get('slDayBorn')
+        # birthday = datetime.datetime(
+        #     int(slYearBorn), int(slMonthBorn), int(slDayBorn))
+
+        fecha = request.form['birthday']
+        birthday = datetime.datetime.strptime(fecha, '%Y-%m-%d')
 
         slDepartmentBorn = request.form.get('slDepartmentBorn')
         slProvinceBorn = request.form.get('slProvinceBorn')
@@ -609,8 +623,11 @@ def get_doctor(id):
     dataDepartment = uConsulting.execQuery()
     uConsulting = ConsultingBD('province', 'SP', 'cod_department', data[0][7])
     dataProvince = uConsulting.execQuery()
-    uConsulting = ConsultingBD('district', 'SP', 'cod_province', data[0][8])
-    dataDistrict = uConsulting.execQuery()
+
+    queryDis = f'select * from district where cod_department = {data[0][7]} and cod_province = {data[0][8]}'
+    uConsulting = ConsultingBD('district', 'S')
+    dataDistrict = uConsulting.execQuery(queryDis)
+    print(queryDis)
     # Office location data
     uConsulting = ConsultingBD('department', 'S')
     dataDepartmentof = uConsulting.execQuery()
@@ -623,7 +640,7 @@ def get_doctor(id):
     dataSpecialty = uConsulting.execQuery()
 
     return render_template('edit-doctor.html', doctors=data[0], departments=dataDepartment, provinces=dataProvince,
-                           districts=dataDistrict, departmentsof=dataDepartmentof, provincesof=dataProvinceof, 
+                           districts=dataDistrict, departmentsof=dataDepartmentof, provincesof=dataProvinceof,
                            districtsof=dataDistrictof, especialidades=dataSpecialty)
 
 
@@ -684,30 +701,32 @@ def delete_district(id):
 # Section of to select in database
 @app.route('/selectProvince/<id>')
 def getProvinceByIdDepartment(id):
+    codi_depa = id
     uConsulting = ConsultingBD('province', 'SP', 'cod_department', id)
-    # cur = mysql.connection.cursor()
-    # cur.execute('SELECT * FROM province WHERE cod_department = %s', (id))
-    # provinces = cur.fetchall()
     provinces = uConsulting.execQuery()
     provinceArray = []
     for province in provinces:
         provinceObj = {}
-        provinceObj['id'] = province[0]
-        provinceObj['name_province'] = province[1]
+        provinceObj['id'] = province[1]
+        provinceObj['name_province'] = province[2]
         provinceArray.append(provinceObj)
 
     return jsonify({'provinces': provinceArray})
 
 
-@app.route('/selectDistrict/<int:id>')
-def getDistrictByProvince(id):
-    uConsulting = ConsultingBD('district', 'SP', 'cod_province', id)
-    districts = uConsulting.execQuery()
+@app.route('/selectDistrict/<int:id>/<int:depa>')
+def getDistrictByProvince(id, depa):
+    cur = mysql.connection.cursor()
+    cur.execute(
+        'select * from district where cod_department = %s and cod_province = %s', (depa, id))
+    districts = cur.fetchall()
+    # uConsulting = ConsultingBD('district', 'SP', 'cod_province', id)
+    # districts = uConsulting.execQuery()
     districtArray = []
     for district in districts:
         districtObj = {}
-        districtObj['id'] = district[0]
-        districtObj['name_district'] = district[1]
+        districtObj['id'] = district[1]
+        districtObj['name_district'] = district[2]
         districtArray.append(districtObj)
 
     return jsonify({'districts': districtArray})

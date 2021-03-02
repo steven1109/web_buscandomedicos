@@ -4,8 +4,8 @@ from config import Config
 
 # MySQL Connection localhost
 MYSQL_HOST = 'localhost'
-MYSQL_USER = 'root'
-MYSQL_PASSWORD = 'root'
+MYSQL_USER = 'flaskuser'
+MYSQL_PASSWORD = 'P@ssW0rd'
 MYSQL_DB = 'buscando_medicos'
 
 db = MySQLdb.connect(host=Config.MYSQL_HOST,

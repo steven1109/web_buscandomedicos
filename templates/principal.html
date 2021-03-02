@@ -29,7 +29,7 @@
                                 <option value="1">Femenino</option>
                                 <option value="2">Masculino</option>
                             </select>
-                            <label for="sldistrict">Elija su Genero</label>
+                            <label for="sldistrict">Elija su</label>
                         </div>
                     </div>
                     <!--end of col-->
@@ -45,7 +45,7 @@
                                 <option value="{{department.0}}">{{department.1}}</option>
                                 {% endfor %}
                             </select>
-                            <label for="sldepartment">Elija su Departamento</label>
+                            <label for="sldepartment">Elija su</label>
                         </div>
                     </div>
                     <div class="col-md">
@@ -53,7 +53,7 @@
                             <select name="slProvince" class="form-select" id="dpProvinceSearch">
                                 <option value="0" selected>Provincia</option>
                             </select>
-                            <label for="slprovince">Elija su Provincia</label>
+                            <label for="slprovince">Elija su</label>
                         </div>
                     </div>
                     <div class="col-md">
@@ -61,7 +61,7 @@
                             <select name="slDistrict" class="form-select" id="dpDistrictSearch">
                                 <option value="0" selected>Distrito</option>
                             </select>
-                            <label for="sldistrict">Elija su Distrito</label>
+                            <label for="sldistrict">Elija su</label>
                         </div>
                     </div>
                     <div class="col-auto">
@@ -101,9 +101,10 @@
     };
 
     province_search.onchange = function () {
+        value_depart = department_search.value;
         value_province = province_search.value;
         if (value_province != 0) {
-            fetch('/selectDistrict/' + value_province).then(function (response) {
+            fetch('/selectDistrict/' + value_province + '/' + value_depart).then(function (response) {
                 response.json().then(function (data) {
                     let optionHTML = '<option value="0" selected>Distrito</option>';
                     for (let district of data.districts) {

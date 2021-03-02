@@ -102,10 +102,10 @@
                         <select name="slProvinceBorn" class="form-select" id="dpProvinceBorn">
                             <option value="0" selected>Provincia</option>
                             {% for province in provinces %}
-                            {% if province.0 == doctors.8 %}
-                            <option value="{{province.0}}" selected>{{province.1}}</option>
+                            {% if province.1 == doctors.8 %}
+                            <option value="{{province.1}}" selected>{{province.2}}</option>
                             {% else %}
-                            <option value="{{province.0}}">{{province.1}}</option>
+                            <option value="{{province.1}}">{{province.2}}</option>
                             {% endif %}
                             {% endfor %}
                         </select>
@@ -117,10 +117,10 @@
                         <select name="slDistrictBorn" class="form-select" id="dpDistrictBorn">
                             <option value="0" selected>Distrito</option>
                             {% for district in districts %}
-                            {% if district.0 == doctors.9 %}
-                            <option value="{{district.0}}" selected>{{district.1}}</option>
+                            {% if district.1 == doctors.9 %}
+                            <option value="{{district.1}}" selected>{{district.2}}</option>
                             {% else %}
-                            <option value="{{district.0}}">{{district.1}}</option>
+                            <option value="{{district.1}}">{{district.2}}</option>
                             {% endif %}
                             {% endfor %}
                         </select>
@@ -181,10 +181,10 @@
                         <select name="slProvince" class="form-select" id="dpProvince">
                             <option value="0" selected>Provincia</option>
                             {% for province in provincesof %}
-                            {% if province.0 == doctors.16 %}
-                            <option value="{{province.0}}" selected>{{province.1}}</option>
+                            {% if province.1 == doctors.16 %}
+                            <option value="{{province.1}}" selected>{{province.2}}</option>
                             {% else %}
-                            <option value="{{province.0}}">{{province.1}}</option>
+                            <option value="{{province.1}}">{{province.2}}</option>
                             {% endif %}
                             {% endfor %}
                         </select>
@@ -196,10 +196,10 @@
                         <select name="slDistrict" class="form-select" id="dpDistrict">
                             <option value="0" selected>Distrito</option>
                             {% for district in districtsof %}
-                            {% if district.0 == doctors.17 %}
-                            <option value="{{district.0}}" selected>{{district.1}}</option>
+                            {% if district.1 == doctors.17 %}
+                            <option value="{{district.1}}" selected>{{district.2}}</option>
                             {% else %}
-                            <option value="{{district.0}}">{{district.1}}</option>
+                            <option value="{{district.1}}">{{district.2}}</option>
                             {% endif %}
                             {% endfor %}
                         </select>

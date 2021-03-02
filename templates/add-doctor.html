@@ -19,8 +19,7 @@
         {% endfor %}
         {% endif %}
         {% endwith %}
-        <!-- <input type="text" name="searchEspecialidad" id="searchEspecialidad">
-        <div id="match-list"></div> -->
+
         <form action="/add_doctors" method="post" class="card card-lg" enctype=multipart/form-data>
             <!-- Datos personales del Doctor -->
             <label class="form-label fs-4 mt-1">Datos Personales</label>
@@ -29,21 +28,21 @@
                 <div class="col-md">
                     <div class="form-floating">
                         <input type="text" class="form-control" id="floatingInputGrid" placeholder="Nombre"
-                            name="namedoctor" required>
+                            name="namedoctor" required onkeyup="this.value = this.value.toUpperCase();"> 
                         <label for="floatingInputGrid">Nombre *</label>
                     </div>
                 </div>
                 <div class="col-md">
                     <div class="form-floating">
                         <input type="text" class="form-control" id="floatingInputGrid" placeholder="Apellidos"
-                            name="lastnamedoctor">
+                            name="lastnamedoctor" required onkeyup="this.value = this.value.toUpperCase();">
                         <label for="floatingInputGrid">Apellidos *</label>
                     </div>
                 </div>
                 <div class="col-md">
                     <div class="form-floating">
                         <input type="text" class="form-control" id="floatingInputGrid" placeholder="Dni"
-                            name="dnidoctor">
+                            name="dnidoctor" required onkeyup="this.value = this.value.toUpperCase();" maxlength="8">
                         <label for="floatingInputGrid">DNI *</label>
                     </div>
                 </div>
@@ -54,40 +53,23 @@
                             <option value="1">Femenino</option>
                             <option value="2">Masculino</option>
                         </select>
-                        <label for="slGenero">Elija su Género</label>
+                        <label for="slGenero">Elija su</label>
                     </div>
                 </div>
             </div>
             <div class="row g-2 mt-2">
-                <div class="col-auto">
+                <div class="col-md">
                     <div class="form-floating">
-                        <select name="slYearBorn" class="form-select" id="dpYearBorn">
-                            <option value="0" selected>Año de Nacimiento</option>
-                        </select>
-                        <label for="slYearBorn">Elija su</label>
-                    </div>
-                </div>
-                <div class="col-auto">
-                    <div class="form-floating">
-                        <select name="slMonthBorn" class="form-select" id="dpMonthBorn">
-                            <option value="0" selected>Mes de Nacimiento</option>
-                        </select>
-                        <label for="slMonthBorn">Elija su</label>
-                    </div>
-                </div>
-                <div class="col-auto">
-                    <div class="form-floating">
-                        <select name="slDayBorn" class="form-select" id="dpDayBorn">
-                            <option value="0" selected>Día de Nacimiento</option>
-                        </select>
-                        <label for="slDayBorn">Elija su</label>
+                        <input type="date" name="birthday" id="floatingInputGrid" class="form-control" 
+                            placeholder="Fecha" required/>
+                        <label for="floatingInputGrid">Fecha de Nacimiento *</label>
                     </div>
                 </div>
 
                 <div class="col-md">
                     <div class="form-floating">
                         <select name="slDepartmentBorn" class="form-select" id="dpDepartBorn">
-                            <option value="0" selected>Departamento</option>
+                            <option value="0" selected>Departamento de Nacimiento</option>
                             {% for department in departments %}
                             <option value="{{department.0}}">{{department.1}}</option>
                             {% endfor %}
@@ -98,7 +80,7 @@
                 <div class="col-md">
                     <div class="form-floating">
                         <select name="slProvinceBorn" class="form-select" id="dpProvinceBorn">
-                            <option value="0" selected>Provincia</option>
+                            <option value="0" selected>Provincia de Nacimiento</option>
                         </select>
                         <label for="slprovinceBorn">Elija su</label>
                     </div>
@@ -106,7 +88,7 @@
                 <div class="col-md">
                     <div class="form-floating">
                         <select name="slDistrictBorn" class="form-select" id="dpDistrictBorn">
-                            <option value="0" selected>Distrito</option>
+                            <option value="0" selected>Distrito de Nacimiento</option>
                         </select>
                         <label for="sldistrictBorn">Elija su</label>
                     </div>
@@ -116,7 +98,7 @@
                 <div class="col-md">
                     <div class="form-floating">
                         <input autocomplete="false" type="text" class="form-control" id="floatingInputGrid"
-                            placeholder="Teléfono Trabajo" name="workphonedoctor1"
+                            placeholder="Teléfono Trabajo" name="workphonedoctor1" required
                             oninput="this.value = this.value.replace(/[^0-9.]/g, ''); this.value = this.value.replace(/(\..*)\./g, '$1');">
                         <label for="floatingInputGrid">Teléfono Trabajo 1 *</label>
                     </div>
@@ -124,7 +106,7 @@
                 <div class="col-md">
                     <div class="form-floating">
                         <input type="text" class="form-control" id="floatingInputGrid" placeholder="Teléfono Trabajo"
-                            name="workphonedoctor2"
+                            name="workphonedoctor2" required
                             oninput="this.value = this.value.replace(/[^0-9.]/g, ''); this.value = this.value.replace(/(\..*)\./g, '$1');">
                         <label for="floatingInputGrid">Teléfono Trabajo 2 *</label>
                     </div>
@@ -153,7 +135,7 @@
                             <option value="{{department.0}}">{{department.1}}</option>
                             {% endfor %}
                         </select>
-                        <label for="sldepartment">Elija su Departamento</label>
+                        <label for="sldepartment">Elija su</label>
                     </div>
                 </div>
                 <div class="col-md">
@@ -161,7 +143,7 @@
                         <select name="slProvince" class="form-select" id="dpProvince">
                             <option value="0" selected>Provincia</option>
                         </select>
-                        <label for="slprovince">Elija su Provincia</label>
+                        <label for="slprovince">Elija su</label>
                     </div>
                 </div>
                 <div class="col-md">
@@ -169,7 +151,7 @@
                         <select name="slDistrict" class="form-select" id="dpDistrict">
                             <option value="0" selected>Distrito</option>
                         </select>
-                        <label for="sldistrict">Elija su Distrito</label>
+                        <label for="sldistrict">Elija su</label>
                     </div>
                 </div>
             </div>
@@ -220,6 +202,14 @@
                             </label>
                         </div>
                     </div>
+                    <div class="col-auto ms-3">
+                        <div class="form-check mt-3">
+                            <input class="form-check-input" type="checkbox" id="idCheckLS" name="chbxLaborSocial">
+                            <label class="form-check-label" for="gridCheck">
+                                ¿Realiza labor social?
+                            </label>
+                        </div>
+                    </div>
                 </div>
                 <div class="row g-2 mt-2">
                     <div class="col-md-4">
@@ -236,7 +226,7 @@
                     <div class="col-md">
                         <div class="form-floating">
                             <input type="text" class="form-control" id="floatingInputGrid" placeholder="Trabajo Actual"
-                                name="currentjobdoctor">
+                                name="currentjobdoctor" required onkeyup="this.value = this.value.toUpperCase();">
                             <label for="floatingInputGrid">Trabajo Actual *</label>
                         </div>
                     </div>
@@ -256,7 +246,7 @@
                     <div class="col-auto">
                         <div class="form-floating">
                             <input type="text" class="form-control" id="floatingInputGrid" placeholder="Código RME"
-                                name="codermedoctor1">
+                                name="codermedoctor1" required onkeyup="this.value = this.value.toUpperCase();">
                             <label for="floatingInputGrid">Código RME</label>
                         </div>
                     </div>
@@ -291,7 +281,7 @@
                     <div class="col-md">
                         <div class="form-floating">
                             <textarea class="form-control" placeholder="Leave a comment here" id="floatingTextarea2"
-                                style="height: 100px" name="resumeProfessional"></textarea>
+                                style="height: 100px" name="resumeProfessional" required></textarea>
                             <label for="floatingTextarea2">¿Cómo te podemos presentar?</label>
                         </div>
                     </div>
@@ -306,14 +296,14 @@
                 <div class="col-md">
                     <div class="form-floating">
                         <input type="email" class="form-control" id="floatingInputGrid" placeholder="name@example.com"
-                            name="emaildoctor">
+                            name="emaildoctor" required>
                         <label for="floatingInputGrid">Correo Electrónico *</label>
                     </div>
                 </div>
                 <div class="col-md">
                     <div class="form-floating">
                         <input type="password" class="form-control" id="floatingPassword" placeholder="Contraseña"
-                            name="passworddoctor">
+                            name="passworddoctor" required>
                         <label for="floatingPassword">Contraseña *</label>
                     </div>
                 </div>
@@ -321,7 +311,7 @@
             <!-- end datos de cuenta -->
             <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-3 mb-4">
                 <button type="submit" class="btn btn-primary btn-lg me-md-2">Save</button>
-                <a href="/doctor" class="btn btn-danger btn-lg">Cancel</a>
+                <a href="/" class="btn btn-danger btn-lg btn-cancelar">Cancel</a>
             </div>
         </form>
     </div>
