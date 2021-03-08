@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 from flask_mysqldb import MySQL
 from config import Config
+from psycopg2 import connect
 
 
 UPLOAD_FOLDER = '.'
@@ -18,6 +19,9 @@ mysql = MySQL(app)
 # Settings
 app.secret_key = 'mysecretkey'
 conn = mysql
+
+connect = connect(database=Config.MYSQL_DB, user=Config.MYSQL_USER, password=Config.MYSQL_PASSWORD,
+                  host=Config.MYSQL_HOST, port=Config.MYSQL_PORT)
 
 
 @app.route("/")
