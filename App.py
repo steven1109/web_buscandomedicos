@@ -378,6 +378,7 @@ def add_doctors():
         collegiatecodedoctor = request.form.get('collegiatecodedoctor', None)
         valueCovid = 1 if request.form.get('chbxCovid') else 0
         valueVih = 1 if request.form.get('chbxVih') else 0
+        valueLaborSocial = 1 if request.form.get('chbxLaborSocial') else 0
         slYear = request.form.get('slYear')
         currentjobdoctor = request.form['currentjobdoctor']
         slSpecialty1 = request.form.get('slSpecialty1')
@@ -407,7 +408,7 @@ def add_doctors():
             'cod_born_department,cod_born_province,cod_born_district,t_workphone_1_doctor,t_workphone_2_doctor, ' \
             't_personalphone_doctor,n_collegiate,t_collegiate_code,cod_office_department,cod_office_province, ' \
             'cod_office_district,t_office_address,n_uploaded_file,t_name_filecv,t_name_photo,t_professional_resume, ' \
-            'n_years_practicing,n_attend_patients_covid,n_attend_patients_vih,t_link_facebook,t_link_instagram, ' \
+            'n_years_practicing,n_attend_patients_covid,n_attend_patients_vih,n_labor_social,t_link_facebook,t_link_instagram, ' \
             't_link_linkedin,t_current_job_title,n_active,d_creation_date,d_modification_date'
 
         columnsSpecialty = 't_rne,cod_specialty,cod_doctor,d_creation_date,d_modification_date'
@@ -417,8 +418,8 @@ def add_doctors():
         queryInsertDoctor = f"""INSERT INTO doctors ({columnsDoctors}) VALUES {args_doctors}"""
         valueDoctor = (namedoctor, lastnamedoctor, dnidoctor, slGenero, birthday, slDepartmentBorn, slProvinceBorn, slDistrictBorn,
                        phonework1, phonework2, phonepersonal, valueColegiado, collegiatecodedoctor, slDepartment, slProvince, slDistrict,
-                       addressdoctor, valueCV, filenamecv, filenamephoto, resumeProfessional, slYear, valueCovid, valueVih, linkFace,
-                       linkInstagram, linkLinkedin, currentjobdoctor, 1, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), None)
+                       addressdoctor, valueCV, filenamecv, filenamephoto, resumeProfessional, slYear, valueCovid, valueVih, valueLaborSocial, 
+                       linkFace, linkInstagram, linkLinkedin, currentjobdoctor, 2, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), None)
         cur.execute(queryInsertDoctor, valueDoctor)
         mysql.connection.commit()
 
