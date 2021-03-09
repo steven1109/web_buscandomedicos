@@ -181,8 +181,8 @@
                     </div>
                     <div class="col-auto ms-3">
                         <div class="form-floating">
-                            <input type="text" class="form-control" id="idCodeColegio"
-                                placeholder="Código del Colegiado" name="collegiatecodedoctor" disabled="disabled">
+                            <input type="text" class="form-control" id="idCodeColegio" placeholder="Código Colegiado" 
+                            name="collegiatecodedoctor" disabled="disabled" required onkeyup="this.value = this.value.toUpperCase();">
                             <label for="floatingInputGrid">Código del Colegiado *</label>
                         </div>
                     </div>
@@ -286,6 +286,21 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="row g-2 mt-2">
+                    <div class="col-md-4">
+                        <div class="form-floating">
+                            <select name="slPlan" class="form-select" id="dpYear">
+                                <option value="0" class="fw-bolder" selected>Seleccione</option>
+                                {% for plan in planes %}
+                                <option value="{{plan.0}}" class="fw-bolder">{{plan.1}} S/.{{plan.2}}</option>
+                                {% endfor %}
+                            </select>
+                            <label for="slyear">Qué plan te interesa?</label>
+                        </div>
+                    </div>
+                </div>
+
             </div>
             <!-- end datos profesionales -->
 

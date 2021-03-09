@@ -44,7 +44,7 @@ departmentborn_select.onchange = function () {
     if (value_depart != 0) {
         fetch('/selectProvince/' + value_depart).then(function (response) {
             response.json().then(function (data) {
-                let optionHTML = '<option value="0" selected>Provincia</option>';
+                let optionHTML = '<option value="0" selected>Provincia de Nacimiento</option>';
                 for (let province of data.provinces) {
                     optionHTML += '<option value="' + province.id + '">' + province.name_province + '</option>';
                 }
@@ -63,7 +63,7 @@ provinceborn_select.onchange = function () {
     if (value_province != 0) {
         fetch('/selectDistrict/' + value_province + '/' + value_depart).then(function (response) {
             response.json().then(function (data) {
-                let optionHTML = '<option value="0" selected>Distrito</option>';
+                let optionHTML = '<option value="0" selected>Distrito de Nacimiento</option>';
                 for (let district of data.districts) {
                     optionHTML += '<option value="' + district.id + '">' + district.name_district + '</option>';
                 }
@@ -118,7 +118,7 @@ province_select.onchange = function () {
 function cleanSelectProvince(dist) {
     if (dist == "B") {
         provinceborn_select = document.getElementById('dpProvinceBorn');
-        provinceborn_select.innerHTML = '<option value="0" selected>Provincia</option>';
+        provinceborn_select.innerHTML = '<option value="0" selected>Provincia de Nacimiento</option>';
     }
     else {
         province_select = document.getElementById('dpProvince');
@@ -129,7 +129,7 @@ function cleanSelectProvince(dist) {
 function cleanSelectDistrict(dist) {
     if (dist == "B") {
         select = document.getElementById('dpDistrictBorn');
-        select.innerHTML = '<option value="0" selected>Distrito</option>';
+        select.innerHTML = '<option value="0" selected>Distrito de Nacimiento</option>';
     }
     else {
         select = document.getElementById('dpDistrict');

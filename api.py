@@ -1,7 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
-from flask_mysqldb import MySQL
+import mysql.connector
 from config import Config
-from psycopg2 import connect
 
 
 UPLOAD_FOLDER = '.'
@@ -9,24 +8,20 @@ ALLOWED_EXTENSIONS = {'pdf', 'png', 'jpg', 'jpeg'}
 ALLOWED_EXTENSIONS_PHOTO = {'png', 'jpg', 'jpeg'}
 
 app = Flask(__name__)
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # max file 16MB
-app.config['MYSQL_HOST'] = Config.MYSQL_HOST
-app.config['MYSQL_USER'] = Config.MYSQL_USER
-app.config['MYSQL_PASSWORD'] = Config.MYSQL_PASSWORD
-app.config['MYSQL_DB'] = Config.MYSQL_DB
-mysql = MySQL(app)
 # Settings
-app.secret_key = 'mysecretkey'
-conn = mysql
-
-connect = connect(database=Config.MYSQL_DB, user=Config.MYSQL_USER, password=Config.MYSQL_PASSWORD,
-                  host=Config.MYSQL_HOST, port=Config.MYSQL_PORT)
+connection = mysql.connector.connect(database=Config.MYSQL_DB, user=Config.MYSQL_USER,
+                                     password=Config.MYSQL_PASSWORD, host=Config.MYSQL_HOST)
+cursor = connection.cursor()
 
 
 @app.route("/")
 def index():
-    return str(conn)
+    query = "select * from department"
+    cursor.execute(query)
+    data = cursor.fetchall()
+    df = [val for val in data]
+    print(df)
+    return "Demo"
 
 
 if __name__ == "__main__":

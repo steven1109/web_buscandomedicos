@@ -228,7 +228,9 @@ def redirect_doctor():
     dataDepartments = uConsulting.execQuery()
     uConsulting = ConsultingBD('especialidad', 'S')
     dataEspecialidad = uConsulting.execQuery()
-    return render_template('add-doctor.html', departments=dataDepartments, especialidades=dataEspecialidad)
+    uConsulting = ConsultingBD('plans', 'S')
+    dataPlanes = uConsulting.execQuery()
+    return render_template('add-doctor.html', departments=dataDepartments, especialidades=dataEspecialidad, planes=dataPlanes)
 
 
 @app.route('/view_doctor')
@@ -355,15 +357,8 @@ def add_doctors():
         lastnamedoctor = request.form['lastnamedoctor']
         dnidoctor = request.form['dnidoctor']
         slGenero = request.form.get('slGenero')
-        # slYearBorn = request.form.get('slYearBorn')
-        # slMonthBorn = request.form.get('slMonthBorn')
-        # slDayBorn = request.form.get('slDayBorn')
-        # birthday = datetime.datetime(
-        #     int(slYearBorn), int(slMonthBorn), int(slDayBorn))
-
         fecha = request.form['birthday']
         birthday = datetime.datetime.strptime(fecha, '%Y-%m-%d')
-
         slDepartmentBorn = request.form.get('slDepartmentBorn')
         slProvinceBorn = request.form.get('slProvinceBorn')
         slDistrictBorn = request.form.get('slDistrictBorn')
@@ -390,6 +385,7 @@ def add_doctors():
         photodoctor = request.files['photodoctor']
         resumeProfessional = request.form['resumeProfessional']
         valueCV = 0
+        slPlan = request.form.get('slPlan')
 
         if cvdoctor.filename == '':
             flash('No ha cargado su CV, campo vacío')
@@ -410,16 +406,19 @@ def add_doctors():
             'cod_office_district,t_office_address,n_uploaded_file,t_name_filecv,t_name_photo,t_professional_resume, ' \
             'n_years_practicing,n_attend_patients_covid,n_attend_patients_vih,n_labor_social,t_link_facebook,t_link_instagram, ' \
             't_link_linkedin,t_current_job_title,n_active,d_creation_date,d_modification_date'
-
         columnsSpecialty = 't_rne,cod_specialty,cod_doctor,d_creation_date,d_modification_date'
+        columnsPlanes = 'cod_plan,cod_doctor,n_active,d_creation_date'
+
+        date_insert = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
         lenDoctor = len(columnsDoctors.split(','))
         args_doctors = ("("+",".join(["%s"]*lenDoctor)+")")
         cur = mysql.connection.cursor()
         queryInsertDoctor = f"""INSERT INTO doctors ({columnsDoctors}) VALUES {args_doctors}"""
         valueDoctor = (namedoctor, lastnamedoctor, dnidoctor, slGenero, birthday, slDepartmentBorn, slProvinceBorn, slDistrictBorn,
                        phonework1, phonework2, phonepersonal, valueColegiado, collegiatecodedoctor, slDepartment, slProvince, slDistrict,
-                       addressdoctor, valueCV, filenamecv, filenamephoto, resumeProfessional, slYear, valueCovid, valueVih, valueLaborSocial, 
-                       linkFace, linkInstagram, linkLinkedin, currentjobdoctor, 2, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), None)
+                       addressdoctor, valueCV, filenamecv, filenamephoto, resumeProfessional, slYear, valueCovid, valueVih, valueLaborSocial,
+                       linkFace, linkInstagram, linkLinkedin, currentjobdoctor, 2, date_insert, None)
         cur.execute(queryInsertDoctor, valueDoctor)
         mysql.connection.commit()
 
@@ -427,13 +426,19 @@ def add_doctors():
         # Data doctors specialty
         values = []
         if int(slSpecialty1) > 0:
-            values.append((codermedoctor1, slSpecialty1, lastDoctorId,
-                           datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), None))
+            values.append((codermedoctor1, slSpecialty1,
+                           lastDoctorId, date_insert, None))
 
         lens = len(values[0])
         args_str = ("("+",".join(["%s"]*lens)+")")
         queryInsertDetalleDoctor = f"""INSERT INTO doctor_specialty ({columnsSpecialty}) VALUES {args_str}"""
         cur.executemany(queryInsertDetalleDoctor, values)
+
+        lenPlan = len(columnsPlanes.split(','))
+        args_plans = ("("+",".join(["%s"]*lenPlan)+")")
+        queryInsertDetalleplandoctor = f"""INSERT INTO plan_doctor ({columnsPlanes}) VALUES {args_plans}"""
+        valuesPlan = (int(slPlan), lastDoctorId, 1, date_insert)
+        cur.execute(queryInsertDetalleplandoctor, valuesPlan)
 
         # Datos usuario
         emaildoctor = request.form['emaildoctor']
@@ -443,7 +448,7 @@ def add_doctors():
         args_user = ("("+",".join(["%s"]*lenUser)+")")
         queryInsertUserDoctor = f"""INSERT INTO users ({columnsUser}) VALUES {args_user}"""
         cur.execute(queryInsertUserDoctor,
-                    (emaildoctor, passworddoctor, 1, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
+                    (emaildoctor, passworddoctor, 1, date_insert))
         mysql.connection.commit()
 
         flash('Doctor Added Successfully')
