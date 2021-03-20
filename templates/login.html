@@ -13,15 +13,15 @@
     <div class="container">
         <div class="forms-container">
             <div class="signin-signup">
-                <form class="sign-in-form">
+                <form action="/sign_in" method="post" class="sign-in-form">
                     <h2 class="title">Iniciar Sesión</h2>
                     <div class="input-field">
                         <i class="fa fa-user"></i>
-                        <input type="text" placeholder="Nombre de Usuario">
+                        <input name="username" type="text" placeholder="Nombre de Usuario" required>
                     </div>
                     <div class="input-field">
                         <i class="fa fa-lock"></i>
-                        <input type="password" placeholder="Contraseña">
+                        <input name="password" type="password" placeholder="Contraseña" required>
                     </div>
                     <div class="social-media">
                         <input type="submit" value="Iniciar" class="btn solid">

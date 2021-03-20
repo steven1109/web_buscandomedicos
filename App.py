@@ -251,12 +251,29 @@ def redirect_specialization():
 
 @app.route('/contact_us')
 def redirect_contactus():
-    return render_template('contact-us.html')
+    currentdate = datetime.datetime.now().strftime("%Y-%m-%d")
+    
+    uConsulting = ConsultingBD('especialidad', 'S')
+    dataEspecialidades = uConsulting.execQuery()
+
+    uConsulting = ConsultingBD('plans', 'S')
+    dataPlanes = uConsulting.execQuery()
+
+    return render_template('contact-us.html', specializations=dataEspecialidades, currentdate=currentdate, planes=dataPlanes)
 
 
 @app.route('/about_us')
 def redirect_aboutus():
     return render_template('about-us.html')
+
+
+@app.route('/sign_in', methods=['POST'])
+def redirect_admin():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        print(username, password)
+        return render_template('dashboard/index.html')
 
 
 # Section of to insert in database
@@ -448,11 +465,59 @@ def add_doctors():
         args_user = ("("+",".join(["%s"]*lenUser)+")")
         queryInsertUserDoctor = f"""INSERT INTO users ({columnsUser}) VALUES {args_user}"""
         cur.execute(queryInsertUserDoctor,
-                    (emaildoctor, passworddoctor, 1, date_insert))
+                    (emaildoctor, passworddoctor, 2, date_insert))
         mysql.connection.commit()
 
         flash('Doctor Added Successfully')
         return redirect(url_for('redirect_doctor'))
+
+
+@app.route('/add_contactus', methods=['POST'])
+def add_contactus():
+    if request.method == 'POST':
+        fullname = request.form['fullname']
+        birthday = request.form['birthday']
+        gender = request.form.get('rdGenero','0')
+        phone = request.form['phone']
+        email = request.form['email']
+        slSpecialty = request.form['slSpecialty']
+        question = request.form['question']
+        contact_time = request.form['contact_time']
+        plan = request.form['plan']
+        value = True
+
+        if not fullname:
+            value = False
+            flash("Nombre y Apellido vacío")
+        elif not birthday:
+            value = False
+            flash("Fecha de nacimiento vacío")
+        elif gender == '0':
+            value = False
+            flash("Error, no ha seleccionado su genero")
+        elif not phone:
+            value = False
+            flash("Teléfono vacío")
+        elif not email:
+            value = False
+            flash("Correo Electrónico vacío")
+        elif slSpecialty == "0":
+            value = False
+            flash("Error, debe seleccionar una especialidad")
+
+        if not value:
+            return render_template('contact-us.html', form=request.form)
+
+        date_insert = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        columns = "t_fullname,d_birthday,n_gender,n_phone,t_email,cod_specialty,t_your_question,t_contact_time,cod_plan,d_creation_date"
+        arg = ','.join('%s' for v in columns.split(','))
+        cur = mysql.connection.cursor()
+        statement = f"INSERT INTO contactus ({columns}) VALUES ({arg})"
+        values = (fullname, birthday, gender, phone, email, slSpecialty, question, contact_time, plan, date_insert)
+        # cur.execute(statement, values)
+        # mysql.connection.commit()
+        flash('Specialization Updated Successfully')
+        return redirect(url_for('redirect_contactus'))
 
 
 # Section of to update in database
