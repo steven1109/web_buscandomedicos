@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 from flask_mysqldb import MySQL
 import datetime
+from datetime import timedelta
 from utils import ConsultingBD, BD
 import os
 import math
@@ -252,14 +253,26 @@ def redirect_specialization():
 @app.route('/contact_us')
 def redirect_contactus():
     currentdate = datetime.datetime.now().strftime("%Y-%m-%d")
-    
+
     uConsulting = ConsultingBD('especialidad', 'S')
     dataEspecialidades = uConsulting.execQuery()
 
     uConsulting = ConsultingBD('plans', 'S')
     dataPlanes = uConsulting.execQuery()
 
-    return render_template('contact-us.html', specializations=dataEspecialidades, currentdate=currentdate, planes=dataPlanes)
+    start_hour = datetime.datetime.strptime("03:00", "%H:%M")
+    hoursArray = []
+    for i in range(1, (24 - int(start_hour.hour) + 1)):
+        hoursObj = {}
+        next_hour = start_hour + timedelta(hours=1)
+        hoursObj['id'] = i
+        hoursObj['value'] = start_hour.strftime(
+            "%I:%M %p") + " - " + next_hour.strftime("%I:%M %p")
+        hoursArray.append(hoursObj)
+        start_hour = next_hour
+
+    return render_template('contact-us.html', specializations=dataEspecialidades, currentdate=currentdate, planes=dataPlanes,
+                           hours=hoursArray)
 
 
 @app.route('/about_us')
@@ -477,7 +490,7 @@ def add_contactus():
     if request.method == 'POST':
         fullname = request.form['fullname']
         birthday = request.form['birthday']
-        gender = request.form.get('rdGenero','0')
+        gender = request.form.get('rdGenero', '0')
         phone = request.form['phone']
         email = request.form['email']
         slSpecialty = request.form['slSpecialty']
@@ -513,7 +526,8 @@ def add_contactus():
         arg = ','.join('%s' for v in columns.split(','))
         cur = mysql.connection.cursor()
         statement = f"INSERT INTO contactus ({columns}) VALUES ({arg})"
-        values = (fullname, birthday, gender, phone, email, slSpecialty, question, contact_time, plan, date_insert)
+        values = (fullname, birthday, gender, phone, email,
+                  slSpecialty, question, contact_time, plan, date_insert)
         # cur.execute(statement, values)
         # mysql.connection.commit()
         flash('Specialization Updated Successfully')

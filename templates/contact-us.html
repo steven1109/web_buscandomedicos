@@ -111,9 +111,9 @@
         <div class="col-sm-5">
           <select class="form-select form-select-lg" aria-label=".form-select-lg example" name="contact_time">
             <option value="0" selected>--- SELECCIONE LA HORA ---</option>
-            <option value="1">One</option>
-            <option value="2">Two</option>
-            <option value="3">Three</option>
+            {% for hour in hours %}
+            <option value="{{hour.id}}">{{hour.value}}</option>
+            {% endfor %}
           </select>
         </div>
       </div>
