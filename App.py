@@ -280,6 +280,39 @@ def redirect_aboutus():
     return render_template('about-us.html')
 
 
+@app.route('/medical_date/<id>')
+def redirect_medical_date(id):
+    currentdate = datetime.datetime.now().strftime("%Y-%m-%d")
+
+    query = 'select doc.cod_doctor, doc.t_name_doctor, doc.t_lastname_doctor, ' \
+            'doc.t_workphone_1_doctor, doc.cod_gender_doctor, gen.t_name_gender ' \
+            'from doctors doc ' \
+            'join gender gen on doc.cod_gender_doctor = gen.cod_gender ' \
+            'where doc.n_active = 1 and doc.cod_doctor = {0};'.format(id)
+
+    cur = mysql.connection.cursor()
+    cur.execute(query)
+    data = cur.fetchall()
+
+    start_hour = datetime.datetime.strptime("03:00", "%H:%M")
+    hoursArray = []
+    for i in range(1, (24 - int(start_hour.hour) + 1)):
+        hoursObj = {}
+        next_hour = start_hour + timedelta(hours=1)
+        hoursObj['id'] = i
+        hoursObj['value'] = start_hour.strftime(
+            "%I:%M %p") + " - " + next_hour.strftime("%I:%M %p")
+        hoursArray.append(hoursObj)
+        start_hour = next_hour
+
+    return render_template('book-appointment.html', currentdate=currentdate, hours=hoursArray, doctor=data[0])
+
+
+@app.route('/more_information/<id>')
+def redirect_more_information(id):
+    return render_template('more-information.html', id_doctor=id)
+
+
 @app.route('/sign_in', methods=['POST'])
 def redirect_admin():
     if request.method == 'POST':
@@ -784,6 +817,8 @@ def delete_district(id):
 
 
 # Section of to select in database
+
+
 @app.route('/selectProvince/<id>')
 def getProvinceByIdDepartment(id):
     codi_depa = id

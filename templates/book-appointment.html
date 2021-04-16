@@ -1,1 +1,168 @@
 <!-- Reservar Cita -->
+{% extends 'layout.html' %} {% block body %}
+
+<div class="container mt-4 card card-body">
+    <div class="row justify-content-center">
+        <!-- Confirmation Messages -->
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        {% for message in messages %}
+        {% if 'vacío' in message.lower() or 'error' in message.lower() %}
+        {% set alert_status = 'alert-danger' %}
+        {% else %}
+        {% set alert_status = 'alert-success' %}
+        {% endif %}
+        <div class="alert {{alert_status}} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+        <p>{{form}}</p>
+        {% endif %}
+        {% endwith %}
+
+        <form action="/add_contactus" method="post">
+            <div class="d-flex justify-content-center mt-4">
+                <label class="form-label fs-4">RESERVA TU CITA</label>
+            </div>
+            <div class="dropdown-divider"></div>
+            <div class="row g-1 mt-2">
+                <div class="col-sm-3 mt-3">
+                    <p class="form-label fs-5 text-end" for="date">Nombre Completo:</p>
+                </div>
+                <div class="col-md">
+                    <input type="text" name="fullname" class="form-control form-control-lg"
+                        value="{{ form.fullname if form else '' }}" />
+                </div>
+            </div>
+
+            <div class="row g-1 mt-2">
+                <div class="col-sm-3 mt-3">
+                    <p class="form-label fs-5 text-end" for="date">DNI:</p>
+                </div>
+                <div class="col-sm-5">
+                    <input type="text" name="dni" class="form-control form-control-lg"
+                        value="{{ form.dni if form else '' }}" />
+                </div>
+            </div>
+
+            <div class="row g-1 mt-2">
+                <div class="col-sm-3 mt-3">
+                    <p class="form-label fs-5 text-end" for="date">Celular:</p>
+                </div>
+                <div class="col-sm-5">
+                    <input type="text" name="phone" class="form-control form-control-lg"
+                        value="{{ form.phone if form else '' }}" />
+                </div>
+            </div>
+
+            <div class="row g-1 mt-2">
+                <div class="col-sm-3 mt-3">
+                    <p class="form-label fs-5 text-end" for="date">Email:</p>
+                </div>
+                <div class="col-sm-5">
+                    <input type="email" name="email" class="form-control form-control-lg"
+                        value="{{ form.email if form else '' }}" />
+                </div>
+            </div>
+
+            <div class="row g-1 mt-2">
+                <div class="col-sm-3 mt-3">
+                    <p class="form-label fs-5 text-end" for="date">Fecha de Cita:</p>
+                </div>
+                <div class="col-sm-5">
+                    <input type="date" name="date_day" id="date" class="form-control form-control-lg"
+                        value="{{ form.date_day if form else currentdate }}" />
+                </div>
+            </div>
+
+            <div class="row g-1 mt-2">
+                <div class="col-sm-3 mt-3">
+                    <p class="form-label fs-5 text-end" for="date">Hora de cita:</p>
+                </div>
+                <div class="col-sm-5">
+                    <select class="form-select form-select-lg" aria-label=".form-select-lg example" name="contact_time">
+                        <option value="0" selected>--- SELECCIONE LA HORA ---</option>
+                        {% for hour in hours %}
+                        <option value="{{hour.id}}">{{hour.value}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="d-grid gap-2 d-md-flex justify-content-md-center mb-3 mt-3">
+                <button type="submit" class="btn btn-primary btn-lg me-md-2">Reservar</button>
+                <a href="/" class="btn btn-danger btn-lg">Cancelar</a>
+            </div>
+
+        </form>
+        <!-- Fin del formulario -->
+    </div>
+</div>
+{% if doctor.4 == 2 %}
+{% set gen_doctor = 'Dr.' %}
+{% else %}
+{% set gen_doctor = 'Dra.' %}
+{% endif %}
+<div class="container mt-1 card card-body">
+    <div class="row justify-content-center">
+
+        <div class="d-flex w-100 justify-content-between">
+            <label class="form-label fs-4 mt-1">Horario de {{gen_doctor}} {{doctor.1}} {{doctor.2}}</label>
+            <label class="form-label fs-5 mt-1">Telf. {{doctor.3}}</label>
+        </div>
+        <div class="dropdown-divider"></div>
+
+        <!-- Table View Register Department -->
+        <div class="col-md">
+            <div class="table-responsive">
+                <table class="table bg-white table-hover table-bordered border-primary">
+                    <thead class="table-dark">
+                        <tr>
+                            <th scope="col" class="text-center">Hora</th>
+                            <th scope="col" class="text-center">Lunes</th>
+                            <th scope="col" class="text-center">Martes</th>
+                            <th scope="col" class="text-center">Miércoles</th>
+                            <th scope="col" class="text-center">Jueves</th>
+                            <th scope="col" class="text-center">Viernes</th>
+                            <th scope="col" class="text-center">Sábado</th>
+                            <th scope="col" class="text-center">Domingo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for hour in hours %}
+                        <tr>
+                            <th scope="row">
+                                <div class="p-2 bd-highlight text-center">{{hour.value}}</div>
+                            </th>
+                            <td>
+                                <div class="p-2 bd-highlight text-center text-success">Libre</div>
+                            </td> <!-- bg-success -->
+                            <td>
+                                <div class="p-2 bd-highlight text-center text-white bg-primary">Ocupado</div>
+                            </td>
+                            <td>
+                                <div class="p-2 bd-highlight text-center">Libre</div>
+                            </td>
+                            <td>
+                                <div class="p-2 bd-highlight text-center">Ocupado</div>
+                            </td>
+                            <td>
+                                <div class="p-2 bd-highlight text-center">Libre</div>
+                            </td>
+                            <td>
+                                <div class="p-2 bd-highlight text-center">Ocupado</div>
+                            </td>
+                            <td>
+                                <div class="p-2 bd-highlight text-center">Ocupado</div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
