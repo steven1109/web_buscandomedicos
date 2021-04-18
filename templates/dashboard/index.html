@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Buscando Médicos</title>
+    <link rel="shortcut icon" href="{{url_for('static', filename='img/estetoscopio.png')}}" />
+
+    <link rel="stylesheet" href="{{url_for('static', filename='css/app.css')}}" />
+</head>
+
+<body>
+    <div class="wrapper">
+        <!-- sidebar menu -->
+        {% include "dashboard/nav-menu.html" %}
+        <!-- /sidebar menu -->
+
+        <div class="main">
+            <nav class="navbar navbar-expand navbar-light navbar-bg">
+                <a class="sidebar-toggle d-flex">
+                    <i class="hamburger align-self-center"></i>
+                </a>
+
+                <form class="d-none d-sm-inline-block">
+                    <div class="input-group input-group-navbar">
+                        <input type="text" class="form-control" placeholder="Search…" arial-label="Search">
+                        <button class="btn" type="button">
+                            <i class="align-middle" data-feather="search"></i>
+                        </button>
+                    </div>
+                </form>
+                <div class="navbar-collapse collapse">
+                    <ul class="navbar-nav navbar-align">
+                        <li class="nav-item dropdown">
+                            <a href="#" class="nav-icon dropdown-toggle" id="alertsDropdown" data-toggle="dropdown">
+                                <div class="position-relative">
+                                    <i class="align-middle" data-feather="bell"></i>
+                                    <span class="indicator">4</span>
+                                </div>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right py-0"
+                                aria-labelledby="alertsDropdown">
+                                <div class="dropdown-menu-header">
+                                    4 New Notifications
+                                </div>
+                                <div class="list-group">
+                                    <a href="#" class="list-group-item">
+                                        <div class="row g-0 align-items-center">
+                                            <div class="col-2">
+                                                <i class="text-danger" data-feather="alert-circle"></i>
+                                            </div>
+                                            <div class="col-10">
+                                                <div class="text-dark">Update completed</div>
+                                                <div class="text-muted small mt-1">Restart server 12 to complete the
+                                                    update.</div>
+                                                <div class="text-muted small mt-1">30m ago</div>
+                                            </div>
+                                        </div>
+                                    </a>
+
+                                    <a href="#" class="list-group-item">
+                                        <div class="row g-0 align-items-center">
+                                            <div class="col-2">
+                                                <i class="text-warning" data-feather="bell"></i>
+                                            </div>
+                                            <div class="col-10">
+                                                <div class="text-dark">Lorem, ipsum.</div>
+                                                <div class="text-muted small mt-1">Lorem ipsum dolor sit.</div>
+                                                <div class="text-muted small mt-1">2h ago</div>
+                                            </div>
+                                        </div>
+                                    </a>
+
+                                    <a href="#" class="list-group-item">
+                                        <div class="row g-0 align-items-center">
+                                            <div class="col-2">
+                                                <i class="text-primary" data-feather="home"></i>
+                                            </div>
+                                            <div class="col-10">
+                                                <div class="text-dark">Login from 192.186.1.8</div>
+                                                <div class="text-muted small mt-1">5h ago</div>
+                                            </div>
+                                        </div>
+                                    </a>
+
+                                    <a href="#" class="list-group-item">
+                                        <div class="row g-0 align-items-center">
+                                            <div class="col-2">
+                                                <i class="text-success" data-feather="user-plus"></i>
+                                            </div>
+                                            <div class="col-10">
+                                                <div class="text-dark">New connection</div>
+                                                <div class="text-muted small mt-1">Christina accepted your request.
+                                                </div>
+                                                <div class="text-muted small mt-1">14h ago</div>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </div>
+                                <div class="dropdown-menu-footer">
+                                    <a href="#" class="text-muted">Show all notifications</a>
+                                </div>
+                            </div>
+                        </li>
+
+                        <li class="nav-item dropdown">
+                            <a href="#" class="nav-icon dropdown-toggle" id="messagesDropdown" data-toggle="dropdown">
+                                <div class="position-relative">
+                                    <i class="align-middle" data-feather="message-square"></i>
+                                    <span class="indicator">4</span>
+                                </div>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right py-0"
+                                aria-labelledby="messagesDropdown">
+                                <div class="dropdown-menu-header">
+                                    <div class="position-relative">
+                                        4 New Messages
+                                    </div>
+                                </div>
+                                <div class="list-group">
+                                    <a href="#" class="list-group-item">
+                                        <div class="row g-0 align-items-center">
+                                            <div class="col-2">
+                                                <img src="img/avatars/avatar-5.jpg"
+                                                    class="avatar img-fluid rounded-circle" alt="Vanessa Tucker">
+                                            </div>
+                                            <div class="col-10 pl-2">
+                                                <div class="text-dark">Vanessa Tucker</div>
+                                                <div class="text-muted small mt-1">Nam pretium turpis et arcu. Duis arcu
+                                                    tortor.</div>
+                                                <div class="text-muted small mt-1">15m ago</div>
+                                            </div>
+                                        </div>
+                                    </a>
+                                    <a href="#" class="list-group-item">
+                                        <div class="row g-0 align-items-center">
+                                            <div class="col-2">
+                                                <img src="img/avatars/avatar-2.jpg"
+                                                    class="avatar img-fluid rounded-circle" alt="William Harris">
+                                            </div>
+                                            <div class="col-10 pl-2">
+                                                <div class="text-dark">William Harris</div>
+                                                <div class="text-muted small mt-1">Curabitur ligula sapien euismod
+                                                    vitae.</div>
+                                                <div class="text-muted small mt-1">2h ago</div>
+                                            </div>
+                                        </div>
+                                    </a>
+                                    <a href="#" class="list-group-item">
+                                        <div class="row g-0 align-items-center">
+                                            <div class="col-2">
+                                                <img src="img/avatars/avatar-4.jpg"
+                                                    class="avatar img-fluid rounded-circle" alt="Christina Mason">
+                                            </div>
+                                            <div class="col-10 pl-2">
+                                                <div class="text-dark">Christina Mason</div>
+                                                <div class="text-muted small mt-1">Pellentesque auctor neque nec urna.
+                                                </div>
+                                                <div class="text-muted small mt-1">4h ago</div>
+                                            </div>
+                                        </div>
+                                    </a>
+                                    <a href="#" class="list-group-item">
+                                        <div class="row g-0 align-items-center">
+                                            <div class="col-2">
+                                                <img src="img/avatars/avatar-3.jpg"
+                                                    class="avatar img-fluid rounded-circle" alt="Sharon Lessman">
+                                            </div>
+                                            <div class="col-10 pl-2">
+                                                <div class="text-dark">Sharon Lessman</div>
+                                                <div class="text-muted small mt-1">Aenean tellus metus, bibendum sed,
+                                                    posuere ac, mattis non.</div>
+                                                <div class="text-muted small mt-1">5h ago</div>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </div>
+                                <div class="dropdown-menu-footer">
+                                    <a href="#" class="text-muted">Show all messages</a>
+                                </div>
+                            </div>
+                        </li>
+
+                        <li class="nav-item dropdown">
+                            <a class="nav-icon dropdown-toggle d-inline-block d-sm-none" href="#"
+                                data-toggle="dropdown">
+                                <i class="align-middle" data-feather="settings"></i>
+                            </a>
+
+                            <a class="nav-link dropdown-toggle d-none d-sm-inline-block" href="#"
+                                data-toggle="dropdown">
+                                <img src="{{url_for('static', filename='img/doctor.svg')}}"
+                                    class="avatar img-fluid rounded mr-1" alt="Steven V." /> <span
+                                    class="text-dark">Steven V.</span>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right">
+                                <a class="dropdown-item" href="pages-profile.html"><i class="align-middle mr-1"
+                                        data-feather="user"></i> Profile</a>
+                                <a class="dropdown-item" href="#"><i class="align-middle mr-1"
+                                        data-feather="pie-chart"></i> Analytics</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="pages-settings.html"><i class="align-middle mr-1"
+                                        data-feather="settings"></i> Settings & Privacy</a>
+                                <a class="dropdown-item" href="#"><i class="align-middle mr-1"
+                                        data-feather="help-circle"></i> Help Center</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="/">Log out</a>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Contenido de la página -->
+            <main class="content">
+                <div class="container-fluid p-0">
+
+                    <div class="row mb-2 mb-xl-3">
+                        <div class="col-auto d-none d-sm-block">
+                            <h3><strong>Analytics</strong> Dashboard</h3>
+                        </div>
+
+                        <div class="col-auto ml-auto text-right mt-n1">
+                            <nav aria-label="breadcrumb">
+                                <ol class="breadcrumb bg-transparent p-0 mt-1 mb-0">
+                                    <li class="breadcrumb-item"><a href="#">BuscandoMédicos</a></li>
+                                    <li class="breadcrumb-item"><a href="#">Dashboards</a></li>
+                                    <li class="breadcrumb-item active" aria-current="page">Analytics</li>
+                                </ol>
+                            </nav>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="card-title mb-0">Empty card</h5>
+                                </div>
+                                <div class="card-body">
+                                    fff
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-xl-20 d-flex">
+                            <div class="w-100">
+                                <div class="row">
+                                    <div class="col-sm-2 d-flex">
+                                        <div class="card card-body">
+                                            <h5 class="card-title mb-4">Sales</h5>
+                                            <h1 class="mt-1 mb-3">2.382</h1>
+                                            <div class="mb-1">
+                                                <span class="text-danger"> <i class="mdi mdi-arrow-bottom-right"></i>
+                                                    -3.65%
+                                                </span>
+                                                <span class="text-muted">Since last week</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-2 d-flex">
+                                        <div class="card card-body">
+                                            <h5 class="card-title mb-4">Visitors</h5>
+                                            <h1 class="mt-1 mb-3">14.212</h1>
+                                            <div class="mb-1">
+                                                <span class="text-success"> <i class="mdi mdi-arrow-bottom-right"></i>
+                                                    5.25%
+                                                </span>
+                                                <span class="text-muted">Since last week</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-2 d-flex">
+                                        <div class="card card-body">
+                                            <h5 class="card-title mb-4">Earnings</h5>
+                                            <h1 class="mt-1 mb-3">$21.300</h1>
+                                            <div class="mb-1">
+                                                <span class="text-success"> <i class="mdi mdi-arrow-bottom-right"></i>
+                                                    6.65% </span>
+                                                <span class="text-muted">Since last week</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-2 d-flex">
+                                        <div class="card card-body">
+                                            <h5 class="card-title mb-4">Orders</h5>
+                                            <h1 class="mt-1 mb-3">64</h1>
+                                            <div class="mb-1">
+                                                <span class="text-danger"> <i class="mdi mdi-arrow-bottom-right"></i>
+                                                    -2.25% </span>
+                                                <span class="text-muted">Since last week</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <div class="card card-body">
+                                <h5 class="card-title mb-4">Sales</h5>
+                                <h1 class="mt-1 mb-3">2.382</h1>
+                                <div class="mb-1">
+                                    <span class="text-danger"> <i class="mdi mdi-arrow-bottom-right"></i>
+                                        -3.65%
+                                    </span>
+                                    <span class="text-muted">Since last week</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="card card-body">
+                                <h5 class="card-title mb-4">Visitors</h5>
+                                <h1 class="mt-1 mb-3">14.212</h1>
+                                <div class="mb-1">
+                                    <span class="text-success"> <i class="mdi mdi-arrow-bottom-right"></i>
+                                        5.25%
+                                    </span>
+                                    <span class="text-muted">Since last week</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="card card-body">
+                                <h5 class="card-title mb-4">Earnings</h5>
+                                <h1 class="mt-1 mb-3">$21.300</h1>
+                                <div class="mb-1">
+                                    <span class="text-success"> <i class="mdi mdi-arrow-bottom-right"></i>
+                                        6.65% </span>
+                                    <span class="text-muted">Since last week</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="card card-body">
+                                <h5 class="card-title mb-4">Orders</h5>
+                                <h1 class="mt-1 mb-3">64</h1>
+                                <div class="mb-1">
+                                    <span class="text-danger"> <i class="mdi mdi-arrow-bottom-right"></i>
+                                        -2.25% </span>
+                                    <span class="text-muted">Since last week</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12 col-md-6 col-xxl-3 d-flex order-2 order-xxl-3">
+                            <div class="card flex-fill w-100">
+                                <div class="card-header">
+                                    <h5 class="card-title mb-0">Browser Usage</h5>
+                                </div>
+                                <div class="card-body d-flex">
+                                    <div class="align-self-center w-100">
+                                        <div class="py-3">
+                                            <div class="chart chart-xs">
+                                                <canvas id="chartjs-dashboard-pie"></canvas>
+                                            </div>
+                                        </div>
+                                        <table class="table mb-0">
+                                            <tbody>
+                                                <tr>
+                                                    <td>Chrome</td>
+                                                    <td class="text-right">4306</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Firefox</td>
+                                                    <td class="text-right">3801</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>IE</td>
+                                                    <td class="text-right">1689</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Ruby</td>
+                                                    <td class="text-right">3333</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-12 col-xxl-6 d-flex order-3 order-xxl-2">
+                            <div class="card flex-fill w-100">
+                                <div class="card-header">
+                                    <h5 class="card-title mb-0">Real-Time</h5>
+                                </div>
+                                <div class="card-body px-4">
+                                    <div id="world_map" style="height:350px;"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6 col-xxl-3 d-flex order-1 order-xxl-1">
+                            <div class="card flex-fill">
+                                <div class="card-header">
+                                    <h5 class="card-title mb-0">Calendar</h5>
+                                </div>
+                                <div class="card-body d-flex">
+                                    <div class="align-self-center w-100">
+                                        <div class="chart">
+                                            <div id="datetimepicker-dashboard"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </main>
+            <!-- Fin contenido de la página -->
+
+            <footer class="footer">
+                <div class="container-fluid">
+                    <div class="row text-muted">
+                        <div class="col-6 text-left">
+                            <p class="mb-0">
+                                <a href="index.html" class="text-muted"><strong>BuscandoMédicos</strong></a> &copy;
+                            </p>
+                        </div>
+                        <div class="col-6 text-right">
+                            <ul class="list-inline">
+                                <li class="list-inline-item"><a href="#" class="text-muted">Support</a></li>
+                                <li class="list-inline-item"><a href="#" class="text-muted">Help Center</a></li>
+                                <li class="list-inline-item"><a href="#" class="text-muted">Privacy</a></li>
+                                <li class="list-inline-item"><a href="#" class="text-muted">Terms</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    <script src="{{url_for('static', filename='js/app.js')}}"></script>
+    <!-- Chart Pie  -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Pie chart
+            new Chart(document.getElementById("chartjs-dashboard-pie"), {
+                type: "pie",
+                data: {
+                    labels: ["Chrome", "Firefox", "IE", "Ruby"],
+                    datasets: [{
+                        data: [4306, 3801, 1689, 3333],
+                        backgroundColor: [
+                            window.theme.primary,
+                            window.theme.warning,
+                            window.theme.danger,
+                            window.theme.success
+                        ],
+                        borderWidth: 5
+                    }]
+                },
+                options: {
+                    responsive: !window.MSInputMethodContext,
+                    maintainAspectRatio: false,
+                    legend: {
+                        display: false
+                    },
+                    cutoutPercentage: 75
+                }
+            });
+        });
+    </script>
+
+    <!-- Map and coordinates -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var markers = [{
+                coords: [31.230391, 121.473701],
+                name: "Shanghai"
+            },
+            {
+                coords: [28.704060, 77.102493],
+                name: "Delhi"
+            },
+            {
+                coords: [6.524379, 3.379206],
+                name: "Lagos"
+            },
+            {
+                coords: [35.689487, 139.691711],
+                name: "Tokyo"
+            },
+            {
+                coords: [23.129110, 113.264381],
+                name: "Guangzhou"
+            },
+            {
+                coords: [40.7127837, -74.0059413],
+                name: "New York"
+            },
+            {
+                coords: [34.052235, -118.243683],
+                name: "Los Angeles"
+            },
+            {
+                coords: [41.878113, -87.629799],
+                name: "Chicago"
+            },
+            {
+                coords: [51.507351, -0.127758],
+                name: "London"
+            },
+            {
+                coords: [40.416775, -3.703790],
+                name: "Madrid "
+            },
+            {
+                coords: [-12.04318, -77.02824],
+                name: "Lima"
+            }
+            ];
+            var map = new JsVectorMap({
+                map: "world",
+                selector: "#world_map",
+                zoomButtons: true,
+                markers: markers,
+                markerStyle: {
+                    initial: {
+                        r: 9, // <-- tamaño del punto en el mapa
+                        strokeWidth: 7,
+                        stokeOpacity: .4,
+                        fill: window.theme.primary
+                    },
+                    hover: {
+                        fill: window.theme.primary,
+                        stroke: window.theme.primary
+                    }
+                }
+            });
+            window.addEventListener("resize", () => {
+                map.updateSize();
+            });
+        });
+    </script>
+
+    <!-- Calendar -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            document.getElementById("datetimepicker-dashboard").flatpickr({
+                inline: true,
+                prevArrow: "<span class=\"fas fa-chevron-left\" title=\"Previous month\"></span>",
+                nextArrow: "<span class=\"fas fa-chevron-right\" title=\"Next month\"></span>",
+            });
+        });
+    </script>
+
+</body>
+
+</html>

@@ -313,13 +313,27 @@ def redirect_more_information(id):
     return render_template('more-information.html', id_doctor=id)
 
 
-@app.route('/sign_in', methods=['POST'])
+# @app.route('/sign_in', methods=['POST'])
+# def redirect_admin():
+#     if request.method == 'POST':
+#         username = request.form['username']
+#         password = request.form['password']
+#         print(username, password)
+#         return render_template('dashboard/index.html')
+@app.route('/sign_in', methods=['GET', 'POST'])
 def redirect_admin():
+    error = None
     if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        print(username, password)
-        return render_template('dashboard/index.html')
+        if request.form['username'] != 'admin' or request.form['password'] != 'admin':
+            error = 'Invalid Credentials. Please try again.'
+        else:
+            return render_template('dashboard/index.html')
+    return render_template('login.html', error=error)
+
+
+@app.route('/admin_panel')
+def redirect_admin_panel():
+    return render_template('dashboard/index.html')
 
 
 # Section of to insert in database
