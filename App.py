@@ -328,7 +328,8 @@ def redirect_admin():
             error = 'Invalid Credentials. Please try again.'
         else:
             return render_template('dashboard/index.html')
-    return render_template('login.html', error=error)
+    # return render_template('login.html', error=error)
+    return redirect(url_for('redirect_login'))
 
 
 @app.route('/admin_panel')

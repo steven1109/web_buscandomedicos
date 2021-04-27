@@ -7,10 +7,20 @@
     </script>
     <link rel="stylesheet" href="{{url_for('static', filename='css/style_login.css')}}">
     <title>Buscando Médicos</title>
+    <link rel="shortcut icon" href="{{url_for('static', filename='img/estetoscopio.png')}}" />
 </head>
 
 <body>
     <div class="container">
+
+        <!-- Confirmation Messages -->
+        {% if error != "" %}
+        <div class="alert {{alert_status}} alert-dismissible fade show" role="alert">
+            {{ error }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endif %}
+
         <div class="forms-container">
             <div class="signin-signup">
                 <form action="/sign_in" method="post" class="sign-in-form">
@@ -62,6 +72,7 @@
 
     <script src="{{url_for('static', filename='js/app_login.js')}}"></script>
     <script src="https://kit.fontawesome.com/a568f5c263.js" crossorigin="anonymous"></script>
+    <script src="{{url_for('static', filename='js/main.js')}}"></script>
 </body>
 
 </html>
