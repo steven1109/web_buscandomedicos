@@ -2,6 +2,81 @@
 {% extends 'layout.html' %}
 {% block body %}
 
+<div class="container mt-1 card card-body">
+    <div class="row justify-content-center">
+
+        <header class="pb-3 mb-2 border-bottom">
+            <a href="/" class="d-flex align-items-center text-dark text-decoration-none">
+                <img src="{{url_for('static', filename='img/estetoscopio.png')}}" alt="" style="width: 3.5rem;">
+                <span class="fs-2">Acerca de Buscando Médicos</span>
+            </a>
+        </header>
+
+        <div class="p-1 mb-2 bg-light rounded-3">
+            <div class="container-fluid py-2">
+                <h1 class="display-5 fw-bold">Cómo funciona BuscandoMedico.pe:</h1>
+                <div class="row g-0">
+                    <div class="col-auto-6 col-md-5 bg-dark rounded-3 text-center">
+                        <img src="{{url_for('static', filename='img/estetoscopio.png')}}" class="rounded-3" alt="..."
+                            style="width: 19rem;">
+                    </div>
+                    <div class="col-auto-6 col-md-7 ps-2">
+                        <ol>
+                            <li class="fs-4">Eliges el plan de tu interés: Mensual, Semestral o Anual, dependiendo del
+                                plan elegido tus datos serán mostrados en nuestro portal a toda paciente que acceda a
+                                él.</li>
+                            <li class="fs-4">En un periodo de 24 horas posterior al registro se habilitará tu cuenta y
+                                tus datos aparecerán en nuestro portal.</li>
+                            <li class="fs-4">A partir de este momento ya podrás ser encontrado por los pacientes en
+                                nuestro portal.</li>
+                        </ol>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="row align-items-md-stretch">
+            <div class="col-md-6">
+                <div class="h-100 p-5 text-white bg-dark rounded-3">
+                    <h2 class="fw-bolder">Misión</h2>
+                    <div class="fs-5">
+                        <ol>
+                            <li>
+                                <span class="fw-bolder">Qué hacemos?</span> Facilitamos la búsqueda de médicos
+                            </li>
+                            <li>
+                                <span class="fw-bolder">Para quién lo haces?</span> Para todos los pacientes que
+                                necesiten encontrar un médico en un único lugar.
+                            </li>
+                            <li>
+                                <span class="fw-bolder">Cómo lo hacemos?</span> De una manera muy sencilla con un solo
+                                clic.
+                            </li>
+                        </ol>
+                    </div>
+                    <ul>
+                        <li class="fs-5">
+                            Facilitar la búsqueda de médicos a los pacientes de manera rápida y sencilla.
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="h-100 p-5 bg-light border rounded-3">
+                    <h2>Visión</h2>
+                    <div class="fs-5">
+                        <ul>
+                            <li><span class="fw-bolder">Qué queremos llegar a ser?</span>
+                                Nosotros queremos ser el principal portal de búsqueda de médicos para todos los
+                                pacientes del Perú.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 {% include "footer.html" %}
 {% endblock %}

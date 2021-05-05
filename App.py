@@ -32,12 +32,11 @@ codi_depa = 0
 def redirect_heartweb():
     platform = request.user_agent.platform
     browser = request.user_agent.browser
-    bdInfo = BD('m_log')
-    cur = mysql.connection.cursor()
-    cur.execute('INSERT INTO m_log ({}) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'.format(bdInfo.getColumnsTable()),
-                (1, 'INICIO', '', '', '', '', '', '', '', platform, browser, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), None))
-    mysql.connection.commit()
-
+    # bdInfo = BD('m_log')
+    # cur = mysql.connection.cursor()
+    # cur.execute('INSERT INTO m_log ({}) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'.format(bdInfo.getColumnsTable()),
+    #             (1, 'INICIO', '', '', '', '', '', '', '', platform, browser, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), None))
+    # mysql.connection.commit()
     uConsulting = ConsultingBD('department', 'S')
     return render_template('principal.html', departments=uConsulting.execQuery())
 
@@ -99,128 +98,130 @@ def redirect_search_specialty():
 @app.route('/search_specialization', methods=['POST'], defaults={'page': 1})
 # @app.route('/search_specialization/<int:page>', methods=['POST', 'GET'])
 def getSearchSpecialization(page):
-    limit = 5
-    # offset = page*limit - limit
-    slDepartment = request.form.get('slDepartment')
-    slProvince = request.form.get('slProvince')
-    slDistrict = request.form.get('slDistrict')
-    slGenero = request.form.get('slGenero')
-    name_specialization = request.form.get('ipEspecializacion', None)
-    dataObj = {}
-    dataObj['genero'] = slGenero
-    dataObj['departamento'] = slDepartment
-    dataObj['provincia'] = slProvince
-    dataObj['distrito'] = slDistrict
-    form = ""
+    if request.method == 'POST':
+        limit = 5
+        # offset = page*limit - limit
+        slDepartment = request.form.get('slDepartment')
+        slProvince = request.form.get('slProvince')
+        slDistrict = request.form.get('slDistrict')
+        slGenero = request.form.get('slGenero')
+        name_specialization = request.form.get('ipEspecializacion', None)
+        dataObj = {}
+        dataObj['genero'] = slGenero
+        dataObj['departamento'] = slDepartment
+        dataObj['provincia'] = slProvince
+        dataObj['distrito'] = slDistrict
+        form = ""
 
-    slOrder = request.form.get('slOrder', None)
-    orderby = "ORDER BY doc.t_lastname_doctor ASC"
-    if slOrder is not None:
-        form = "RESULTADO_BUSQUEDA"
-        if int(slOrder) > 0:
-            orderby = "ORDER BY prom DESC" if int(
-                slOrder) == 1 else "ORDER BY prom ASC"
+        slOrder = request.form.get('slOrder', None)
+        orderby = "ORDER BY doc.t_lastname_doctor ASC"
+        if slOrder is not None:
+            form = "RESULTADO_BUSQUEDA"
+            if int(slOrder) > 0:
+                orderby = "ORDER BY prom DESC" if int(
+                    slOrder) == 1 else "ORDER BY prom ASC"
+            else:
+                orderby = "ORDER BY doc.t_lastname_doctor ASC"
         else:
-            orderby = "ORDER BY doc.t_lastname_doctor ASC"
-    else:
-        form = "PRINCIPAL"
-        slOrder = 0
+            form = "PRINCIPAL"
+            slOrder = 0
 
-    filterStar = ""
-    slFilterStar = request.form.get('slFilterStar', None)
-    if slFilterStar is not None:
-        form = "RESULTADO_BUSQUEDA"
-        filterStar = f"HAVING prom >= {int(slFilterStar)}" if int(
-            slFilterStar) > 0 else ""
-    else:
-        form = "PRINCIPAL"
-        slFilterStar = 0
+        filterStar = ""
+        slFilterStar = request.form.get('slFilterStar', None)
+        if slFilterStar is not None:
+            form = "RESULTADO_BUSQUEDA"
+            filterStar = f"HAVING prom >= {int(slFilterStar)}" if int(
+                slFilterStar) > 0 else ""
+        else:
+            form = "PRINCIPAL"
+            slFilterStar = 0
 
-    cur = mysql.connection.cursor()
+        cur = mysql.connection.cursor()
 
-    # Pagination
-    cur.execute('SELECT * FROM doctors WHERE n_active = 1')
-    total_row = cur.rowcount
-    total_page = math.ceil(total_row/limit)
-    next_page = page + 1
-    prev_page = page - 1
-    # limit = "LIMIT {0} OFFSET {1}".format(limit, offset)
+        # Pagination
+        cur.execute('SELECT * FROM doctors WHERE n_active = 1')
+        total_row = cur.rowcount
+        total_page = math.ceil(total_row/limit)
+        next_page = page + 1
+        prev_page = page - 1
+        # limit = "LIMIT {0} OFFSET {1}".format(limit, offset)
 
-    # Ubigeo
-    cur.execute('SELECT * FROM department WHERE n_active = 1')
-    dataDepartment = cur.fetchall()
-    slDepartment = 0 if slDepartment is None else slDepartment
-    cur.execute(
-        'SELECT * FROM province WHERE n_active = 1 and cod_department = {}'.format(slDepartment))
-    dataProvince = cur.fetchall()
-    slProvince = 0 if slProvince is None else slProvince
-    cur.execute(
-        'SELECT * FROM district WHERE n_active = 1 and cod_province = {}'.format(slProvince))
-    dataDistrict = cur.fetchall()
+        # Ubigeo
+        cur.execute('SELECT * FROM department WHERE n_active = 1')
+        dataDepartment = cur.fetchall()
+        slDepartment = 0 if slDepartment is None else slDepartment
+        cur.execute(
+            'SELECT * FROM province WHERE n_active = 1 and cod_department = {}'.format(slDepartment))
+        dataProvince = cur.fetchall()
+        slProvince = 0 if slProvince is None else slProvince
+        cur.execute(
+            'SELECT * FROM district WHERE n_active = 1 and cod_province = {}'.format(slProvince))
+        dataDistrict = cur.fetchall()
 
-    # Genero
-    cur.execute('SELECT * FROM gender WHERE n_active = 1')
-    dataGenero = cur.fetchall()
+        # Genero
+        cur.execute('SELECT * FROM gender WHERE n_active = 1')
+        dataGenero = cur.fetchall()
 
-    # Condiciolanes
-    clausulas = ""
-    slGenero = 0 if slGenero is None else slGenero
-    if int(slGenero) > 0:
-        clausulas += ' AND doc.cod_gender_doctor = {}'.format(slGenero)
+        # Condiciolanes
+        clausulas = ""
+        slGenero = 0 if slGenero is None else slGenero
+        if int(slGenero) > 0:
+            clausulas += ' AND doc.cod_gender_doctor = {}'.format(slGenero)
 
-    if int(slDepartment) > 0:
-        clausulas += ' AND doc.cod_office_department = {}'.format(slDepartment)
+        if int(slDepartment) > 0:
+            clausulas += ' AND doc.cod_office_department = {}'.format(
+                slDepartment)
 
-    if int(slProvince) > 0:
-        clausulas += ' AND doc.cod_office_province = {}'.format(slProvince)
+        if int(slProvince) > 0:
+            clausulas += ' AND doc.cod_office_province = {}'.format(slProvince)
 
-    slDistrict = 0 if slDistrict is None else slDistrict
-    if int(slDistrict) > 0:
-        clausulas += ' AND doc.cod_office_district = {}'.format(slDistrict)
+        slDistrict = 0 if slDistrict is None else slDistrict
+        if int(slDistrict) > 0:
+            clausulas += ' AND doc.cod_office_district = {}'.format(slDistrict)
 
-    name_specialization = '' if name_specialization is None else name_specialization
-    if len(name_specialization) > 0:
-        name_specialization = unicodedata.normalize(
-            'NFKD', name_specialization).encode('ASCII', 'ignore').upper().decode("utf-8")
-        clausulas += ' AND sp.t_name_specialty LIKE "%{}%"'.format(
-            name_specialization)
+        name_specialization = '' if name_specialization is None else name_specialization
+        if len(name_specialization) > 0:
+            name_specialization = unicodedata.normalize(
+                'NFKD', name_specialization).encode('ASCII', 'ignore').upper().decode("utf-8")
+            clausulas += ' AND sp.t_name_specialty LIKE "%{}%"'.format(
+                name_specialization)
 
-    query = 'SELECT doc.cod_doctor, ds.t_rne, sp.t_name_specialty, doc.t_name_doctor, doc.t_lastname_doctor, doc.t_dni_doctor,' \
-        ' doc.cod_gender_doctor, doc.t_workphone_1_doctor,doc.t_workphone_2_doctor, doc.t_personalphone_doctor, doc.n_collegiate,' \
-        ' doc.t_collegiate_code, doc.cod_office_department, doc.cod_office_province, doc.cod_office_district, doc.t_office_address,' \
-        ' doc.t_professional_resume, doc.n_years_practicing, doc.n_attend_patients_covid, doc.n_attend_patients_vih, doc.t_current_job_title,' \
-        ' COUNT(con.cod_doctor) AS count_doc, ' \
-        ' CASE WHEN COUNT(con.cod_doctor) > 0 THEN SUM(con.n_clasificacion) ELSE 0 END AS sum_com, ' \
-        ' CASE WHEN COUNT(con.cod_doctor) > 0 THEN ROUND(AVG(con.n_clasificacion),2) ELSE 0 END AS prom' \
-        ' FROM doctors AS doc' \
-        ' INNER JOIN doctor_specialty ds ON doc.cod_doctor = ds.cod_doctor' \
-        ' INNER JOIN especialidad sp ON ds.cod_specialty = sp.cod_specialty' \
-        ' LEFT JOIN comentario AS con ON doc.cod_doctor = con.cod_doctor' \
-        ' WHERE doc.n_active = 1 AND sp.n_active = 1 {0}' \
-        ' GROUP BY doc.cod_doctor, ds.t_rne, sp.t_name_specialty, doc.t_name_doctor, doc.t_lastname_doctor, doc.t_dni_doctor,' \
-        ' doc.cod_gender_doctor, doc.t_workphone_1_doctor,doc.t_workphone_2_doctor, doc.t_personalphone_doctor, doc.n_collegiate,' \
-        ' doc.t_collegiate_code, doc.cod_office_department, doc.cod_office_province, doc.cod_office_district, doc.t_office_address,' \
-        ' doc.t_professional_resume, doc.n_years_practicing, doc.n_attend_patients_covid, doc.n_attend_patients_vih, doc.t_current_job_title' \
-        ' {1}' \
-        ' {2}'.format(clausulas, filterStar, orderby)
-    # ' {3}'.format(clausulas, filterStar, orderby, limit)
-    cur.execute(query)
-    dataDoctors = cur.fetchall()
-    rows_affected = cur.rowcount
+        query = 'SELECT doc.cod_doctor, ds.t_rne, sp.t_name_specialty, doc.t_name_doctor, doc.t_lastname_doctor, doc.t_dni_doctor,' \
+            ' doc.cod_gender_doctor, doc.t_workphone_1_doctor,doc.t_workphone_2_doctor, doc.t_personalphone_doctor, doc.n_collegiate,' \
+            ' doc.t_collegiate_code, doc.cod_office_department, doc.cod_office_province, doc.cod_office_district, doc.t_office_address,' \
+            ' doc.t_professional_resume, doc.n_years_practicing, doc.n_attend_patients_covid, doc.n_attend_patients_vih, doc.t_current_job_title,' \
+            ' COUNT(con.cod_doctor) AS count_doc, ' \
+            ' CASE WHEN COUNT(con.cod_doctor) > 0 THEN SUM(con.n_clasificacion) ELSE 0 END AS sum_com, ' \
+            ' CASE WHEN COUNT(con.cod_doctor) > 0 THEN ROUND(AVG(con.n_clasificacion),2) ELSE 0 END AS prom' \
+            ' FROM doctors AS doc' \
+            ' INNER JOIN doctor_specialty ds ON doc.cod_doctor = ds.cod_doctor' \
+            ' INNER JOIN especialidad sp ON ds.cod_specialty = sp.cod_specialty' \
+            ' LEFT JOIN comentario AS con ON doc.cod_doctor = con.cod_doctor' \
+            ' WHERE doc.n_active = 1 AND sp.n_active = 1 {0}' \
+            ' GROUP BY doc.cod_doctor, ds.t_rne, sp.t_name_specialty, doc.t_name_doctor, doc.t_lastname_doctor, doc.t_dni_doctor,' \
+            ' doc.cod_gender_doctor, doc.t_workphone_1_doctor,doc.t_workphone_2_doctor, doc.t_personalphone_doctor, doc.n_collegiate,' \
+            ' doc.t_collegiate_code, doc.cod_office_department, doc.cod_office_province, doc.cod_office_district, doc.t_office_address,' \
+            ' doc.t_professional_resume, doc.n_years_practicing, doc.n_attend_patients_covid, doc.n_attend_patients_vih, doc.t_current_job_title' \
+            ' {1}' \
+            ' {2}'.format(clausulas, filterStar, orderby)
+        # ' {3}'.format(clausulas, filterStar, orderby, limit)
+        cur.execute(query)
+        dataDoctors = cur.fetchall()
+        rows_affected = cur.rowcount
 
-    platform = request.user_agent.platform
-    browser = request.user_agent.browser
-    cur.execute('''
-    INSERT INTO m_log (n_tipo,t_formulario,t_especialidad_buscada,t_genero,t_departamento,
-    t_provincia,t_distrito,t_medico_buscado,t_cita_inconclusa,t_platform,t_browser,d_creation_date) 
-    VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-    ''', (1, form, name_specialization, slGenero, slDepartment, slProvince, slDistrict, '', '',
-          platform, browser, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
-    mysql.connection.commit()
+        platform = request.user_agent.platform
+        browser = request.user_agent.browser
+        cur.execute('''
+        INSERT INTO m_log (n_tipo,t_formulario,t_especialidad_buscada,t_genero,t_departamento,
+        t_provincia,t_distrito,t_medico_buscado,t_cita_inconclusa,t_platform,t_browser,d_creation_date) 
+        VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        ''', (1, form, name_specialization, slGenero, slDepartment, slProvince, slDistrict, '', '',
+              platform, browser, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
+        mysql.connection.commit()
 
-    return render_template('search-specialty.html', data=dataObj, departments=dataDepartment, provinces=dataProvince, districts=dataDistrict,
-                           generos=dataGenero, doctors=dataDoctors, valueSpecialty=name_specialization, dataOrder=slOrder, dataStar=slFilterStar,
-                           rows_affected=rows_affected, pages=total_page, next=next_page, prev=prev_page, actual_page=page)
+        return render_template('search-specialty.html', data=dataObj, departments=dataDepartment, provinces=dataProvince, districts=dataDistrict,
+                               generos=dataGenero, doctors=dataDoctors, valueSpecialty=name_specialization, dataOrder=slOrder, dataStar=slFilterStar,
+                               rows_affected=rows_affected, pages=total_page, next=next_page, prev=prev_page, actual_page=page)
 
 
 @app.route('/doctor')
@@ -260,19 +261,22 @@ def redirect_contactus():
     uConsulting = ConsultingBD('plans', 'S')
     dataPlanes = uConsulting.execQuery()
 
-    start_hour = datetime.datetime.strptime("03:00", "%H:%M")
-    hoursArray = []
-    for i in range(1, (24 - int(start_hour.hour) + 1)):
-        hoursObj = {}
-        next_hour = start_hour + timedelta(hours=1)
-        hoursObj['id'] = i
-        hoursObj['value'] = start_hour.strftime(
-            "%I:%M %p") + " - " + next_hour.strftime("%I:%M %p")
-        hoursArray.append(hoursObj)
-        start_hour = next_hour
+    uConsulting = ConsultingBD('contact_time;', 'S')
+    dateHours = uConsulting.execQuery()
+
+    # start_hour = datetime.datetime.strptime("03:00", "%H:%M")
+    # hoursArray = []
+    # for i in range(1, (24 - int(start_hour.hour) + 1)):
+    #     hoursObj = {}
+    #     next_hour = start_hour + timedelta(hours=1)
+    #     hoursObj['id'] = i
+    #     hoursObj['value'] = start_hour.strftime(
+    #         "%I:%M %p") + " - " + next_hour.strftime("%I:%M %p")
+    #     hoursArray.append(hoursObj)
+    #     start_hour = next_hour
 
     return render_template('contact-us.html', specializations=dataEspecialidades, currentdate=currentdate, planes=dataPlanes,
-                           hours=hoursArray)
+                           hours=dateHours)
 
 
 @app.route('/about_us')
@@ -294,6 +298,9 @@ def redirect_medical_date(id):
     cur.execute(query)
     data = cur.fetchall()
 
+    uConsulting = ConsultingBD('contact_time', 'S')
+    dateHours = uConsulting.execQuery()
+
     start_hour = datetime.datetime.strptime("03:00", "%H:%M")
     hoursArray = []
     for i in range(1, (24 - int(start_hour.hour) + 1)):
@@ -305,7 +312,7 @@ def redirect_medical_date(id):
         hoursArray.append(hoursObj)
         start_hour = next_hour
 
-    return render_template('book-appointment.html', currentdate=currentdate, hours=hoursArray, doctor=data[0])
+    return render_template('book-appointment.html', currentdate=currentdate, hours=dateHours, doctor=data[0])
 
 
 @app.route('/more_information/<id>')
@@ -547,12 +554,17 @@ def add_contactus():
         plan = request.form['plan']
         value = True
 
+        year_old = datetime.datetime.strptime(birthday, "%Y-%m-%d").year
+        year_now = datetime.datetime.now().year
+        # print("Debe ser mayor de edad para poder registrarse en nuestra web!!!"
+        #       if (int(year_now) - int(year_old)) < 18 else True)
+
         if not fullname:
             value = False
             flash("Nombre y Apellido vacío")
-        elif not birthday:
+        elif (int(year_now) - int(year_old)) < 18:
             value = False
-            flash("Fecha de nacimiento vacío")
+            flash("Error, debe ser mayor de edad para poder registrarse en nuestra web!!!")
         elif gender == '0':
             value = False
             flash("Error, no ha seleccionado su genero")
@@ -576,10 +588,31 @@ def add_contactus():
         statement = f"INSERT INTO contactus ({columns}) VALUES ({arg})"
         values = (fullname, birthday, gender, phone, email,
                   slSpecialty, question, contact_time, plan, date_insert)
-        # cur.execute(statement, values)
-        # mysql.connection.commit()
-        flash('Specialization Updated Successfully')
+        cur.execute(statement, values)
+        mysql.connection.commit()
+        flash('Excelente!!! \n Su consuta será respondida en unos minutos a su correo electrónico')
         return redirect(url_for('redirect_contactus'))
+
+
+@app.route('/add_date', methods=['POST'])
+def add_date():
+    if request.method == 'POST':
+        fullname = request.form['fullname']
+        dni = request.form['dni']
+        phone = request.form['phone']
+        email = request.form['email']
+        date_day = request.form['date_day']
+        contact_time = request.form['contact_time']
+        date_insert = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        cur = mysql.connection.cursor()
+        cur.execute('INSERT INTO book_appointment (t_full_name, t_dni, t_phone_number, t_email, d_date, t_hour, d_creation_date) '
+                    'VALUES(%s, %s, %s, %s, %s, %s, %s)',
+                    (fullname, dni, phone, email, date_day, contact_time, date_insert))
+        mysql.connection.commit()
+        flash('La reserva de su cita ha sido generada correctamente, pronto le llegará un correo y un mensaje'
+              ' de texto recordandole la fecha y hora de su cita')
+        return redirect(url_for('redirect_heartweb'))
 
 
 # Section of to update in database

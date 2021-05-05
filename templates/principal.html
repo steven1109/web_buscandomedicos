@@ -4,6 +4,28 @@
 <div class="container pt-2">
     <div class="row justify-content-center">
         <div class="col-12 col-md-10 col-lg-8">
+            <!-- Confirmation Messages -->
+            {% with messages = get_flashed_messages() %}
+            {% if messages %}
+            {% for message in messages %}
+            {% if 'vacío' in message or 'vacío' in message %}
+            {% set alert_status = 'alert-danger' %}
+            {% else %}
+            {% set alert_status = 'alert-success' %}
+            {% endif %}
+            <div class="alert alert-success" role="alert">
+                <div class="d-flex justify-content-between">
+                    <h2 class="alert-heading">Excelente!!!</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                <p>{{message}}</p>
+                <hr>
+                <p class="mb-0">Le avisaremos un día antes a su cita para que no la pierda.</p>
+            </div>
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
+
             <form action="/search_specialization" method="post" class="card card-lg">
                 <div class="card-body row no-gutters align-items-center mt-5">
                     <!-- <img src="{{url_for('static', filename='img/undraw_medicine_b1ol.svg')}}" class="img-fluid" alt="..."> -->
@@ -14,7 +36,6 @@
                 <div class="card-body row no-gutters align-items-center mt-2">
                     <div class="col-auto">
                         <i class="fas fa-search h2"></i>
-                        <!-- <i class="fab fa-sistrix h3 text-body"></i> -->
                     </div>
                     <!--end of col-->
                     <div class="col">

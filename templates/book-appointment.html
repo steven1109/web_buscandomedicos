@@ -17,11 +17,10 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
         {% endfor %}
-        <p>{{form}}</p>
         {% endif %}
         {% endwith %}
 
-        <form action="/add_contactus" method="post">
+        <form action="/add_date" method="post" onsubmit="return Validate();">
             <div class="d-flex justify-content-center mt-4">
                 <label class="form-label fs-4">RESERVA TU CITA</label>
             </div>
@@ -32,7 +31,7 @@
                 </div>
                 <div class="col-md">
                     <input type="text" name="fullname" class="form-control form-control-lg"
-                        value="{{ form.fullname if form else '' }}" />
+                        value="{{ form.fullname if form else '' }}" required />
                 </div>
             </div>
 
@@ -42,7 +41,7 @@
                 </div>
                 <div class="col-sm-5">
                     <input type="text" name="dni" class="form-control form-control-lg"
-                        value="{{ form.dni if form else '' }}" />
+                        value="{{ form.dni if form else '' }}" required />
                 </div>
             </div>
 
@@ -52,7 +51,7 @@
                 </div>
                 <div class="col-sm-5">
                     <input type="text" name="phone" class="form-control form-control-lg"
-                        value="{{ form.phone if form else '' }}" />
+                        value="{{ form.phone if form else '' }}" required />
                 </div>
             </div>
 
@@ -62,7 +61,7 @@
                 </div>
                 <div class="col-sm-5">
                     <input type="email" name="email" class="form-control form-control-lg"
-                        value="{{ form.email if form else '' }}" />
+                        value="{{ form.email if form else '' }}" required />
                 </div>
             </div>
 
@@ -71,8 +70,8 @@
                     <p class="form-label fs-5 text-end" for="date">Fecha de Cita:</p>
                 </div>
                 <div class="col-sm-5">
-                    <input type="date" name="date_day" id="date" class="form-control form-control-lg"
-                        value="{{ form.date_day if form else currentdate }}" />
+                    <input type="date" name="date_day" id="date_day" class="form-control form-control-lg"
+                        value="{{ form.date_day if form else currentdate }}" required />
                 </div>
             </div>
 
@@ -81,10 +80,11 @@
                     <p class="form-label fs-5 text-end" for="date">Hora de cita:</p>
                 </div>
                 <div class="col-sm-5">
-                    <select class="form-select form-select-lg" aria-label=".form-select-lg example" name="contact_time">
+                    <select class="form-select form-select-lg" aria-label=".form-select-lg example" name="contact_time"
+                        id="dpHours">
                         <option value="0" selected>--- SELECCIONE LA HORA ---</option>
                         {% for hour in hours %}
-                        <option value="{{hour.id}}">{{hour.value}}</option>
+                        <option value="{{hour.0}}">{{hour.1}}</option>
                         {% endfor %}
                     </select>
                 </div>
@@ -92,7 +92,7 @@
 
             <div class="d-grid gap-2 d-md-flex justify-content-md-center mb-3 mt-3">
                 <button type="submit" class="btn btn-primary btn-lg me-md-2">Reservar</button>
-                <a href="/" class="btn btn-danger btn-lg">Cancelar</a>
+                <a href="/" class="btn btn-danger btn-lg btn-cancel-date">Cancelar</a>
             </div>
 
         </form>
@@ -133,7 +133,7 @@
                         {% for hour in hours %}
                         <tr>
                             <th scope="row">
-                                <div class="p-2 bd-highlight text-center">{{hour.value}}</div>
+                                <div class="p-2 bd-highlight text-center">{{hour.1}}</div>
                             </th>
                             <td>
                                 <div class="p-2 bd-highlight text-center text-success">Libre</div>
@@ -164,5 +164,37 @@
         </div>
     </div>
 </div>
+
+<script>
+    const btnCanceldate = document.querySelectorAll('.btn-cancel-date');
+
+    if (btnCanceldate) {
+        const btnArray = Array.from(btnCanceldate);
+        btnArray.forEach((btn) => {
+            btn.addEventListener('click', (e) => {
+                if (!confirm('Quieres cancelar la reserva de tu cita?')) {
+                    e.preventDefault();
+                }
+            });
+        });
+    };
+
+    function Validate() {
+        var hours_date = document.getElementById("dpHours");
+        var day_date = document.getElementById("date_day").value;
+        var ToDate = new Date();
+
+        if (new Date(day_date).getTime() <= ToDate.getTime()) {
+            alert("La fecha de la cita no debe ser anterior a la fecha actual!!");
+            return false;
+        }
+
+        if (hours_date.value == 0) {
+            alert("Debe seleccionar una hora!!!");
+            return false;
+        }
+        return true;
+    }
+</script>
 
 {% endblock %}

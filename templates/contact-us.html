@@ -17,7 +17,6 @@
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
     {% endfor %}
-    <p>{{form}}</p>
     {% endif %}
     {% endwith %}
 
@@ -112,7 +111,7 @@
           <select class="form-select form-select-lg" aria-label=".form-select-lg example" name="contact_time">
             <option value="0" selected>--- SELECCIONE LA HORA ---</option>
             {% for hour in hours %}
-            <option value="{{hour.id}}">{{hour.value}}</option>
+            <option value="{{hour.0}}">{{hour.1}}</option>
             {% endfor %}
           </select>
         </div>
