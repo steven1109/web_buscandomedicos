@@ -30,20 +30,17 @@ codi_depa = 0
 
 @app.route('/')
 def redirect_heartweb():
-    platform = request.user_agent.platform
-    browser = request.user_agent.browser
-    # bdInfo = BD('m_log')
-    # cur = mysql.connection.cursor()
-    # cur.execute('INSERT INTO m_log ({}) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'.format(bdInfo.getColumnsTable()),
-    #             (1, 'INICIO', '', '', '', '', '', '', '', platform, browser, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), None))
-    # mysql.connection.commit()
-    uConsulting = ConsultingBD('department', 'S')
-    return render_template('principal.html', departments=uConsulting.execQuery())
+    cur = mysql.connection.cursor()
+    cur.execute("""
+    SELECT * FROM department WHERE n_active = 1
+    """)
+    dataDepartments = cur.fetchall()
+    return render_template('principal.html', departments=dataDepartments)
 
 
 @app.route('/login')
 def redirect_login():
-    return render_template('login.html')
+    return render_template('sign-in.html')
 
 
 @app.route('/department')
@@ -253,30 +250,27 @@ def redirect_specialization():
 
 @app.route('/contact_us')
 def redirect_contactus():
-    currentdate = datetime.datetime.now().strftime("%Y-%m-%d")
+    if request.method == 'GET':
+        currentdate = datetime.datetime.now().strftime("%Y-%m-%d")
 
-    uConsulting = ConsultingBD('especialidad', 'S')
-    dataEspecialidades = uConsulting.execQuery()
+        cur = mysql.connection.cursor()
+        cur.execute("""
+        SELECT * FROM especialidad WHERE n_active = 1
+        """)
+        dataEspecialidades = cur.fetchall()
 
-    uConsulting = ConsultingBD('plans', 'S')
-    dataPlanes = uConsulting.execQuery()
+        cur.execute("""
+        SELECT * FROM plans WHERE n_active = 1
+        """)
+        dataPlanes = cur.fetchall()
 
-    uConsulting = ConsultingBD('contact_time;', 'S')
-    dateHours = uConsulting.execQuery()
+        cur.execute("""
+        SELECT * FROM contact_time WHERE n_active = 1
+        """)
+        dateHours = cur.fetchall()
 
-    # start_hour = datetime.datetime.strptime("03:00", "%H:%M")
-    # hoursArray = []
-    # for i in range(1, (24 - int(start_hour.hour) + 1)):
-    #     hoursObj = {}
-    #     next_hour = start_hour + timedelta(hours=1)
-    #     hoursObj['id'] = i
-    #     hoursObj['value'] = start_hour.strftime(
-    #         "%I:%M %p") + " - " + next_hour.strftime("%I:%M %p")
-    #     hoursArray.append(hoursObj)
-    #     start_hour = next_hour
-
-    return render_template('contact-us.html', specializations=dataEspecialidades, currentdate=currentdate, planes=dataPlanes,
-                           hours=dateHours)
+        return render_template('contact-us.html', specializations=dataEspecialidades, currentdate=currentdate, planes=dataPlanes,
+                               hours=dateHours)
 
 
 @app.route('/about_us')
@@ -320,22 +314,23 @@ def redirect_more_information(id):
     return render_template('more-information.html', id_doctor=id)
 
 
-# @app.route('/sign_in', methods=['POST'])
-# def redirect_admin():
-#     if request.method == 'POST':
-#         username = request.form['username']
-#         password = request.form['password']
-#         print(username, password)
-#         return render_template('dashboard/index.html')
 @app.route('/sign_in', methods=['GET', 'POST'])
 def redirect_admin():
-    error = None
+    query = "select t_name_user, t_password_user from users;"
+    cur = mysql.connection.cursor()
+    cur.execute(query)
+    data = cur.fetchall()
+    json_users = {}
+
+    for key in data:
+        json_users[key[0]] = key[1]
+
     if request.method == 'POST':
-        if request.form['username'] != 'admin' or request.form['password'] != 'admin':
-            error = 'Invalid Credentials. Please try again.'
+        if request.form['username'] in json_users and request.form['password'] == json_users[request.form['username']]:
+            return redirect(url_for('redirect_admin_panel'))
         else:
-            return render_template('dashboard/index.html')
-    # return render_template('login.html', error=error)
+            flash('Usuario o contraseña incorrecta')
+    
     return redirect(url_for('redirect_login'))
 
 
@@ -564,7 +559,8 @@ def add_contactus():
             flash("Nombre y Apellido vacío")
         elif (int(year_now) - int(year_old)) < 18:
             value = False
-            flash("Error, debe ser mayor de edad para poder registrarse en nuestra web!!!")
+            flash(
+                "Error, debe ser mayor de edad para poder registrarse en nuestra web!!!")
         elif gender == '0':
             value = False
             flash("Error, no ha seleccionado su genero")
@@ -581,15 +577,25 @@ def add_contactus():
         if not value:
             return render_template('contact-us.html', form=request.form)
 
+        cur = mysql.connection.cursor()
         date_insert = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         columns = "t_fullname,d_birthday,n_gender,n_phone,t_email,cod_specialty,t_your_question,t_contact_time,cod_plan,d_creation_date"
         arg = ','.join('%s' for v in columns.split(','))
-        cur = mysql.connection.cursor()
         statement = f"INSERT INTO contactus ({columns}) VALUES ({arg})"
         values = (fullname, birthday, gender, phone, email,
                   slSpecialty, question, contact_time, plan, date_insert)
         cur.execute(statement, values)
         mysql.connection.commit()
+
+        lastContactusId = cur.execute('select last_insert_id() from contactus')
+        date_insert = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        columns = "cod_client,n_email_send,n_resolved_question,n_customer_paid,d_creation_date"
+        arg = ','.join('%s' for v in columns.split(','))
+        statement = f"INSERT INTO managment_contactus ({columns}) VALUES ({arg})"
+        values = (lastContactusId, 0, 0, 0, date_insert)
+        cur.execute(statement, values)
+        mysql.connection.commit()
+
         flash('Excelente!!! \n Su consuta será respondida en unos minutos a su correo electrónico')
         return redirect(url_for('redirect_contactus'))
 
